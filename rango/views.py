@@ -12,8 +12,12 @@ def index(request):
     context_dict = {'categories': category_list }
     return render(request, 'rango/index.html', context=context_dict)
 
+
 def category_list(request,slug):
-    categroy=Category.objects.filter(slug=slug)[0]
-    page_list=Page.objects.filter(category=categroy)
-    context_dict = { 'pages': page_list }
+    try:
+        categroy=Category.objects.get(slug=slug)
+        page_list=Page.objects.filter(category=categroy)
+        context_dict = { 'pages': page_list, 'category': categroy}
+    except Category.DoesNotExist:
+        context_dict = {'pages': None, 'category': None}
     return render(request, 'rango/category_list.html', context=context_dict)
