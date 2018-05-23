@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load staticfiles %}
+{% load rango_templatetags %}
 <html>
     <head>
         <title>
@@ -11,6 +12,20 @@
     </head>
     <body>
         <div>
+            <div>
+                {% if user.is_authenticated %}
+                    hi,{{ user.username}}
+                {% else %}
+                    hey,parner
+                {% endif %}
+                {% block sidebar_block %}
+                    {% if act_cat %}
+                        {% get_category_list act_cat %}
+                    {% else %}
+                        {% get_category_list %}
+                    {% endif %}
+                {% endblock %}
+            </div>
             {% block body_block %}
             {% endblock %}
         </div>
@@ -18,7 +33,14 @@
         <hr />
         <div>
             <ul>
-                <li><a href="{% url 'add_category' %}">Add New Category</a></li>
+                {% if not user.is_authenticated %}
+                    <li><a href="{% url 'register' %}">Sign up</a></li>
+                    <li><a href="{% url 'login' %}">Login</a></li>
+                {% else %}
+                    <li><a href="{% url 'restricted' %}">Restricted Page</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% endif %}
+                <li><a href="{% url 'add_category' %}">Add a New Category</a></li>
                 <li><a href="{% url 'about' %}">About</a></li>
                 <li><a href="{% url 'index' %}">Index</a></li>
             </ul>
