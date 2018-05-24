@@ -1,13 +1,9 @@
-<ul>
-    {% for cat in cats %}
+ {% for cat in cats %}
         {% if cat == act_cat %}
-            <strong>
-            <li><a href="{% url 'category_list' cat.slug %}">{{ cat.name }}</a></li>
-            </strong>
+            <li class="active"><a href="{% url 'category_list' cat.slug %}">{{ cat.name }}</a></li>
         {% else %}
             <li><a href="{% url 'category_list' cat.slug %}">{{ cat.name }}</a></li>
         {% endif %}
     {% empty %}
         <li> <strong>There are no category present.</strong></li>
-    {% endfor %}
-</ul>
+ {% endfor %}

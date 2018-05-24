@@ -1,19 +1,24 @@
 {% extends 'rango/base.html' %}
 {% load staticfiles %}
+{% load bootstrap3 %}
 {% block body_block %}
-    {% if category %}
-        <h1>{{ category.name }}</h1>
-        {% if pages %}
-        <ul>
-            {% for page in pages %}
-            <li><a href="{{ page.url}}">{{ page.title }}</a></li>
-            {% endfor %}
-        </ul>
-        {% else %}
-            <strong>There are no pages present.</strong>
-        {% endif %}
-    {% else %}
-        The specified category does not exist!
-    {% endif %}
-    <ul><li><a href="{% url 'add_page' category.slug %}">Add Page</a></li></ul>
+    <div class="container">
+        <div class="row">
+            {% if category %}
+                <h1>{{ category.name }}</h1>
+                {% if pages %}
+                <ul>
+                    {% for page in pages %}
+                    <li><a href="{{ page.url}}">{{ page.title }}</a></li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                    <strong>There are no pages present.</strong>
+                {% endif %}
+            {% else %}
+                The specified category does not exist!
+            {% endif %}
+            <ul><li><a href="{% url 'add_page' category.slug %}">Add Page</a></li></ul>
+        </div>
+    </div>
 {% endblock %}

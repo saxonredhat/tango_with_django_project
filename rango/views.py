@@ -8,13 +8,53 @@ from rango.forms import CategoryForm, PageForm, UserForm, UserProfileForm
 from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from datetime import datetime
+
+
+def get_server_side_cookie(request, cookie, default_val=None):
+    val = request.session.get(cookie)
+    if not val:
+        val = default_val
+    return val
+
+
+def visitor_cookie_handler(request):
+    visit_cookie = int(request.session.get('visits', '1'))
+    last_visit_cookie = request.session.get('last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
+    if (datetime.now()-last_visit_time).seconds > 3:
+        visits = visit_cookie+1
+        last_visit = str(datetime.now())
+    else:
+        visits = visit_cookie
+        last_visit = last_visit_cookie
+    request.session['visits'] = visits
+    request.session['last_visit'] = last_visit
+    print request.session['visits'],request.session['last_visit']
 
 
 def index(request):
+    request.session.set_test_cookie()
     #context_dict= {'boldmessage': "Crunchy, creamy, cookie, candy, cupcake!"}
     category_list = Category.objects.order_by('-likes')[:5]
-    context_dict = {'categories': category_list }
-    return render(request, 'rango/index.html', context=context_dict)
+    context_dict = {'categories': category_list}
+    visitor_cookie_handler(request)
+    context_dict['visits'] = request.session['visits']
+
+    response = render(request, 'rango/index.html', context=context_dict)
+
+    return response
+
+
+def test(request):
+    return render(request, 'rango/test.html')
+
+
+def about(request):
+    #if request.session.test_cookie_worked():
+    #    print "TEST COOKIE WORKED!"
+    #request.session.delete_test_cookie()
+    return render(request, 'rango/about.html')
 
 
 def register(request):
@@ -82,10 +122,6 @@ def category_list(request, slug):
     except Category.DoesNotExist:
         context_dict = {'pages': None, 'category': None}
     return render(request, 'rango/category_list.html', context=context_dict)
-
-
-def about(request):
-    return render(request, 'rango/about.html')
 
 
 def add_category(request):

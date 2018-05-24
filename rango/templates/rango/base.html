@@ -1,49 +1,54 @@
 <!DOCTYPE html>
 {% load staticfiles %}
 {% load rango_templatetags %}
+{% load bootstrap %}
 <html>
     <head>
-        <title>
-            Rango -
-            {% block title_block %}
-            How to Tango with Django!
-            {% endblock %}
-        </title>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width,initial-scale=1, shrink-to-fit=no">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <link rel="icon" href="{% static 'images/favicon.ico' %}">
+        <title>Rango - {% block title %}How to Tango with Django!{% endblock %}</title>
+        <link href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     </head>
-    <body>
-        <div>
-            <div>
-                {% if user.is_authenticated %}
-                    hi,{{ user.username}}
-                {% else %}
-                    hey,parner
-                {% endif %}
-                {% block sidebar_block %}
-                    {% if act_cat %}
-                        {% get_category_list act_cat %}
-                    {% else %}
-                        {% get_category_list %}
-                    {% endif %}
-                {% endblock %}
-            </div>
-            {% block body_block %}
-            {% endblock %}
-        </div>
-
-        <hr />
-        <div>
-            <ul>
-                {% if not user.is_authenticated %}
-                    <li><a href="{% url 'register' %}">Sign up</a></li>
-                    <li><a href="{% url 'login' %}">Login</a></li>
-                {% else %}
-                    <li><a href="{% url 'restricted' %}">Restricted Page</a></li>
-                    <li><a href="{% url 'logout' %}">Logout</a></li>
-                {% endif %}
-                <li><a href="{% url 'add_category' %}">Add a New Category</a></li>
+<body>
+    <div class="container">
+        <div class="row">
+            <ul class="nav nav-pills">
+                <li class="active"><a href="{% url 'index' %}">Home</a></li>
                 <li><a href="{% url 'about' %}">About</a></li>
-                <li><a href="{% url 'index' %}">Index</a></li>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                        Categories<span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% if act_cat %}
+                            {% get_category_list act_cat %}
+                        {% else %}
+                            {% get_category_list %}
+                        {% endif %}
+                    </ul>
+
+                </li>
+                {% if not user.is_authenticated %}
+                    <li><a href="{% url 'registration_register' %}">Sign up</a></li>
+                    <li><a href="{% url 'auth_login' %}">Login</a></li>
+                {% else %}
+                    <li><a href="{% url 'add_category' %}">Add a New Category</a></li>
+                    <li><a href="{% url 'restricted' %}">Restricted Page</a></li>
+                    <li><a href="{% url 'auth_logout' %}?next=/rango/">Logout</a></li>
+                {% endif %}
+
             </ul>
         </div>
-    </body>
+    </div>
+        {% block body_block %}
+        {% endblock %}
+    <hr />
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="{% static 'js/rango-jquery.js' %}"></script>
+	<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</body>
 </html>

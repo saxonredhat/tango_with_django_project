@@ -4,19 +4,21 @@
 rango Home
 {% endblock %}
 {% block body_block %}
-    <h1>Rango says...</h1>
-    <div>hey there partner!</div>
-    {% if categories %}
-    <ul>
-        {% for category in categories %}
-        <li><a href="{% url 'category_list' category.slug %}">{{ category.name }}</a></li>
-        {% endfor %}
-    </ul>
-    {% else %}
-        <strong>There are no categories present.</strong>
-    {% endif %}
-
-    <div>
-        <img src="{% static 'images/rango.jpg' %}" alt="Picture of Rango" />
+    <div class="container">
+        <div class="row">
+            <div class="jumbotron">
+                <h1 class="display-3">Rango says...</h1>
+                {% if user.is_authenticated %}
+                <h1>hey there {{ user.username }}!</h1>
+                {% else %}
+                <h1>hey there partner! </h1>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 col-md-offset-2">
+                <img src="{% static 'images/rango.jpg' %}" alt="Picture of Rango" />
+            </div>
+        </div>
     </div>
 {% endblock %}
