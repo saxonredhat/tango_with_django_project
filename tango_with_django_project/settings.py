@@ -56,7 +56,7 @@ MIDDLEWARE_CLASSES = [
 ]
 
 #SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_COOKIE_AGE = 100
+SESSION_COOKIE_AGE = 10000
 ROOT_URLCONF = 'tango_with_django_project.urls'
 
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')

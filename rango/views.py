@@ -33,6 +33,17 @@ def visitor_cookie_handler(request):
     print request.session['visits'],request.session['last_visit']
 
 
+def user_can_like(request):
+    last_visit_cookie = request.session.get('last_visit_like', str(datetime.now()))
+    last_visit_like = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
+    print (datetime.now()-last_visit_like).seconds
+    if (datetime.now()-last_visit_like).seconds > 300:
+        request.session['last_visit_like'] = str(datetime.now())
+        return True
+    request.session['last_visit_like'] = last_visit_cookie
+    return False
+
+
 def index(request):
     request.session.set_test_cookie()
     #context_dict= {'boldmessage': "Crunchy, creamy, cookie, candy, cupcake!"}
@@ -55,6 +66,24 @@ def about(request):
     #    print "TEST COOKIE WORKED!"
     #request.session.delete_test_cookie()
     return render(request, 'rango/about.html')
+
+
+@login_required
+def like_category(request):
+    cat_id = None
+    if request.method == 'GET':
+        cat_id = request.GET['category_id']
+
+    likes = 0
+
+    if cat_id:
+        cat = Category.objects.get(id=int(cat_id))
+        if cat:
+            likes = cat.likes + 1
+            cat.likes = likes
+            cat.save()
+
+    return HttpResponse(likes)
 
 
 def register(request):

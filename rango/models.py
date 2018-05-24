@@ -10,6 +10,7 @@ class Category(models.Model):
     name = models.CharField(max_length=128, unique=True)
     likes = models.IntegerField(default=0)
     slug = models.SlugField(blank=True,null=False,unique=True)
+    likes = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name)

@@ -6,6 +6,17 @@
         <div class="row">
             {% if category %}
                 <h1>{{ category.name }}</h1>
+                <span id="like_count">
+                        {{ category.likes }}
+                </span> likes
+                <br>
+                <br>
+                    <button id="likes" data-catid="{{category.id}}" class="btn btn-success">
+                        <span class="glyphicon glyphicon-thumbs-up"></span>
+                        Like
+                    </button>
+
+                <br>
                 {% if pages %}
                 <ul>
                     {% for page in pages %}
@@ -15,6 +26,7 @@
                 {% else %}
                     <strong>There are no pages present.</strong>
                 {% endif %}
+
             {% else %}
                 The specified category does not exist!
             {% endif %}
