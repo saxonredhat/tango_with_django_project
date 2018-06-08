@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+    <script src="https://www.runoob.com/try/jquery/jquery-accordion/jquery.accordion.js"></script>
+    <script>
+
+        $(function () {
+            $.get("/rango/get_provinces",function(json_data){
+                $.each($.parseJSON(json_data), function(idx, obj) {
+                    if (idx == 0){
+                        $("#select_1").append('<option name="province" value='+obj.id+' selected="selected">'+obj.name+'</option>');
+                    }
+                    else{
+                        $("#select_1").append('<option name="province" value='+obj.id+'>'+obj.name+'</option>');
+                    }
+                });
+            });
+            $("#select_1").change(function(){
+                $.get("/rango/get_cities/"+$(this).val(),function(json_data){
+                    $("#select_2").empty();
+                    $("#select_3").empty();
+                    $("#select_4").empty();
+                    $("#select_5").empty();
+                    $.each($.parseJSON(json_data), function(idx, obj) {
+                    if (idx == 0){
+                        $("#select_2").append('<option name="city" value='+obj.id+' selected="selected">'+obj.name+'</option>');
+                    }
+                    else{
+                        $("#select_2").append('<option name="city" value='+obj.id+'>'+obj.name+'</option>');
+                    }
+                   });
+                });
+                $.get("/rango/get_districts/"+$(this).val(),function(json_data){
+                        $("#select_3").empty();
+                        $("#select_4").empty();
+                        $("#select_5").empty();
+                        $.each($.parseJSON(json_data), function(idx, obj) {
+                        if (idx == 0){
+                            $("#select_3").append('<option name="city" value='+obj.id+' selected="selected">'+obj.name+'</option>');
+                        }
+                        else{
+                            $("#select_3").append('<option name="city" value='+obj.id+'>'+obj.name+'</option>');
+                        }
+                       });
+                 });
+
+            });
+
+            $("#select_2").change(function(){
+                    $.get("/rango/get_districts/"+$(this).val(),function(json_data){
+                        $("#select_3").empty();
+                        $("#select_4").empty();
+                        $("#select_5").empty();
+                        $.each($.parseJSON(json_data), function(idx, obj) {
+                        if (idx == 0){
+                            $("#select_3").append('<option name="city" value='+obj.id+' selected="selected">'+obj.name+'</option>');
+                        }
+                        else{
+                            $("#select_3").append('<option name="city" value='+obj.id+'>'+obj.name+'</option>');
+                        }
+                       });
+                    });
+
+            });
+
+            $("#select_3").change(function(){
+                $.get("/rango/get_towns/"+$(this).val(),function(json_data){
+                    $("#select_4").empty();
+                    $("#select_5").empty();
+                    $.each($.parseJSON(json_data), function(idx, obj) {
+                    if (idx == 0){
+                        $("#select_4").append('<option name="city" value='+obj.id+' selected="selected">'+obj.name+'</option>');
+                    }
+                    else{
+                        $("#select_4").append('<option name="city" value='+obj.id+'>'+obj.name+'</option>');
+                    }
+                   });
+                });
+            });
+            $("#select_4").change(function(){
+                $.get("/rango/get_villages/"+$(this).val(),function(json_data){
+                    $("#select_5").empty();
+                    $.each($.parseJSON(json_data), function(idx, obj) {
+                    if (idx == 0){
+                        $("#select_5").append('<option name="city" value='+obj.id+' selected="selected">'+obj.name+'</option>');
+                    }
+                    else{
+                        $("#select_5").append('<option name="city" value='+obj.id+'>'+obj.name+'</option>');
+                    }
+                   });
+                });
+            });
+            $('#list1a').accordion();
+
+
+        });
+
+    </script>
+</head>
+<body>
+<select id="select_1">
+</select>
+<select id="select_2">
+</select>
+<select id="select_3">
+</select>
+<select id="select_4">
+</select>
+<select id="select_5">
+</select>
+<div id="key">
+
+</div>
+<div class="basic ui-accordion selected" id="lista">
+    <a>a</a>
+    <div>
+        <p>
+            aaaaaaaaaaaaaaa
+        </p>
+    </div>
+    <a>b</a>
+    <div>
+        <p>
+            bbbbbbbbbbbbbbbbbbb
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

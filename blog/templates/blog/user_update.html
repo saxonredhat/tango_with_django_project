@@ -1,0 +1,24 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% block body %}
+    <div class="container">
+        <div class="form row">
+            <h5 class="col-md-offset-3">
+                        <span class="glyphicon glyphicon-user"></span>
+                        用户管理
+                        <span class="glyphicon glyphicon-menu-right"></span>
+                            {{username}}
+                        <span class="glyphicon glyphicon-menu-right"></span>
+                        编辑
+            </h5>
+           <form action="" method="post" class="form-horizontal col-md-offset-3 col-md-4"  id="user_form">
+
+                    {% csrf_token %}
+
+                    {% bootstrap_form user_form %}
+                    <input class="btn btn-success" type="submit" value="保存">
+            </form>
+        </div>
+    </div>
+{% endblock %}

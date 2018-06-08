@@ -1,0 +1,116 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+{% load blog_templatetags %}
+{% block body %}
+    <div class="container">
+        <div class="row" style="height:12vh;">
+            {% if messages %}
+                {% for message in messages %}
+                <div {% if message.tags == "error" %}
+                        class="alert alert-danger col-md-2" role="alert"
+                     {% else %}
+                        class="alert alert-success col-md-2" role="alert"
+                     {% endif %}
+                >
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form row">
+            <h4>
+                <span class="glyphicon glyphicon-user"></span> 角色管理
+                <span class="glyphicon glyphicon-menu-right"></span> {{mygroup.name}}
+                <span class="glyphicon glyphicon-menu-right"></span> 权限
+            </h4>
+            <table class="table table-striped table-bordered table-hover table-responsive">
+                <tr>
+                    <th>
+                        id
+                    </th>
+                    <th>
+                        权限名称
+                    </th>
+                    <th>
+                        权限码
+                    </th>
+                    <th>
+                        对象
+                    </th>
+                    <th>
+                        拥有权限
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                </tr>
+            {% for myperm in myperms %}
+                <tr>
+                    <td>
+                        {{myperm.id}}
+                    </td>
+                    <td>
+                        {{myperm.name}}
+                    </td>
+                    <td>
+                        {{myperm.codename}}
+                    </td>
+                    <td>
+                        {{myperm.content_type.app_label}}.{{myperm.content_type.model}}
+                    </td>
+                    <td>
+                        {% ifgroupperm mygroup myperm.id %}
+                            <span class="glyphicon glyphicon-ok text-success"></span>
+                        {% else %}
+                            <span class="glyphicon glyphicon-remove text-danger"></span>
+                        {% endifgroupperm %}
+                    </td>
+                    <td>
+                        {% ifgroupperm mygroup myperm.id %}
+                            <a href="{% url 'group_remove_perm' mygroup.id myperm.id %}?page={{myperms.number}}">
+                                <button class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span> 撤权</button>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'group_add_perm' mygroup.id myperm.id %}?page={{myperms.number}}">
+                                <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> 授权</button>
+                            </a>
+                        {% endifgroupperm %}
+                    </td>
+                </tr>
+            {% empty %}
+            no groups
+            {% endfor %}
+            </table>
+            <div class="pagination row">
+                <span class="step-links col-md-7">
+                    {% if myperms.has_previous %}
+                        <a href="?page={{ myperms.previous_page_number }}">
+                            <button class="btn btn-primary">上一页</button>
+                        </a>
+                    {% endif %}
+
+                    <span class="current">
+                        第 {{ myperms.number }} 页 / 共 {{ myperms.paginator.num_pages }} 页
+                    </span>
+
+                    {% if myperms.has_next %}
+                        <a href="?page={{ myperms.next_page_number }}">
+                            <button class="btn btn-primary">下一页</button>
+                        </a>
+                    {% endif %}
+
+                </span>
+                <div class="col-md-5">
+                    <form action="" method="get" class="form-inline" role="form">
+                            <div class="form-group">
+
+                                <input style="width:30%" class="form-control input-sm col-sm-1" type="text" name="page">&nbsp;页
+                                <input class="btn btn-primary form-control" type="submit" value="跳转">&nbsp;
+                            </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% block body %}
+    <div class="container">
+        <div class="form row">
+            <form action="" method="post" class="form-horizontal col-md-offset-3 col-md-4"  id="user_form">
+                    <h4 class="form-title">
+                    <span class="glyphicon glyphicon-user"></span> 用户注册</h4>
+                    {% csrf_token %}
+                    {% bootstrap_form user_register_form %}
+                    <div class="form-group">
+                      {{ login_form.captcha.errors }}
+                      {{ login_form.captcha.label_tag }}
+                      {{ login_form.captcha }}
+                    </div>
+                    <input class="btn btn-success" type="submit" value="添加">
+            </form>
+        </div>
+    </div>
+{% endblock %}

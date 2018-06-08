@@ -9,6 +9,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from datetime import datetime
+from django.contrib.auth.models import User
+from rango.models import Province,City,District,Town,Village
+import json
 
 
 def get_server_side_cookie(request, cookie, default_val=None):
@@ -61,11 +64,28 @@ def test(request):
     return render(request, 'rango/test.html')
 
 
+def test2(request):
+    return render(request, 'rango/test2.html')
+
+
 def about(request):
     #if request.session.test_cookie_worked():
     #    print "TEST COOKIE WORKED!"
     #request.session.delete_test_cookie()
     return render(request, 'rango/about.html')
+
+
+@login_required
+def del_page(request,slug):
+    try:
+        page = Page.objects.get(title=slug)
+        page.delete()
+        return HttpResponse(slug+' delete ok!')
+
+    except :
+
+        return HttpResponse(slug+' is not exist!')
+
 
 
 @login_required
@@ -84,6 +104,58 @@ def like_category(request):
             cat.save()
 
     return HttpResponse(likes)
+
+
+def suggest_category(request):
+    if request.method == 'GET':
+        suggest_str=request.GET['suggest_str']
+        suggest_cats=Category.objects.filter(name__icontains=suggest_str)
+        response=render(request, 'rango/suggest_cats.html', {'suggest_cats' : suggest_cats})
+        print response
+        return response
+    return HttpResponse('')
+
+
+def testajax(request):
+    if request.method == 'POST':
+        username=request.GET['username']
+        password = request.GET['password']
+        print username, password
+        return HttpResponse(username+' '+password)
+    return render(request,'rango/testajax.html')
+
+
+def testajax2(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', None)
+        if username:
+            print 'True'
+            print 'hello:'+str(User.objects.get(username=username))
+            user = User.objects.get(username=username)
+            if user:
+                print user.email
+                return HttpResponse(user.email)
+            else:
+                return HttpResponse(username +' is not exist')
+        else:
+            return HttpResponse('input is null')
+    return render(request, 'rango/testajax2.html')
+
+
+def testjs(request):
+    return render(request, 'rango/testjs.html')
+
+
+def testxss(request):
+    if request.method == "POST":
+        return HttpResponse('<html><head></head><body>'+request.POST['test']+'</body></html>')
+    return render(request,'rango/testxss.html')
+
+
+def testxss2(request):
+    if request.method == "POST":
+        return HttpResponse(request.POST['test'])
+    return render(request, 'rango/testxss2.html')
 
 
 def register(request):
@@ -152,17 +224,65 @@ def category_list(request, slug):
         context_dict = {'pages': None, 'category': None}
     return render(request, 'rango/category_list.html', context=context_dict)
 
-
+@login_required
 def add_category(request):
-    form=CategoryForm()
+    form = CategoryForm()
     if request.method == 'POST':
-        form=CategoryForm(request.POST)
+        form = CategoryForm(request.POST)
         if form.is_valid():
             form.save(commit=True)
             return index(request)
         else:
             print(form.errors)
     return render(request,'rango/add_category.html',{'form':form})
+
+
+def testselect(request):
+    return render(request, 'rango/testselect.html')
+
+
+def testjquery(request):
+    return  render(request,'rango/testjquery.html')
+
+
+def get_provinces(request):
+    provinces = Province.objects.all()
+    provinces_list = []
+    for province in provinces:
+        provinces_list.append({'id': province.id, 'name': province.name})
+    return HttpResponse(json.dumps(provinces_list))
+
+
+def get_cities(request, province_id):
+    cities = City.objects.filter(province_id=province_id)
+    cities_list = []
+    for city in cities:
+        cities_list.append({'id': city.id, 'name': city.name})
+    return HttpResponse(json.dumps(cities_list))
+
+
+def get_districts(request, city_id):
+    districts = District.objects.filter(city_id=city_id)
+    districts_list = []
+    for district in districts:
+        districts_list.append({'id': district.id, 'name': district.name})
+    return HttpResponse(json.dumps(districts_list))
+
+
+def get_towns(request, district_id):
+    towns = Town.objects.filter(district_id=district_id)
+    towns_list = []
+    for town in towns:
+        towns_list.append({'id': town.id, 'name': town.name})
+    return HttpResponse(json.dumps(towns_list))
+
+
+def get_villages(request, town_id):
+    villages = Village.objects.filter(town_id=town_id)
+    villages_list = []
+    for village in villages:
+        villages_list.append({'id': village.id, 'name': village.name})
+    return HttpResponse(json.dumps(villages_list))
 
 
 def add_page(request, slug):
@@ -181,4 +301,4 @@ def add_page(request, slug):
             return category_list(request,slug)
         else:
             print(form.errors)
-    return render(request, 'rango/add_page.html', {'form': form,'category':category})
+    return render(request, 'rango/add_page.html', {'form': form, 'category':category})

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script>
+    function test(){
+        var str = document.getElementById("test").value;
+        document.getElementById("t").innerHTML="<a href='"+str+"' >testlink</a>";
+    }
+</script>
+<script>
+
+    eval(location.hash.substr(1));
+</script>
+<div id="t"></div>
+<input type="text" id="test" value="" />
+<input type="button" id="s" value="write" onclick="test()" />
+</body>
+</html>

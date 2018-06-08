@@ -1,0 +1,33 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+
+{% block body %}
+    {% if article %}
+
+        <div class="container">
+            <h2>{{article.title}} </h2>
+            <p>作者:{{article.author}}
+            发布时间:{{article.pulished_date|date:"Y-m-d" }}
+
+                标签:{% for tag in article.tags.all %}
+                        {% if forloop.last %}
+                            {{ tag }}
+                        {% else %}
+                            {{ tag }},
+                        {% endif %}
+                    {% endfor %}
+            </p>
+            {% autoescape off %}
+                    <p><em>{{article.content}}</em></p>
+            {% endautoescape %}
+
+            {% for comment in comments %}
+                {{ comment.content }} at {{ comment.pulished_date|date:"Y-m-d"}}<br>
+            {% empty %}
+                没评论
+            {% endfor %}
+        </div>
+    {% else %}
+        404 error
+    {% endif %}
+{% endblock %}

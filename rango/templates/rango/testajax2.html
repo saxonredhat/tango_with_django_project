@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body >
+    <script>
+    function test(){
+        var ajax;
+        if (window.XMLHttpRequest)
+        {
+            ajax=new XMLHttpRequest();
+        }
+        else
+        {
+            ajax=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        ajax.on = function(){
+            if( ajax.readyState == 4 && ajax.status == 200){
+                var divemail=document.getElementById('email');
+                divemail.innerHTML=ajax.responseText;
+            }
+        }
+        ajax.open('POST','http://192.168.50.24:9999/rango/testajax2/',true);
+        ajax.setRequestHeader('Content-Type','application/x-www-form-urlencoded');
+        ajax.setRequestHeader('X-Custom-Header', 'Value');
+        var username=document.getElementsByName('username')[0].value;
+        ajax.send('username='+username);
+
+    }
+    function test2(){
+        alert('hello world!');
+    }
+    function test3(){
+        var a=document.getElementsByTagName('a')[0];
+        a.parentNode.removeChild(a);
+    }
+    </script>
+        username:<input name="username" onchange="test3()"  placeholder="username"><br>
+
+    <div id="email">
+
+    </div>
+    <a href="javascript:alert(1)">aaa</a>
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+{% load bootstrap3 %}
+{% block body %}
+    <div class="container">
+        <div class="row" style="height:10vh;">
+        {% if messages %}
+                {% for message in messages %}
+                <div {% if message.tags == "error" %}
+                        class="alert alert-danger col-md-2" role="alert"
+                     {% else %}
+                        class="alert alert-success col-md-2" role="alert"
+                     {% endif %}
+                >
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form row">
+            <h4>
+                <span class="glyphicon glyphicon-user "> 角色:{{group.name}}
+                </span>
+
+            </h4>
+            <table class="table table-striped">
+                <tr>
+                    <th>id</th>
+                    <th>用户名</th>
+                    <th>用户邮箱</th>
+                    <th>拥有该角色</th>
+                    <th>包含角色</th>
+                    <th>操作</th>
+                </tr>
+                {% for user in users %}
+                <tr>
+                    <td>
+                        {{user.id}}
+                    </td>
+                    <td>
+                        {{user.username}}
+                    </td>
+                    <td>
+                        {{ user.email}}
+                    </td>
+                    <td>
+                        {% if group in user.groups.all %}
+                            <span class="glyphicon glyphicon-ok-sign text-success"></span>
+                        {% else%}
+                            <span class="glyphicon glyphicon-remove-sign text-danger"></span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% for g in user.groups.all %}
+                            {% if group == g %}
+                                <button class="btn btn-success">{{g.name}}</button>
+                            {% else %}
+                                <button class="btn btn-warning">{{g.name}}</button>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+
+                    <td>
+                        <a href="{% url 'remove_user_from_group' user.id group.id %}">
+                        <button class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 移除</button>
+                        </a>
+                        <a href="{% url 'add_user_to_group' user.id group.id %}">
+                        <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> 添加</button>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}

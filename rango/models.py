@@ -17,6 +17,7 @@ class Category(models.Model):
         super(Category,self).save(*args,**kwargs)
 
     class Meta:
+        db_table = 'category'
         verbose_name_plural = 'categories'
 
     def __unicode__(self):
@@ -32,6 +33,9 @@ class Page(models.Model):
     def __unicode__(self):
         return self.title
 
+    class Meta:
+        db_table = 'page'
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User)
@@ -40,3 +44,75 @@ class UserProfile(models.Model):
 
     def __unicode__(self):
         return self.user.username
+
+    class Meta:
+        db_table = 'userprofile'
+
+
+class City(models.Model):
+    name = models.CharField(max_length=50)
+    province = models.ForeignKey('Province', models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'city'
+
+
+class District(models.Model):
+    name = models.CharField(max_length=50)
+    city = models.ForeignKey(City, models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'district'
+
+
+class Province(models.Model):
+    name = models.CharField(max_length=50)
+
+    class Meta:
+        managed = False
+        db_table = 'province'
+
+
+class Town(models.Model):
+    name = models.CharField(max_length=50)
+    district = models.ForeignKey(District, models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+        db_table = 'town'
+
+
+class Village(models.Model):
+    name = models.CharField(max_length=100, blank=True, null=True)
+    town = models.ForeignKey(Town, models.DO_NOTHING, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'village'
+
+
+class Zone(models.Model):
+    province = models.CharField(max_length=20, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    district = models.CharField(max_length=50, blank=True, null=True)
+    town = models.CharField(max_length=50, blank=True, null=True)
+    village = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'zone'
+        unique_together = (('province', 'city', 'district', 'town', 'village'),)
+
+
+class Zone2(models.Model):
+    pro = models.CharField(max_length=20, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
+    dist = models.CharField(max_length=50, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'zone2'
+        unique_together = (('pro', 'city', 'dist'),)
+

@@ -1,0 +1,7 @@
+<div class="list-group">
+    {% for suggest_cat in suggest_cats %}
+    <a class="list-group-item" href="{% url 'category_list' suggest_cat.slug %}">{{suggest_cat.name}}</a>
+    {% empty %}
+        <a></a>
+    {% endfor %}
+</div>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body marginwidth="0" marginheight="0">
+<script>
+    var XMLHttpReq = false;
+    function createXMLHttpRequest(){
+        if (window.XMLHttpRequest){
+            XMLHttpReq= new XMLHttpRequest();
+        }
+        else if (window.ActiveXObject){
+            try{
+                XMLHttpReq = new ActiveXObject("Msxml2.XMLHTTP");
+            }catch (e){
+                try {
+                    XMLHttpReq = new ActiveXObject("Microsoft.XMLHTTP");
+                }catch (e) {}
+            }
+        }
+    }
+    function sendRequest(url){
+        createXMLHttpRequest();
+        XMLHttpReq.open("GET",url,true);
+        XMLHttpReq.onreadystatechange = processResponse;
+        XMLHttpReq.send(null);
+    }
+    function processResponse(){
+        if (XMLHttpReq.readyState == 4){
+            if(XMLHttpReq.status == 200){
+                var res=XMLHttpReq.responseText;
+                    window.alert(res);
+            }else{
+                window.alert("error");
+            }
+        }
+    }
+    function userCheck(){
+        var username = document.myform.username.value;
+        var password = document.myform.password.value;
+        if (username==''){
+            window.alert("username cannot empty!!!");
+            document.myform.username.focus();
+            return false;
+        }
+        sendRequest('?username='+username+'&password='+password);
+    }
+</script>
+<div class="test" id="hello">
+    hello world!!
+    <a href="#">test</a>
+    <a href="#">test2</a>
+</div>
+<script>
+    $(document).ready(function(){
+        document.getElementsByClassName('test')[0].insertAdjacentHTML('beforeBegin','beforeBegin');
+        document.getElementsByClassName('test')[0].insertAdjacentHTML('afterBegin','afterBegin');
+        document.getElementsByClassName('test')[0].insertAdjacentHTML('beforeEnd','beforeEnd');
+        document.getElementsByClassName('test')[0].insertAdjacentHTML('afterEnd','afterEnd');
+        var abc=document.getElementById('hello');
+        //console.log("data-leaves======" + abc.getAttribute("id"));
+        //alert(abc.getAttribute("class"));
+        var a=document.createElement('a');
+        a.href='https://www.baidu.com';
+        a.innerHTML='baidu';
+        //abc.appendChild(a)
+        abc.insertBefore(a,abc.childNodes[3])
+        var str='abcacdbhljl';
+        //alert(str.substring(str.indexOf('b',1)))
+    });
+    document.ready = function(){
+        //window.alert("hello ready2");
+    }
+    window.onload = function(){
+        //window.alert("hello onload");
+    }
+</script>
+    <form name="myform" action="" method="POST">
+         {% csrf_token %}
+        username:<input type="text" name="username" placeholder="username"><br>
+        password:<input type="text" name="password" placeholder="password"><br>
+        <button type="submit" onclick="userCheck()">submit</button>
+
+    </form>
+    <embed src="{% static 'videos/zzdh.swf' %}"
+           type="application/x-shockwave-flash"
+           width="50%" heigth="50%" marginwidth="0" marginheight="0"
+            name="plugin"/>
+    <object width="50%" heigth="50%" data="{% static 'videos/zzdh.swf' %}"
+            type="application/x-shockwave-flash">
+        <param name="src" value="{% static 'videos/zzdh.swf' %}">
+        <param name="quality" value="high">
+    </object>
+    <object width="50%" heigth="50%" data="{% static 'videos/zzdh.swf' %}"
+            type="application/x-shockwave-flash">
+        <param name="src" value="{% static 'videos/zzdh.swf' %}">
+        <param name="quality" value="high">
+        <embed src="{% static 'videos/zzdh.swf' %}"
+           type="application/x-shockwave-flash"
+               pluginspage="http://www.macromedia.com/go/getflashplayer"
+           width="50%" heigth="50%" marginwidth="0" marginheight="0"
+            name="plugin"/>
+    </object>
+</body>
+</html>

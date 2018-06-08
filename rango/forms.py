@@ -46,6 +46,7 @@ class UserForm(forms.ModelForm):
     username = forms.CharField(max_length=128, help_text="Please enter Username.")
     email = forms.EmailField(max_length=200, help_text="Please enter email.")
     password = forms.CharField(widget=forms.PasswordInput)
+
     class Meta:
         model = User
         fields = ('username', 'email', 'password',)

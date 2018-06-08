@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Title</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+    <form method="POST" action="" name="test">
+            {% csrf_token %}
+           <input type="text" name="test" placeholder="input something">
+           <input type="submit" value="submit">
+    </form>
+    <script>
+        function test(){
+            document.getElementById('aaasdf').innerHTML='sdfasfdasf';
+         }
+    </script>
+    <div id="aaasdf" onclick="test()">
+        hello world
+    </div>
+</body>
+</html>

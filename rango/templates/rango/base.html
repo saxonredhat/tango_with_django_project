@@ -17,7 +17,7 @@
     <div class="container">
         <div class="row">
             <ul class="nav nav-pills">
-                <li class="active"><a href="{% url 'index' %}">Home</a></li>
+                <li class="active"><a href="{% url 'index' %}" rel="noreferrer">Home</a></li>
                 <li><a href="{% url 'about' %}">About</a></li>
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -40,13 +40,26 @@
                     <li><a href="{% url 'restricted' %}">Restricted Page</a></li>
                     <li><a href="{% url 'auth_logout' %}?next=/rango/">Logout</a></li>
                 {% endif %}
+                <li><input id="suggest_input" class="form-control" type="text" placeholder="search category"></li>
 
             </ul>
         </div>
     </div>
-        {% block body_block %}
-        {% endblock %}
+    <div class="container">
+        <div class="row">
+            <div id="suggest_cat" class="col-md-2">
+                {% get_category_list %}
+            </div>
+            <div class="col-md-8 main">
+                {% block body_block %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+
     <hr />
+    <a href="{% url 'testxss' %}">testxxl</a>
+    <a href="{% url 'testxss2' %}">testxxl2</a>
     <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="{% static 'js/rango-jquery.js' %}"></script>
 	<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>

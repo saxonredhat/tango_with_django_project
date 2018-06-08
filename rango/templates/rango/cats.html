@@ -1,9 +1,11 @@
- {% for cat in cats %}
+<div class="list-group">
+{% for cat in cats %}
         {% if cat == act_cat %}
-            <li class="active"><a href="{% url 'category_list' cat.slug %}">{{ cat.name }}</a></li>
+            <a class="list-group-item" href="{% url 'category_list' cat.slug %}">{{ cat.name }}</a>
         {% else %}
-            <li><a href="{% url 'category_list' cat.slug %}">{{ cat.name }}</a></li>
+            <a class="list-group-item" href="{% url 'category_list' cat.slug %}">{{ cat.name }}</a>
         {% endif %}
     {% empty %}
-        <li> <strong>There are no category present.</strong></li>
+         <strong>There are no category present.</strong>
  {% endfor %}
+</div>

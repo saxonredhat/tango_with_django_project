@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 """
 Django settings for tango_with_django_project project.
 
@@ -11,7 +12,9 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 
 import os
-
+import sys
+reload(sys)
+sys.setdefaultencoding("utf-8")
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 #BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +31,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+DOMAIN = 'http://192.168.50.24:8888'
 
 # Application definition
 
@@ -38,10 +42,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'guardian',
     'rango',
     'registration',
     'bootstrapform',
     'bootstrap3',
+    'blog',
+    'ckeditor',
+    'ckeditor_uploader',
+    'captcha',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -79,15 +88,32 @@ TEMPLATES = [
 WSGI_APPLICATION = 'tango_with_django_project.wsgi.application'
 
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend', # default
+    'guardian.backends.ObjectPermissionBackend',
+)
+
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#    }
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test',
+        'HOST': '192.168.50.251',
+        'PORT': '3306',
+        'USER': 'testuser',
+        'PASSWORD': 'testuser123',
     }
 }
+#
 
 # Password Hash
 
@@ -133,13 +159,69 @@ USE_L10N = True
 USE_TZ = True
 
 
+#SESSION_COOKIE_HTTPONLY = True
+#CSRF_COOKIE_HTTPONLY= True
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+#MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = "/upload/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'upload')
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static_all')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [STATIC_DIR, ]
+
+
+ANONYMOUS_USER_ID=-1
+
+#富文本编辑器配置
+#CKEDITOR_BASEPATH = "/static/ckeditor/ckeditor"
+CKEDITOR_JQUERY_URL = 'http://cdn.static.runoob.com/libs/jquery/2.2.4/jquery.min.js'
+CKEDITOR_UPLOAD_PATH = "content"
+CKEDITOR_IMAGE_BACKEND = "pillow"
+CKEDITOR_CONFIGS = {
+    'awesome_ckeditor': {
+        'toolbar': 'Basic',
+    },
+    'default_ckeditor':{
+        'toolbar': 'Full',
+    },
+}
+
+
+# 消息存储的位置
+MESSAGE_STORAGE = 'django.contrib.messages.storage.cookie.CookieStorage'
+
+
+# 验证码配置
+CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
+CAPTCHA_IMAGE_SIZE = (120,30)
+CAPTCHA_BACKGROUND_COLOR = '#ffffff'
+CAPTCHA_FOREGROUND_COLOR = '#001100'
+CAPTCHA_MATH_CHALLENGE_OPERATOR='*'
+#无噪点
+#CAPTCHA_NOISE_FUNCTIONS =( 'captcha.helpers.noise_null', 'captcha.helpers.noise_null')
+CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_arcs','captcha.helpers.noise_dots',)
+CAPTCHA_FILTER_FUNCTIONS=('captcha.helpers.post_smooth',)
+CAPTCHA_LENGTH = 6
+CAPTCHA_OUTPUT_FORMAT=u'%(text_field)s %(image)s %(hidden_field)s '
+#CAPTCHA_IMAGE_TEMPLATE=''
+#CAPTCHA_TEXT_FIELD_TEMPLATE=''
+#CAPTCHA_HIDDEN_FIELD_TEMPLATE=''
+#CAPTCHA_FIELD_TEMPLATE=''
+
+
+# 邮箱配置
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.163.com'
+EMAIL_HOST_USER = 'sys_blog@163.com'
+DEFAULT_FROM_EMAIL = 'sys_blog@163.com'
+EMAIL_HOST_PASSWORD = 'codemax123'
+EMAIL_PORT = 25
+EMAIL_USE_TLS = False
 
 
 # If True, users can register
