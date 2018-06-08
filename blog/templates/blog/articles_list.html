@@ -1,28 +1,32 @@
 {% extends 'blog/base.html' %}
 {% load staticfiles %}
-
+{% load blog_templatetags %}
 {% block body %}
     <div class="container">
     {% for article in articles %}
-        <h2><span class="glyphicon glyphicon-bookmark"></span>
-            <a href="{% url 'article_detail' article.id %}" class="btn">
-            {{article.title}} </a></h2>
-        <p><span class="glyphicon glyphicon-group"></span> {{article.author}}
-        <span class="glyphicon glyphicon-time"></span> {{article.pulished_date|date:"Y-m-d" }}
-
-            <span class="glyphicon glyphicon-tag"></span>{% for tag in article.tags.all %}
-                    {% if forloop.last %}
-                        {{ tag }}
-                    {% else %}
-                        {{ tag }},
-                    {% endif %}
-                {% endfor %}
-        </p>
-        {% autoescape off %}
-        <p> <strong>文章摘要:</strong> {{article.content |safe| truncatechars:400}}</p>
-        {% endautoescape %}
-        <br>
-
+        <div class="row">
+            <div class="col-md-9 col-md-offset-0">
+                <h2><span class="glyphicon glyphicon-bookmark"></span>
+                    <a href="{% url 'article_detail' article.id %}" class="btn">
+                        {{article.title}} </a></h2>
+                <p>
+                    <span class="glyphicon glyphicon-user"></span> {{article.author}}&nbsp;&nbsp;
+                    <span class="glyphicon glyphicon-time"></span> {{article.pulished_date|date:"Y-m-d" }}&nbsp;&nbsp;
+                    <span class="glyphicon glyphicon-tag"></span>{% for tag in article.tags.all %}
+                            {% if forloop.last %}
+                                {{ tag }}
+                            {% else %}
+                                {{ tag }},
+                            {% endif %}
+                        {% endfor %}
+                </p>
+                 <strong>文章摘要:</strong>
+                 <p>
+                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                     {{article.content |my_markdown|del_html_tag|truncatechars:600}}<a href="{% url 'article_detail' article.id %}" class="btn">更多...</a>
+                </p>
+            </div>
+        </div>
     {% empty %}
         no articles
     {% endfor %}

@@ -115,6 +115,8 @@ class UserEditForm(forms.ModelForm):
     password2 = forms.CharField(label=_("再次输入密码"),
                                 widget=forms.PasswordInput, required=False)
     email = forms.EmailField(label=_("邮箱"), required=False)
+#    is_active = forms.ChoiceField(label=_("激活"),  widget=forms.CheckboxInput(), required=False)
+#    is_superuser = forms.ChoiceField(label=_("管理员"), widget=forms.CheckboxInput(), required=False)
 
     class Meta:
         model = User

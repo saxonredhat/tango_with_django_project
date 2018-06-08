@@ -16,6 +16,7 @@ from guardian.shortcuts import assign_perm,remove_perm
 from itsdangerous import URLSafeTimedSerializer as utsr
 from django.conf import settings as django_settings
 from django.core.mail import send_mail
+from markdown import markdown
 import mytools
 import base64
 import re
@@ -74,6 +75,38 @@ def article_detail(request, article_id):
 @login_required
 @permission_required('blog.add_article')
 def add_article(request):
+    form = ArticleForm()
+    if request.method == 'POST':
+        form = ArticleForm(request.POST)
+        if form.is_valid():
+            article = form.save(commit=False)
+            author = Author.objects.get(id=1)
+            article.pulished_date=datetime.now()
+            article.author=author
+            article.save()
+            return HttpResponseRedirect(reverse('index'))
+    return render(request, 'blog/add_article.html', {'form': form})
+
+
+@login_required
+@permission_required('blog.add_article')
+def update_article(request):
+    form = ArticleForm()
+    if request.method == 'POST':
+        form = ArticleForm(request.POST)
+        if form.is_valid():
+            article = form.save(commit=False)
+            author=Author.objects.get(id=1)
+            article.pulished_date=datetime.now()
+            article.author=author
+            article.save()
+            return HttpResponseRedirect(reverse('index'))
+    return render(request, 'blog/add_article.html', {'form': form})
+
+
+@login_required
+@permission_required('blog.add_article')
+def delete_article(request):
     form = ArticleForm()
     if request.method == 'POST':
         form = ArticleForm(request.POST)

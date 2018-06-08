@@ -1,6 +1,6 @@
 {% extends 'blog/base.html' %}
 {% load staticfiles %}
-
+{% load blog_templatetags %}
 {% block body %}
     {% if article %}
 
@@ -18,7 +18,7 @@
                     {% endfor %}
             </p>
             {% autoescape off %}
-                    <p><em>{{article.content}}</em></p>
+                    <p><em>{{article.content|my_markdown}}</em></p>
             {% endautoescape %}
 
             {% for comment in comments %}

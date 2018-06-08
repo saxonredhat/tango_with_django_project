@@ -1,10 +1,21 @@
 from django import template
 from django.contrib.auth.models import User,Group,Permission
 from django.template.base import TemplateSyntaxError,NodeList
-from guardian.core import ObjectPermissionChecker
-
-import datetime
+from markdown import markdown
+#from guardian.core import ObjectPermissionChecker
+import re
+#import datetime
 register = template.Library()
+
+
+@register.filter
+def del_html_tag(content):
+    return re.sub(r'<[^>]*>', '', content)
+
+
+@register.filter
+def my_markdown(content):
+    return markdown(content)
 
 
 @register.tag("ifuserperm")

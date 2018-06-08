@@ -9,6 +9,8 @@ urlpatterns = [
     url(r'^articles_list/$', views.articles_list, name='articles_list'),
     url(r'^article_detail/(?P<article_id>\d+)$', views.article_detail, name='article_detail'),
     url(r'^add_article/$', views.add_article, name='add_article'),
+    url(r'^update_article/(?P<article_id>\d+)$', views.update_article, name='update_article'),
+    url(r'^delete_article/(?P<article_id>\d+)$', views.delete_article, name='delete_article'),
     url(r'^login',views.user_login,name='user_login'),
     url(r'^logout/$',views.user_logout,name='user_logout'),
     url(r'^register/$',views.user_register,name='user_register'),
@@ -36,4 +38,7 @@ urlpatterns = [
     url(r'group_remove_perm/(?P<group_id>\d+)/(?P<perm_id>\d+)$', views.group_remove_perm, name='group_remove_perm'),
     url(r'group_add_perm/(?P<group_id>\d+)/(?P<perm_id>\d+)$', views.group_add_perm, name='group_add_perm'),
     url(r'activate/(?P<token>\w+.[-_\w]*\w+.[-_\w]*\w+)/$', views.active_user, name='active_user'),
+    #url(r'publish_article'),
+    #url(r''),
+    #url(r''),
 ]

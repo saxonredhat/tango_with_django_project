@@ -38,7 +38,7 @@ class Author(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField('名字',max_length=20)
 
     class Meta:
         db_table = 'blog_Tag'
@@ -49,11 +49,12 @@ class Tag(models.Model):
 
 
 class Article(models.Model):
-    title = models.CharField(max_length=50)
-    content = RichTextUploadingField('文章标题', config_name='default_ckeditor')
+    title = models.CharField('文章标题',max_length=50)
+    #content = RichTextUploadingField('文章内容', config_name='default_ckeditor')
+    content = models.TextField('文章内容')
     author = models.ForeignKey(Author)
     category = models.ManyToManyField(Category)
-    pulished_date = models.DateField()
+    pulished_date = models.DateField('发布时间')
     tags = models.ManyToManyField(Tag)
 
     class Meta:

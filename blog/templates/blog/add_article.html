@@ -2,10 +2,12 @@
 {% load staticfiles %}
 
 {% block body %}
-<form action="" method="POST">
-    {% csrf_token %}
-    {{ form.media }}
-    {{ form.as_p }}
-    <input type="submit" value="发表">
-</form>
+<div class="container">
+    <form action="" method="POST">
+        {% csrf_token %}
+        {{ form.media }}
+        {{ form.as_p }}
+        <input type="submit" value="发表">
+    </form>
+</div>
 {% endblock %}
