@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 # Create your views here.
-from blog.models import Article,Comment
+from blog.models import *
 from blog.forms import *
 from datetime import datetime
 from django.core.urlresolvers import reverse
@@ -60,64 +60,121 @@ def about(request):
 
 def articles_list(request):
     articles = Article.objects.all()
-    return render(request, 'blog/articles_list.html',{'articles': articles})
+    paginator = Paginator(articles, 8)
+    page = request.GET.get('page', 1)
+    try:
+        articles_list = paginator.page(page)
+    except PageNotAnInteger:
+        articles_list = paginator.page(1)
+    except EmptyPage:
+        articles_list = paginator.page(paginator.num_pages)
+    return render(request, 'blog/articles_list.html',{'articles': articles_list})
 
 
 def article_detail(request, article_id):
+    comment_form = CommentForm()
+    if request.method == 'POST':
+        comment_form=CommentForm(request.POST)
+        if comment_form.is_valid():
+            comment=comment_form.save(commit=False)
+            comment.user=request.user
+            comment.save()
+            return HttpResponseRedirect(reverse('article_detail',
+                                                kwargs={'article_id':article_id}))
     try:
         article = Article.objects.get(id=article_id)
         comments = Comment.objects.filter(article=article)
     except:
         article = None
-    return render(request, 'blog/article_detail.html', {'article': article, 'comments': comments})
+    context_dict={'article': article, 'comments': comments,
+                  'comment_form':comment_form
+                  }
+    return render(request, 'blog/article_detail.html', context_dict)
 
 
 @login_required
-@permission_required('blog.add_article')
-def add_article(request):
+@permission_required('blog.publish_article')
+def article_add(request):
     form = ArticleForm()
     if request.method == 'POST':
         form = ArticleForm(request.POST)
         if form.is_valid():
             article = form.save(commit=False)
-            author = Author.objects.get(id=1)
-            article.pulished_date=datetime.now()
-            article.author=author
+            author = request.user
+            article.pulished_date = datetime.now()
+            article.author = author
             article.save()
+            for tag in form.cleaned_data.get('tags'):
+                article.tags.add(tag)
             return HttpResponseRedirect(reverse('index'))
-    return render(request, 'blog/add_article.html', {'form': form})
+    return render(request, 'blog/article_add.html', {'form': form})
+
+
+@login_required
+def article_update_list(request):
+    current_user=request.user
+    articles = Article.objects.filter(author=current_user)
+    return render(request, 'blog/article_update_list.html', {'articles': articles})
+
+
+@login_required
+@permission_required('blog.update_article')
+def article_update(request,article_id):
+    try:
+        article=Article.objects.get(id=article_id)
+    except:
+        return HttpResponseRedirect(reverse('article_update_list'))
+    if request.method == 'POST':
+        form = ArticleForm(request.POST)
+        if form.is_valid():
+            article.title=form.cleaned_data.get('title')
+            article.type = form.cleaned_data.get('type')
+            article.content = form.cleaned_data.get('content')
+            article.category = form.cleaned_data.get('category')
+            #删除之前的tags
+            for tag in article.tags.all():
+                try:
+                    article.tags.remove(tag)
+                except:
+                    pass
+            for tag in form.cleaned_data.get('tags'):
+                try:
+                    article.tags.add(tag)
+                except:
+                    pass
+            article.save()
+            return HttpResponseRedirect(reverse('article_update_list'))
+    else:
+        title= article.title
+        type = article.type
+        content = article.content
+        category = article.category
+        tags = article.tags.all()
+        article_dict={'title':title, 'type':type,
+                      'content':content, 'category':category,
+                      'tags':tags}
+        form = ArticleForm(article_dict)
+    return render(request, 'blog/article_update.html', {'form': form})
+
+
+@login_required
+@permission_required('blog.del_article')
+def article_delete_list(request):
+    current_user = request.user
+    articles = Article.objects.filter(author=current_user)
+    return render(request, 'blog/article_delete_list.html', {'articles': articles})
 
 
 @login_required
 @permission_required('blog.add_article')
-def update_article(request):
-    form = ArticleForm()
-    if request.method == 'POST':
-        form = ArticleForm(request.POST)
-        if form.is_valid():
-            article = form.save(commit=False)
-            author=Author.objects.get(id=1)
-            article.pulished_date=datetime.now()
-            article.author=author
-            article.save()
-            return HttpResponseRedirect(reverse('index'))
-    return render(request, 'blog/add_article.html', {'form': form})
-
-
-@login_required
-@permission_required('blog.add_article')
-def delete_article(request):
-    form = ArticleForm()
-    if request.method == 'POST':
-        form = ArticleForm(request.POST)
-        if form.is_valid():
-            article = form.save(commit=False)
-            author=Author.objects.get(id=1)
-            article.pulished_date=datetime.now()
-            article.author=author
-            article.save()
-            return HttpResponseRedirect(reverse('index'))
-    return render(request, 'blog/add_article.html', {'form': form})
+def article_delete(request,article_id):
+    try:
+        title=Article.objects.get(id=article_id).title
+        Article.objects.get(id=article_id).delete()
+        messages.success(request, '文章'+title+'删除成功.')
+    except:
+        messages.error(request, '文章删除失败.')
+    return HttpResponseRedirect(reverse('article_delete_list'))
 
 
 def user_login(request):

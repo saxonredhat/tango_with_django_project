@@ -1,0 +1,113 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+
+{% block body %}
+    <div class="container">
+        <div class="row " style="height:12vh;">
+            {% if messages %}
+                {% for message in messages %}
+                <div {% if message.tags == "error" %}
+                        class="alert alert-danger col-md-2" role="alert"
+                     {% else %}
+                        class="alert alert-success col-md-2" role="alert"
+                     {% endif %}
+                >
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            <div class="col-md-1 col-md-offset-11">
+                <a href="{% url 'user_add' %}">
+                    <button class="btn btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>编辑文章</button>
+                </a>
+            </div>
+        </div>
+
+        <div class="form row">
+            <h4>
+                <span class="glyphicon glyphicon-user"></span>
+                文章管理
+                <span class="glyphicon glyphicon-menu-right"></span>
+                     编辑文章
+                <span class="glyphicon glyphicon-menu-right"></span>
+                     所有文章
+            </h4>
+            <table class="table table-striped table-bordered table-hover table-responsive">
+                <tr>
+                    <th>
+                        id
+                    </th>
+                    <th>
+                        类型
+                    </th>
+                    <th>
+                        标题
+                    </th>
+                    <th>
+                        类别
+                    </th>
+                    <th>
+                        标签
+                    </th>
+                    <th>
+                        作者
+                    </th>
+                    <th>
+                        操作
+                    </th>
+                </tr>
+            {% for article in articles %}
+                <tr
+                        {% if article.type == 1 %}
+                             class="success"
+                        {% endif %}
+                        {% if article.type == 2 %}
+                            class="warning"
+                        {% endif %}
+                        {% if article.type == 3 %}
+                            class="danger"
+                        {% endif %}
+                >
+                    <td>
+                        {{article.id}}
+                    </td>
+                    <td>
+                        {% if article.type == 1 %}
+                            <span class="text text-success"><strong>原创</strong></span>
+                        {% endif %}
+                        {% if article.type == 2 %}
+                            <span class="text text-warning"><strong>翻译</strong></span>
+                        {% endif %}
+                        {% if article.type == 3 %}
+                            <span class="text text-danger"><strong>转载</strong></span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {{article.title}}
+                    </td>
+                    <td>
+                        {{article.category}}
+                    </td>
+                    <td>
+                        {% for tag in article.tags.all %}
+                            {{ tag.name}},
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {{article.author}}
+                    </td>
+                    <td>
+                        {% if user != myuser %}
+                        <a href="{% url 'article_update' article.id %}">
+                        <button class="btn btn-warning"><span class="glyphicon glyphicon-pencil"></span> 编辑</button>
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+            no users
+            {% endfor %}
+            </table>
+        </div>
+    </div>
+{% endblock %}

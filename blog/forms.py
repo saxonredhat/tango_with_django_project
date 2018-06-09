@@ -11,9 +11,11 @@ sys.setdefaultencoding("utf-8")
 
 
 class ArticleForm(forms.ModelForm):
+    type = forms.CharField(widget=forms.Select(choices=((1, '原创'), (2, '翻译'), (3, '转载'),)))
+
     class Meta:
         model = Article
-        fields = ('title', 'content', 'category', 'tags')
+        fields = ('title', 'type', 'content', 'category', 'tags')
 
 
 class UserForm(forms.ModelForm):
@@ -169,5 +171,12 @@ class PermissionForm(forms.ModelForm):
             self.error_messages['name_not_exist_chinese'],
             code='name_not_exist_chinese',
         )
+
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ('content',)
+
 
 

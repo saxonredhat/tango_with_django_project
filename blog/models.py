@@ -4,6 +4,7 @@ from __future__ import unicode_literals
 from django.db import models
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
+from django.contrib.auth.models import User
 # Create your models here.
 import sys
 reload(sys)
@@ -49,12 +50,17 @@ class Tag(models.Model):
 
 
 class Article(models.Model):
-    title = models.CharField('文章标题',max_length=50)
+    title = models.CharField('文章标题', max_length=50)
     #content = RichTextUploadingField('文章内容', config_name='default_ckeditor')
+    type = models.IntegerField('文章类型', default=1)
     content = models.TextField('文章内容')
-    author = models.ForeignKey(Author)
-    category = models.ManyToManyField(Category)
+    abstract = models.CharField('文章摘要', max_length=500, null=True , blank=True)
+    author = models.ForeignKey(User)
+    category = models.ForeignKey(Category)
     pulished_date = models.DateField('发布时间')
+    is_top = models.BooleanField('置顶',  default=0)
+    is_public = models.BooleanField('公开', default=1 )
+    is_forbbiden_comment = models.BooleanField('禁止评论',  default=0)
     tags = models.ManyToManyField(Tag)
 
     class Meta:
@@ -67,8 +73,9 @@ class Article(models.Model):
 
 class Comment(models.Model):
     content = models.CharField(max_length=500)
-    article = models.ForeignKey(Article)
-    author = models.ForeignKey(Author)
+    article = models.ForeignKey(Article,null=True)
+    user = models.ForeignKey(User)
+    comt = models.ForeignKey("self",null=True)
     pulished_date = models.DateField(blank=True)
 
     class Meta:
