@@ -10,6 +10,11 @@
     {% endblock %}
     {% block base_css %}
         <link href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+        .show_hand{
+            cursor: pointer;
+            }
+        </style>
     {% endblock %}
     {% block script %}
     {% endblock %}
@@ -137,5 +142,14 @@
          });
      </script>
      -->
+    {% block footer %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                个人网站
+            </div>
+        </div>
+    </div>
+    {% endblock %}
 </body>
 </html>

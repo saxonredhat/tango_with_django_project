@@ -57,7 +57,7 @@ class Article(models.Model):
     abstract = models.CharField('文章摘要', max_length=500, null=True , blank=True)
     author = models.ForeignKey(User)
     category = models.ForeignKey(Category)
-    pulished_date = models.DateField('发布时间')
+    pulished_date = models.DateTimeField('发布时间')
     is_top = models.BooleanField('置顶',  default=0)
     is_public = models.BooleanField('公开', default=1 )
     is_forbbiden_comment = models.BooleanField('禁止评论',  default=0)
@@ -76,7 +76,8 @@ class Comment(models.Model):
     article = models.ForeignKey(Article,null=True)
     user = models.ForeignKey(User)
     comt = models.ForeignKey("self",null=True)
-    pulished_date = models.DateField(blank=True)
+    likes = models.IntegerField(default=0)
+    published_date = models.DateTimeField(blank=True)
 
     class Meta:
         db_table = 'blog_Comment'
@@ -84,3 +85,13 @@ class Comment(models.Model):
 
     def __unicode__(self):
         return self.content
+
+    def get_comments_all(self, include_self=False):
+        r = []
+        if include_self:
+            r.append(self)
+        for c in Comment.objects.filter(comt=self):
+            _r = c.get_comments_all(include_self=True)
+            if 0 < len(_r):
+                r.extend(_r)
+        return sorted(r ,key=lambda x: x.published_date, reverse=True)

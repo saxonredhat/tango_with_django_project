@@ -77,7 +77,10 @@ def article_detail(request, article_id):
         comment_form=CommentForm(request.POST)
         if comment_form.is_valid():
             comment=comment_form.save(commit=False)
+            article=Article.objects.get(id=article_id)
             comment.user=request.user
+            comment.article=article
+            comment.published_date=datetime.now()
             comment.save()
             return HttpResponseRedirect(reverse('article_detail',
                                                 kwargs={'article_id':article_id}))
@@ -91,6 +94,30 @@ def article_detail(request, article_id):
                   }
     return render(request, 'blog/article_detail.html', context_dict)
 
+@login_required
+def comment_user(request,comment_id,user_id):
+    if request.method == 'POST':
+        comment = Comment.objects.get(id=comment_id)
+        user = User.objects.get(id=user_id)
+        comment_user=request.POST.get('comment_user')
+        article_id=request.GET.get('article_id')
+        published_date=datetime.now()
+        c=Comment(comt=comment,user=user,published_date=published_date,content=comment_user)
+        c.save()
+        return HttpResponseRedirect(reverse('article_detail',kwargs={'article_id':article_id}))
+    return HttpResponseRedirect(reverse('index'))
+
+a=[]
+def comments_for_comment(comment_id,a):
+    try:
+        comment=Comment.objects.get(id=comment_id)
+        a.append(comment)
+        if comment.comment_set.all():
+            for c in comment.comment_set.all():
+                comments_for_comment(c.id,a)
+        return
+    except:
+        return 'error'
 
 @login_required
 @permission_required('blog.publish_article')
