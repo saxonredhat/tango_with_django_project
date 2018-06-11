@@ -16,6 +16,8 @@ from guardian.shortcuts import assign_perm,remove_perm
 from itsdangerous import URLSafeTimedSerializer as utsr
 from django.conf import settings as django_settings
 from django.core.mail import send_mail
+from image_cropping.utils import get_backend
+from easy_thumbnails.files import get_thumbnailer
 from markdown import markdown
 import mytools
 import base64
@@ -49,6 +51,9 @@ class Token:
 token_confirm = Token(django_settings.SECRET_KEY)
 
 
+def canvas(request):
+    return render(request,'blog/canvas.html')
+
 
 def index(request):
     return render(request, 'blog/index.html')
@@ -57,9 +62,8 @@ def index(request):
 def about(request):
     return render(request, 'blog/about.html')
 
-
 def articles_list(request):
-    articles = Article.objects.all()
+    articles = Article.objects.all().order_by('-pulished_date')
     paginator = Paginator(articles, 8)
     page = request.GET.get('page', 1)
     try:
@@ -74,25 +78,30 @@ def articles_list(request):
 def article_detail(request, article_id):
     comment_form = CommentForm()
     if request.method == 'POST':
-        comment_form=CommentForm(request.POST)
+        comment_form = CommentForm(request.POST)
         if comment_form.is_valid():
-            comment=comment_form.save(commit=False)
-            article=Article.objects.get(id=article_id)
-            comment.user=request.user
-            comment.article=article
-            comment.published_date=datetime.now()
+            comment = comment_form.save(commit=False)
+            article = Article.objects.get(id=article_id)
+            comment.user = request.user
+            comment.article = article
+            comment.published_date = datetime.now()
             comment.save()
             return HttpResponseRedirect(reverse('article_detail',
                                                 kwargs={'article_id':article_id}))
     try:
         article = Article.objects.get(id=article_id)
         comments = Comment.objects.filter(article=article)
+        # 增加阅读次数
+        article.views = article.views + 1
+        article.save()
     except:
         article = None
-    context_dict={'article': article, 'comments': comments,
+        comments = None
+    context_dict = {'article': article, 'comments': comments,
                   'comment_form':comment_form
                   }
     return render(request, 'blog/article_detail.html', context_dict)
+
 
 @login_required
 def comment_user(request,comment_id,user_id):
@@ -107,17 +116,19 @@ def comment_user(request,comment_id,user_id):
         return HttpResponseRedirect(reverse('article_detail',kwargs={'article_id':article_id}))
     return HttpResponseRedirect(reverse('index'))
 
-a=[]
-def comments_for_comment(comment_id,a):
+
+@login_required
+def comment_delete(request,comment_id):
     try:
-        comment=Comment.objects.get(id=comment_id)
-        a.append(comment)
-        if comment.comment_set.all():
-            for c in comment.comment_set.all():
-                comments_for_comment(c.id,a)
-        return
+        comment = Comment.objects.get(id=comment_id)
+        if request.user == comment.user:
+            comment.delete()
+            return HttpResponse('delete')
+        else:
+            return HttpResponse('403')
     except:
-        return 'error'
+        return HttpResponse('error')
+
 
 @login_required
 @permission_required('blog.publish_article')
@@ -248,6 +259,68 @@ def user_register(request):
     return render(request, 'blog/user_register.html', {'user_register_form': user_register_form})
 
 
+@login_required
+def user_info(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+    except:
+        return HttpResponse('用户id'+str(user_id)+'不存在')
+    if request.method == 'POST':
+        user_form = UserBaseForm(request.POST)
+        user_info_form = UserInfoForm(request.POST)
+        if user_info_form.is_valid() and user_form.is_valid():
+            user.username = user_form.cleaned_data.get('username')
+            user.email = user_form.cleaned_data.get('email')
+            user.save()
+            try:
+                user_info = UserInfo.objects.get(user=user)
+            except:
+                user_info = user_info_form.save(commit=False)
+            user_info.user = user
+            if 'picture' in request.FILES:
+                user_info.picture = request.FILES['picture']
+            user_info.save()
+            thumbnail_url = get_thumbnailer(user_info.picture).get_thumbnail({
+                'size': (100, 100),
+                'box': user_info.cropping,
+                'crop': True,
+                'detail': True,
+            }).url
+
+        return HttpResponseRedirect(reverse('user_info',kwargs={'user_id':user_id}))
+    else:
+        username=user.username
+        email=user.email
+        user_dict={'username':username, 'email': email}
+        try:
+            user_info=UserInfo.objects.get(user=user)
+            website = user_info.website
+            picture = user_info.picture
+            user_info_dict = {'website':website,'picture':picture}
+        except:
+            user_info_dict={}
+        user_form=UserBaseForm(user_dict)
+        user_info_form=UserInfoForm(user_info_dict)
+    return render(request,'blog/user_info.html',{'user_form': user_form, 'user_info_form': user_info_form})
+
+
+def user_zone(request, user_id):
+    try:
+        get_user = User.objects.get(id=user_id)
+    except:
+        return HttpResponse('用户id'+str(user_id)+'不存在')
+    articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
+    paginator = Paginator(articles, 6)
+    page = request.GET.get('page', 1)
+    try:
+        articles_list = paginator.page(page)
+    except PageNotAnInteger:
+        articles_list = paginator.page(1)
+    except EmptyPage:
+        articles_list = paginator.page(paginator.num_pages)
+    return render(request,'blog/user_zone.html',{'get_user':get_user,'articles':articles_list})
+
+
 def active_user(request, token):
     try:
         username = token_confirm.confirm_validate_token(token)
@@ -276,9 +349,9 @@ def user_manage(request):
 @login_required
 @user_passes_test(lambda u: u.is_superuser)
 def user_add(request):
-    user_form = UserForm()
+    user_form = UserAddForm()
     if request.method == 'POST':
-        user_form = UserForm(request.POST)
+        user_form = UserAddForm(request.POST)
         if user_form.is_valid():
             user_form.save(commit=True)
             return HttpResponseRedirect(reverse('user_manage'))

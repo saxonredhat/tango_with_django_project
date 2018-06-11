@@ -3,54 +3,81 @@
 {% load blog_templatetags %}
 {% block body %}
     <div class="container">
-    {% for article in articles %}
-        <div class="row">
-            <div class="col-md-11 col-md-offset-0">
-                <h4><span class="glyphicon glyphicon-bookmark"></span>
+        {% for article in articles %}
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="row">
+                        <div class="col-md-10" style="padding:0px;">
+                            {% if article.type == 1 %}
+                                <h4>
+                                    <a href="{% url 'article_detail' article.id %}">
+                                        <strong class="text text-success">[ 原创 ] {{article.title}}</strong>
+                                    </a>
+                                </h4>
+                            {% endif %}
 
-                        {% if article.type == 1 %}
-                            <strong class="text text-success text-lg">[ 原创 ]</strong>
-                            <a href="{% url 'article_detail' article.id %}" class="btn">
-                                <button class="btn btn-success">{{article.title}}</button> </a>
+                            {% if article.type == 2 %}
+                                <h4>
+                                    <a href="{% url 'article_detail' article.id %}">
+                                        <strong class="text text-warning">[ 翻译 ] {{article.title}}</strong>
+                                    </a>
+                                </h4>
+                            {% endif %}
+
+                            {% if article.type == 3 %}
+                                <h4>
+                                    <a href="{% url 'article_detail' article.id %}">
+                                        <strong class="text text-danger">[ 转载 ] {{article.title}}</strong>
+                                    </a>
+                                </h4>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" >
+                <div class="col-md-10" style="padding:0px;">
+                    <a href="{% url 'user_zone' article.author.id %}">
+                        {% if article.author.user_info.picture.url %}
+                            <img class="img-circle" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
+                        {% else %}
+                            <span class="glyphicon glyphicon-user"></span>
                         {% endif %}
-
-                        {% if article.type == 2 %}
-                            <strong class="text text-warning">[ 翻译 ]</strong>
-                            <a href="{% url 'article_detail' article.id %}" class="btn">
-                                <button class="btn btn-warning">{{article.title}} </button></a>
-                        {% endif %}
-
-                        {% if article.type == 3 %}
-                            <strong class="text text-danger">[ 转载 ]</strong>
-                            <a href="{% url 'article_detail' article.id %}" class="btn">
-                                <button class="btn btn-danger">{{article.title}} </button></a>
-                        {% endif %}
-
-                </h4>
-                <p>
-                    <span class="glyphicon glyphicon-user"></span>
-                    <button class="btn btn-primary">{{article.author}}</button>
-
-                    <span class="glyphicon glyphicon-time"></span>
-                    <button class="btn btn-primary">{{article.pulished_date|date:"Y-m-d" }}</button>
-
+                        {{article.author}}
+                    </a>
+                    &nbsp;&nbsp;
+                    <span class="glyphicon glyphicon-time font-opacity"></span>
+                    <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
+                    &nbsp;&nbsp;
                     <span class="glyphicon glyphicon-tag"></span>
                     {% for tag in article.tags.all %}
-                        <button class="btn btn-primary">{{ tag }}</button>
+                        <button class="btn btn-success">{{ tag }}</button>
                     {% endfor %}
-                </p>
-
-                 <p class="bg-info" style="border-radius:10px; padding:15px;">
-                         {{article.content |my_markdown|del_html_tag|truncatechars:600}}
-
-                 </p>
+                </div>
             </div>
-        </div>
-    {% empty %}
-        no articles
-    {% endfor %}
-        <div class="pagination row">
-                <span class="step-links col-md-7">
+            <br>
+            <div class="row">
+                <div class="col-md-10 bg-info" style="border-radius:15px; padding:15px;">
+                    {{article.content |my_markdown|del_html_tag|truncatechars:300}}
+                </div>
+            </div>
+            <div class="row" style="padding:0px;">
+                <div class="col-md-1">
+                    <small class="font-opacity">阅读 {{article.views}}</small>
+                </div>
+                <div class="col-md-1">
+                    <small class="font-opacity">评论 {{article.comment_set.count}}</small>
+                </div>
+                <div class="col-md-1">
+                    <small class="font-opacity">收藏 0</small>
+                </div>
+            </div>
+            <br>
+        {% empty %}
+            no articles
+        {% endfor %}
+            <div class="row">
+                <div class="col-md-3">
                     {% if articles.has_previous %}
                         <a href="?page={{ articles.previous_page_number }}">
                             <button class="btn btn-primary">上一页</button>
@@ -66,16 +93,13 @@
                             <button class="btn btn-primary">下一页</button>
                         </a>
                     {% endif %}
-
-                </span>
-                <div class="col-md-5">
+                </div>
+                <div class="col-md-4">
                     <form action="" method="get" class="form-inline" role="form">
-                            <div class="form-group">
-
-                                <input style="width:30%" class="form-control input-sm col-sm-1" type="text" name="page">&nbsp;页
-                                <input class="btn btn-primary form-control" type="submit" value="跳转">&nbsp;
+                             <div class="form-group">
+                                <input style="width:30%" class="form-control input-sm col-sm-1" type="text" name="page">
+                                页 <input class="btn btn-primary" type="submit" value="跳转">&nbsp;
                             </div>
-
                     </form>
                 </div>
             </div>

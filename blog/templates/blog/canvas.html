@@ -1,0 +1,31 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <img src="https://www.html5canvastutorials.com/demos/assets/darth-vader.jpg" id="target" alt="Flowers" />
+                <canvas id="preview" width="800" height="600"></canvas>
+
+                <script>
+                   $('#target').Jcrop({
+                        onChange : updatePreview,
+                        onSelect : updatePreview,
+                        aspectRatio : 1
+                    });
+
+                    function updatePreview(c) {
+                        if(parseInt(c.w) > 0) {
+                            // Show image preview
+                            var imageObj = $("#target")[0];
+                            var canvas = $("#preview")[0];
+                            var context = canvas.getContext("2d");
+                            context.drawImage(imageObj, c.x, c.y, c.w, c.h, 0, 0, canvas.width, canvas.height);
+                        }
+                    };
+                </script>
+            </div>
+        </div>
+    </div>
+{% endblock %}

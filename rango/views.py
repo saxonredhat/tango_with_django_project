@@ -224,6 +224,7 @@ def category_list(request, slug):
         context_dict = {'pages': None, 'category': None}
     return render(request, 'rango/category_list.html', context=context_dict)
 
+
 @login_required
 def add_category(request):
     form = CategoryForm()

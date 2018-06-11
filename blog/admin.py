@@ -2,6 +2,14 @@ from django.contrib import admin
 from blog.models import *
 from django import forms
 from guardian.admin import GuardedModelAdmin
+from image_cropping import ImageCroppingMixin
+
+class UserInfoAdmin(ImageCroppingMixin, admin.ModelAdmin):
+    pass
+
+
+admin.site.register(UserInfo, UserInfoAdmin)
+
 
 class ArticleForm(forms.ModelForm):
     #content = forms.CharField(widget=forms.Textarea)

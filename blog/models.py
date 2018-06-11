@@ -4,11 +4,21 @@ from __future__ import unicode_literals
 from django.db import models
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
+from image_cropping import ImageRatioField
 from django.contrib.auth.models import User
 # Create your models here.
 import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
+
+
+class UserInfo(models.Model):
+    user = models.OneToOneField(User,related_name='user_info')
+    website = models.URLField(blank=True,null=True)
+    picture = models.ImageField(upload_to='profile_images', blank=True, null=True)
+    cropping = ImageRatioField('picture', '100x100')
+    def __unicode__(self):
+        return self.user.username
 
 
 class Category(models.Model):
@@ -57,6 +67,7 @@ class Article(models.Model):
     abstract = models.CharField('文章摘要', max_length=500, null=True , blank=True)
     author = models.ForeignKey(User)
     category = models.ForeignKey(Category)
+    views = models.IntegerField(default=0)
     pulished_date = models.DateTimeField('发布时间')
     is_top = models.BooleanField('置顶',  default=0)
     is_public = models.BooleanField('公开', default=1 )

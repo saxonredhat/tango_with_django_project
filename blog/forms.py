@@ -18,7 +18,17 @@ class ArticleForm(forms.ModelForm):
         fields = ('title', 'type', 'content', 'category', 'tags')
 
 
-class UserForm(forms.ModelForm):
+class UserInfoForm(forms.ModelForm):
+    class Meta:
+        model = UserInfo
+        fields = ('website', 'picture','cropping')
+
+
+class UserBaseForm(forms.Form):
+    username = forms.CharField(max_length=128, help_text="Please enter Username.")
+    email = forms.EmailField(max_length=200, help_text="Please enter email.")
+
+class UserAddForm(forms.ModelForm):
     error_messages = {
         'password_mismatch': _("两次输入的密码不匹配."),
         'password_length_short': _("密码长度不足8位."),
@@ -54,7 +64,7 @@ class UserForm(forms.ModelForm):
         return password2
 
     def save(self, commit=True):
-        user = super(UserForm, self).save(commit=False)
+        user = super(UserAddForm, self).save(commit=False)
         user.set_password(self.cleaned_data['password1'])
         if commit:
             user.save()

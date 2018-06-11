@@ -1,6 +1,7 @@
 from django import template
 from django.contrib.auth.models import User,Group,Permission
 from django.template.base import TemplateSyntaxError,NodeList
+from blog.models import Comment
 from markdown import markdown
 #from guardian.core import ObjectPermissionChecker
 import re
@@ -16,6 +17,20 @@ def del_html_tag(content):
 @register.filter
 def my_markdown(content):
     return markdown(content)
+
+
+@register.simple_tag
+def comment_by_comment(comment_id):
+    counts = 0
+    comment = Comment.objects.get(id=comment_id)
+    if comment.comment_set.all().count():
+        for c in comment.comment_set.all():
+            counts += 1
+            counts += comment_by_comment(c.id)
+    else:
+        return 0
+    return counts
+
 
 
 @register.tag("ifuserperm")

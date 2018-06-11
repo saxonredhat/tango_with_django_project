@@ -11,8 +11,20 @@
     {% block base_css %}
         <link href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
         <style>
-        .show_hand{
-            cursor: pointer;
+            .show_hand{
+                cursor: pointer;
+            }
+            .font-opacity{
+               opacity: 0.5;
+            }
+            .font-40-size{
+                font-size:20px;
+            }
+            .text-center
+            @font-face {
+                font-family: 'Light';
+                src: url('{% static 'fonts/Light.ttf' %}');
+                src: local('{% static 'fonts/Light.ttf' %}');
             }
         </style>
     {% endblock %}
@@ -47,7 +59,21 @@
                 <li><a href="{% url 'about' %}">
                     <span class="glyphicon glyphicon-info-sign"></span>
                     关于</a></li>
+                  <li>
+                  <form class="navbar-form">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Search" />
+                            <span class="input-group-addon">
+                                <i class="glyphicon glyphicon-search"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                  </form>
+                  </li>
               </ul>
+
               <ul class="nav navbar-nav navbar-right">
                 {% if not user.is_authenticated %}
                   <li><a href="{% url 'user_login' %}">
@@ -57,6 +83,16 @@
                       <span class="glyphicon glyphicon-envelope"></span>
                       注册</a></li>
                 {% else %}
+                  <li><a href="{% url 'user_zone' user.id %}">
+                      {% if request.user.user_info.picture %}
+                      <img class="img-circle" style="border: 1px solid;" height="30" width="30" src="{{ request.user.user_info.picture.url }}">
+                      {% endif %}
+                      {{user.username}}</a></li>
+
+                  <li class="dropdown">
+                  <li><a href="{% url 'user_info' user.id %}">
+                      <span class="glyphicon glyphicon-user"></span>
+                      个人中心</a></li>
                   <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <span class="glyphicon glyphicon-book"></span>
@@ -99,19 +135,6 @@
                   </a></li>
 
                 {% endif %}
-                  <li class="nav navbar-right">
-                  <form class="navbar-form">
-                    <div class="form-group">
-                        <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Search" />
-                            <span class="input-group-addon">
-                                <i class="glyphicon glyphicon-search"></i>
-                            </span>
-                        </div>
-                    </div>
-
-                  </form>
-                </li>
               </ul>
 
 

@@ -1,0 +1,224 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+{% load widget_tweaks %}
+{% load blog_templatetags %}
+{% load cropping %}
+{% load thumbnail %}
+{% block script %}
+    {{ block.super }}
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="{% static 'js/bootstrap-markdown.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="{% static 'js/jquery.Jcrop.min.js' %}"></script>
+    <script>
+        function show_jcrop() {
+            $('#myjcrop').Jcrop({
+            onSelect: selectedCoordinates,
+            onChange: changingCoordinates,
+            onRelease: finalCoordinates,
+            aspectRatio: 2 / 3,
+            minSize: [2,100],
+            maxSize: [500, 750]
+            });
+        };
+    </script>
+{% endblock %}
+
+{% block base_css %}
+    {{ block.super }}
+    <link href="{% static 'css/jquery.Jcrop.css' %}" rel="stylesheet" type="text/css" />
+{% endblock %}
+
+{% block body %}
+<div class="container">
+        <div class="row">
+            <div class="col-md-2">
+                <div class="row">
+                   <img class="img-circle" style="border:1px solid;" height="97" width="97" src="{{ get_user.user_info.picture.url }}">
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="row">
+                  <h3><span>{{get_user.username}}</span></h3>
+                </div>
+                <div class="row" style="">
+                    <div class="col-md-2">
+                        <div class="row">
+                            <span >文章</span>
+                        </div>
+                        <div class="row ">
+                            <span>{{get_user.article_set.count}}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="row">
+                            <span >评论</span>
+                        </div>
+                        <div class="row">
+                            <span>{{get_user.article_set.count}}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="row">
+                            <span >点赞</span>
+                        </div>
+                        <div class="row">
+                            <span>{{get_user.article_set.count}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr style="border-top: 1px solid #8c8b8b;" />
+        <div class="row">
+            <div class="col-md-1 col-md-offset-2">
+                <span>原创 0</span>
+            </div>
+            <div class="col-md-1">
+                <span>翻译 0</span>
+            </div>
+            <div class="col-md-1">
+                <span>转载 12</span>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-8">
+                {% for article in articles %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-10" style="padding:0px;">
+                            {% if article.type == 1 %}
+                                <h4>
+                                    <a href="{% url 'article_detail' article.id %}">
+                                        <strong class="text text-success">[ 原创 ] {{article.title}}</strong>
+                                    </a>
+                                </h4>
+                            {% endif %}
+
+                            {% if article.type == 2 %}
+                                <h4>
+                                    <a href="{% url 'article_detail' article.id %}">
+                                        <strong class="text text-warning">[ 翻译 ] {{article.title}}</strong>
+                                    </a>
+                                </h4>
+                            {% endif %}
+
+                            {% if article.type == 3 %}
+                                <h4>
+                                    <a href="{% url 'article_detail' article.id %}">
+                                        <strong class="text text-danger">[ 转载 ] {{article.title}}</strong>
+                                    </a>
+                                </h4>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" >
+                <div class="col-md-12" style="padding:0px;">
+                    <a href="{% url 'user_zone' article.author.id %}">
+                        {% if article.author.user_info.picture.url %}
+                            <img class="img-circle" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
+                        {% else %}
+                            <span class="glyphicon glyphicon-user"></span>
+                        {% endif %}
+                        {{article.author}}
+                    </a>
+                    &nbsp;&nbsp;
+                    <span class="glyphicon glyphicon-time font-opacity"></span>
+                    <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
+                    &nbsp;&nbsp;
+                    <span class="glyphicon glyphicon-tag"></span>
+                    {% for tag in article.tags.all %}
+                        <button class="btn btn-success">{{ tag }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col-md-10 bg-info" style="border-radius:15px; padding:15px;">
+                    {{article.content |my_markdown|del_html_tag|truncatechars:300}}
+                </div>
+            </div>
+            <div class="row" style="padding:0px;">
+                <div class="col-md-1">
+                    <small class="font-opacity">阅读 {{article.views}}</small>
+                </div>
+                <div class="col-md-1">
+                    <small class="font-opacity">评论 {{article.comment_set.count}}</small>
+                </div>
+                <div class="col-md-1">
+                    <small class="font-opacity">收藏 0</small>
+                </div>
+            </div>
+            <br>
+        {% empty %}
+            no articles
+        {% endfor %}
+            <div class="row">
+                <div class="col-md-5">
+                    {% if articles.has_previous %}
+                        <a href="?page={{ articles.previous_page_number }}">
+                            <button class="btn btn-primary">上一页</button>
+                        </a>
+                    {% endif %}
+
+                    <span class="current">
+                        第 {{ articles.number }} 页 / 共 {{ articles.paginator.num_pages }} 页
+                    </span>
+
+                    {% if articles.has_next %}
+                        <a href="?page={{ articles.next_page_number }}">
+                            <button class="btn btn-primary">下一页</button>
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="col-md-5">
+                    <form action="" method="get" class="form-inline" role="form">
+                            <div class="form-group">
+                                <input style="width:30%" class="form-control input-sm col-sm-1" type="text" name="page">
+                                页 <input class="btn btn-primary" type="submit" value="跳转">&nbsp;
+                            </div>
+                    </form>
+                </div>
+            </div>
+            </div>
+            <div class="col-md-4">
+                <div class="row">
+                    <div style="border: 1px solid #8c8b8b;">
+                        <div class="text text-center">
+                            作者个人信息
+                        </div>
+                        <hr style="border-top: 1px solid #8c8b8b;">
+                        <div>
+                           文章 : {{get_user.article_set.all.count}} 篇
+                        </div>
+                        <div>
+                            博币 : 0
+                        </div>
+                        <div>
+                            注册时间 : {{get_user.date_joined|date:"Y-m-d"}}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    热门文章
+                    <div style="border: 1px solid #8c8b8b;">
+                        <div class="">
+                            热门文章
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    最近来访
+                    <div style="border: 1px solid #8c8b8b;">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+{% endblock %}
+

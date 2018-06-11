@@ -51,6 +51,9 @@ INSTALLED_APPS = [
     'ckeditor',
     'ckeditor_uploader',
     'captcha',
+    'widget_tweaks',
+    'easy_thumbnails',
+    'image_cropping',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -174,6 +177,15 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_all')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [STATIC_DIR, ]
 
+
+#图片裁剪
+from easy_thumbnails.conf import Settings as thumbnail_settings
+THUMBNAIL_PROCESSORS = (
+    'image_cropping.thumbnail_processors.crop_corners',
+) + thumbnail_settings.THUMBNAIL_PROCESSORS
+
+IMAGE_CROPPING_BACKEND = 'image_cropping.backends.easy_thumbs.EasyThumbnailsBackend'
+IMAGE_CROPPING_BACKEND_PARAMS = {}
 
 ANONYMOUS_USER_ID=-1
 
