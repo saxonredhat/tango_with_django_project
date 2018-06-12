@@ -19,6 +19,7 @@ from django.core.mail import send_mail
 from image_cropping.utils import get_backend
 from easy_thumbnails.files import get_thumbnailer
 from markdown import markdown
+from django.utils import timezone
 import mytools
 import base64
 import re
@@ -48,6 +49,7 @@ class Token:
         serializer = utsr(self.security_key)
         return serializer.loads(token, salt=self.salt)
 
+
 token_confirm = Token(django_settings.SECRET_KEY)
 
 
@@ -61,6 +63,11 @@ def index(request):
 
 def about(request):
     return render(request, 'blog/about.html')
+
+
+def testajax(request):
+    return render(request, 'blog/testajax.html')
+
 
 def articles_list(request):
     articles = Article.objects.all().order_by('-pulished_date')
@@ -100,7 +107,36 @@ def article_detail(request, article_id):
     context_dict = {'article': article, 'comments': comments,
                   'comment_form':comment_form
                   }
-    return render(request, 'blog/article_detail.html', context_dict)
+    return render(request, 'blog/article_detail_new.html', context_dict)
+
+
+@login_required
+def comment_list(request, article_id):
+    try:
+        article = Article.objects.get(id=article_id)
+        comments = Comment.objects.filter(article=article)
+        order = 'asc' if request.GET.get('order','asc') == 'asc' else 'desc'
+        if order == 'desc':
+            comments=sorted(comments,key=lambda c:c.published_date,reverse=True)
+        return render(request,'blog/comment_list.html',{'comments':comments,'article': article,'order': order})
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('article not exist')
+
+
+@login_required
+def article_add_comment(request, article_id):
+    #获取文章
+    article=Article.objects.get(id=article_id)
+    #获取评论的内容
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        comment = Comment(content=content,user=request.user,article=article,published_date =datetime.now(tz=timezone.utc))
+        comment.save()
+        comment_layer=article.comment_set.all().count()
+        print comment_layer
+        return render(request, 'blog/comments_of_article.html',{'comment':comment,'article':article,'comment_layer': comment_layer})
+    return HttpResponse('403 request method')
 
 
 @login_required
@@ -115,6 +151,35 @@ def comment_user(request,comment_id,user_id):
         c.save()
         return HttpResponseRedirect(reverse('article_detail',kwargs={'article_id':article_id}))
     return HttpResponseRedirect(reverse('index'))
+
+
+@login_required
+def comment_user_first(request,comment_id,article_id):
+    if request.method == 'POST':
+        user = request.user
+        comment = Comment.objects.get(id=comment_id)
+        article=Article.objects.get(id=article_id)
+        comment_user_content=request.POST.get('comment_user_content')
+        published_date=datetime.now(tz=timezone.utc)
+        comment_user_new=Comment(comt=comment,user=user,published_date=published_date,content=comment_user_content)
+        comment_user_new.save()
+        return render(request, 'blog/comments_of_user.html', {'comment_user': comment_user_new,'article':article,'first_second':'first'})
+    return HttpResponse('403 request method')
+
+
+@login_required
+def comment_user_second(request, comment_id, article_id):
+    if request.method == 'POST':
+        comment = Comment.objects.get(id=comment_id)
+        user = request.user
+        article = Article.objects.get(id=article_id)
+        comment_user_content=request.POST.get('comment_user_content')
+        article_id = request.GET.get('article_id')
+        published_date = datetime.now(tz=timezone.utc)
+        comment_user_new = Comment(comt=comment,user=user,published_date=published_date,content=comment_user_content)
+        comment_user_new.save()
+        return render(request, 'blog/comments_of_user.html', {'comment_user': comment_user_new,'article':article,'first_second':'second'})
+    return HttpResponse('403 request method')
 
 
 @login_required
@@ -338,6 +403,7 @@ def active_user(request, token):
     user.save()
     message = u'验证成功，请进行网站 <a href="' + unicode(django_settings.DOMAIN) + u'/blog/login">登录</a>操作'
     return render(request, 'blog/message.html', {'message':message})
+
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser)

@@ -1,0 +1,71 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+{% load blog_templatetags %}
+{% load widget_tweaks %}
+{% block base_css %}
+    {{ block.super }}
+    <link href="{% static 'css/bubbles.css' %}" rel="stylesheet">
+{% endblock %}
+{% block script %}
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/blog/comments.js' %}"></script>
+{% endblock %}
+{% block body %}
+{% if article %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+            <h2>{{article.title}} </h2>
+            <p>作者:{{article.author}}
+            发布时间:{{article.pulished_date|date:"Y-m-d" }}
+
+                标签:{% for tag in article.tags.all %}
+                        {% if forloop.last %}
+                            {{ tag }}
+                        {% else %}
+                            {{ tag }},
+                        {% endif %}
+                    {% endfor %}
+            </p>
+            {% autoescape off %}
+                    <p><em>{{article.content|my_markdown}}</em></p>
+            {% endautoescape %}
+        </div>
+    </div>
+    <div class="row">
+        <form action="{% url 'article_add_comment' article.id %}" method="POST" class="article_form" role="form">
+            <div class="form-group">
+                <div class="col-md-8 col-md-offset-1">
+                    {% csrf_token %}
+                    {{ comment_form.title.errors }}
+                    {% render_field comment_form.content class="form-control" rows="8" %}
+                    <button class="btn btn-primary">评论</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-8 col-md-offset-1" id="comment_all">
+            <div class="row" style="font-size:15px;">
+                <div class="col-md-6">
+                <span id="comment_counts">{{comments.count}}</span>
+                    条评论
+                </div>
+                <span class="show_hand" id="time_asc" onclick="comment_list({{article.id}},'asc')">按时间正序</span>
+                <span class="show_hand" id="time_desc" onclick="comment_list({{article.id}},'desc')">按时间倒序</span>
+                <div class="col-md-3 col-md-8">
+                </div>
+            </div>
+            <br>
+            <div id="comment_list">
+                <!--打印文章的评论-->
+                {% include 'blog/comment_list.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+    404 NOT FOUND
+{% endif %}
+{% endblock %}

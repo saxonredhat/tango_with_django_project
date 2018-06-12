@@ -1,0 +1,118 @@
+{% load staticfiles %}
+{% load blog_templatetags %}
+{% load widget_tweaks %}
+<div class="article_comment">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-2">
+                    {% if comment.user.user_info.picture %}
+                    <img class="img-circle" style="border: 1px solid;" height="35" width="35" src="{{ comment.user.user_info.picture.url }}">
+                {% else %}
+                    <span class="glyphicon glyphicon-user" style="font-size:33px"></span>
+                {% endif %}
+                </div>
+                <div class="col-md-10">
+                    <div class="row">
+                        {% if article.author == comment.user %}
+                        <span class="text text-primary"><strong>[作者]</strong></span>{{comment.user.username}}
+                        {% else %}
+                            {{comment.user.username}}
+                        {% endif %}
+                    </div>
+                    <div class="row">
+                        <small>
+                            <span class="comment_layer">{{comment_layer}}</span>楼
+                            <i>{{ comment.published_date|date:"Y-m-d H:i:s"}}</i>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <p style="font-size:16px;">{{ comment.content }}</p>
+                <span class="glyphicon glyphicon-thumbs-up" style="font-size:20px"></span>&nbsp;&nbsp;0
+                &nbsp;&nbsp;&nbsp;&nbsp;
+                <span class="show_hand"  onclick="display_form(this)" ><span class="glyphicon glyphicon-comment" style="font-size:20px"></span>&nbsp;<span class="comment_count">{% comment_by_comment comment.id %}</span>人回复</span>
+                {% if comment.user == request.user %}
+                    <small class="show_hand" id="{{ comment.id }}" onclick="delete_article_comment(this)">&nbsp;删除</small>
+                {% endif %}
+                <br><br>
+                <form method="POST" action="{% url 'comment_user' comment.id user.id %}?article_id={{article.id}}" class="form" name='article_comment_form' style="display:none;">
+                     {% csrf_token %}
+                    <div class="form-group">
+                        <textarea class="form-control" name="comment_user" rows="6" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success" type="submit">回复</button>&nbsp;&nbsp;
+                        <span class="show_hand" onclick="hidden_form(this)">取消</span>
+                    </div>
+                </form>
+                {% for comment_user in comment.get_comments_all %}
+                    <div class="row user_comment">
+                        <div class="col-md-11 col-md-offset-1">
+                            <div style="font-size:16px;">
+                                {% if article.author == comment_user.user %}
+                                    {% if comment_user.user.user_info.picture %}
+                                        <img class="img-circle" style="border: 1px solid;" height="30" width="30" src="{{ comment_user.user.user_info.picture.url }}">
+                                    {% else %}
+                                        <span class="glyphicon glyphicon-user"></span>
+                                    {% endif %}
+                                    <a class="show_hand"><span class="text text-primary"><strong>[作者]{{article.author.username}}:</strong></span></a>
+                                    {% if comment_user.user == comment_user.comt.user %}
+                                        <a class="show_hand"></a>
+                                    {% else %}
+                                        <a class="show_hand">@{{comment_user.comt.user.username}}</a>
+                                    {% endif %}
+                                {% else %}
+                                    {% if comment_user.user.user_info.picture %}
+                                        <img class="img-circle" style="border: 1px solid;" height="30" width="30" src="{{ comment_user.user.user_info.picture.url }}">
+                                    {% else %}
+                                        <span class="glyphicon glyphicon-user"></span>
+                                    {% endif %}
+                                        <a class="show_hand">{{comment_user.user.username}}:</a>
+                                    {% if article.author == comment_user.comt.user %}
+                                        <a class="show_hand"><span class="text text-primary"><strong>@[作者]{{comment_user.comt.user.username}}</strong></span></a>
+                                    {% else %}
+                                        {% if comment_user.user == comment_user.comt.user %}
+                                            <a class="show_hand"></a>
+                                        {% else %}
+                                            <a class="show_hand">@{{comment_user.comt.user.username}}</a>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+
+                                {{comment_user.content}}
+                            </div>
+                            <i>
+                                <small>
+                                    {{comment_user.published_date|date:"Y-m-d H:i:s"}}&nbsp;&nbsp;
+                                </small>
+                            </i>
+
+
+                            {% if request.user != comment_user.user %}
+                                <span class="show_hand"  onclick="display_form(this)"><small><span class="glyphicon glyphicon-comment" style="font-size:8px"></span> 回复</small></span>
+                            {% else %}
+                                <small class="show_hand" id="{{ comment_user.id }}" onclick="delete_user_comment(this)">&nbsp;删除</small>
+                            {% endif %}
+                            <br><br>
+                            <form method="POST" action="{% url 'comment_user' comment_user.id user.id %}?article_id={{article.id}}" class="form" name='user_comment_form' style="display:none;">
+                                 {% csrf_token %}
+                                <div class="form-group">
+                                    <textarea class="form-control" name="comment_user" rows="6" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <button class="btn btn-success" type="submit">回复</button>&nbsp;&nbsp;
+                                    <span class="show_hand" onclick="hidden_form(this)">取消</span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                {% empty %}
+                {% endfor %}
+        </div>
+    </div>
+</div>

@@ -20,13 +20,13 @@ def my_markdown(content):
 
 
 @register.simple_tag
-def comment_by_comment(comment_id):
+def replies_of_comment(comment_id):
     counts = 0
     comment = Comment.objects.get(id=comment_id)
     if comment.comment_set.all().count():
         for c in comment.comment_set.all():
             counts += 1
-            counts += comment_by_comment(c.id)
+            counts += replies_of_comment(c.id)
     else:
         return 0
     return counts

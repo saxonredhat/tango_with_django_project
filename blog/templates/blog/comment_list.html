@@ -1,0 +1,6 @@
+<div id="comment_order" value="{% if order == 'desc' %}desc{% else %}asc{% endif %}">
+    {% for comment in comments %}
+    {% include 'blog/comments_of_article.html' %}
+    {% empty %}
+    {% endfor %}
+</div>

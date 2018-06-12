@@ -1,0 +1,85 @@
+<!--用户对用户的评论进行递归的模板-->
+<div class="row user_comment">
+    <div class="col-md-11 col-md-offset-1">
+        <div style="font-size:16px;">
+            {% if comment_user.user.user_info.picture %}
+                <img class="img-circle" style="border: 1px solid;" height="30" width="30" src="{{ comment_user.user.user_info.picture.url }}">
+            {% else %}
+                <span class="glyphicon glyphicon-user"></span>
+            {% endif %}
+            <!--判断回复的用户是否是该文章的作者
+                是：
+                    打印[作者]+回复者用户名
+                    判断是否是回复自己
+                    否：
+                        打印@+用户名
+                否:
+                    打印回复者用户名
+                    判断回复的是否是文章作者
+                    是:
+                        打印@[作者]+被回复者的用户名
+                    否:
+                        判断是否是回复自己
+                        否:
+                            打印@+回复者用户名
+            -->
+            {% if article.author == comment_user.user %}
+                <a class="show_hand">
+                    <span class="text text-primary">
+                    <strong>[作者]{{comment_user.user.username}}:</strong>
+                    </span>
+                </a>
+                {% if comment_user.user != comment_user.comt.user %}
+                    <a class="show_hand">@{{comment_user.comt.user.username}}</a>
+                {% endif %}
+            {% else %}
+                <a class="show_hand">{{comment_user.user.username}}:</a>
+                {% if article.author == comment_user.comt.user %}
+                    <a class="show_hand"><span class="text text-primary"><strong>@[作者]{{comment_user.comt.user.username}}</strong></span></a>
+                {% else %}
+                    {% if comment_user.user != comment_user.comt.user %}
+                        <a class="show_hand">@{{comment_user.comt.user.username}}</a>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+            <!--打印回复的内容-->
+            {{comment_user.content}}
+        </div>
+        <i>
+            <small>
+                <!--打印回复的时间-->
+                {{comment_user.published_date|date:"Y-m-d H:i:s"}}&nbsp;&nbsp;
+            </small>
+        </i>
+
+        <!--判断当前登录的用户是否是该条回复者本人
+            否:
+                打印回复链接
+            是：
+                打印删除链接
+        -->
+        {% if request.user != comment_user.user %}
+            <span class="show_hand"  onclick="display_form(this)"><small><span class="glyphicon glyphicon-comment" style="font-size:8px"></span> 回复</small></span>
+        {% else %}
+            <small class="show_hand" id="{{ comment_user.id }}" onclick="delete_user_comment(this)">&nbsp;删除</small>
+        {% endif %}
+        <br><br>
+        <!--提供当前评论的回复框,默认是隐藏的，只有用户点击-->
+        <form method="POST" action="
+        {% if first_second == 'first' %}
+            {% url 'comment_user_first' comment_user.id article.id %}
+        {% else %}
+            {% url 'comment_user_first' comment_user.id article.id %}
+        {% endif %}
+        " class="form user_comment_form" style="display:none;">
+             {% csrf_token %}
+            <div class="form-group">
+                <textarea class="form-control" name="comment_user_content" rows="6" required></textarea>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-success">回复</button>&nbsp;&nbsp;
+                <span class="show_hand" onclick="hidden_form(this)">取消</span>
+            </div>
+        </form>
+    </div>
+</div>
