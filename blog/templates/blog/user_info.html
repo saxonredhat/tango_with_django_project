@@ -30,62 +30,66 @@
 
 {% block body %}
 <div class="container" style="width: 60%; margin: 10 auto;">
-        <div class="row">
-            <div class="col-md-10">
-                    <form action="" method="POST" class="form" role="form-horizontal" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {{ user_form.errors }}
-                        {{ user_info_form.errors }}
-                        <div class="row">
-                            <div class="col-md-6">
-                                    <div class="form-group">
-                                        <div class="col-md-12">
-                                            {{ user_form.username.errors }}
-                                            <div>
-
-                                            </div>
-                                             <label for="{{ user_form.username.id_for_label }}">用户名</label>
-                                            {% render_field user_form.username class="form-control" %}
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="col-md-6" style="width:50%;">
-                                        {{ user_form.email.errors }}
-                                        <label for="{{ user_form.email.id_for_label }}">邮箱</label>
-                                        {% render_field user_form.email class="form-control" %}
-                                        </div>
-                                        <div class="col-md-6" style="width:50%;">
-                                            {{ user_info_form.picture.errors }}
-                                            <img src="{% cropped_thumbnail request.user.user_info "cropping" scale=0.5 %}">
-
-                                            {% thumbnail request.user.user_info.picture 200x200 box=request.user.user_info.cropping crop detail %}
-                                            <label for="{{ user_info_form.picture.id_for_label }}">头像</label>
-                                            {% render_field user_info_form.picture class="form-control" %}
-                                            {{ user_info_form.media }}
-                                        </div>
-                                        <div class="col-md-6" style="width:50%;">
-                                            {{ user_info_form.website.errors }}
-                                            <label for="{{ user_info_form.website.id_for_label }}">个人网站</label>
-                                            {% render_field user_info_form.website class="form-control"  %}
-                                        </div>
-                                        <div id="myjcrop"></div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="col-md-5" >
-                                            <button onclick="show_jcrop()">点击</button>
-                                           <input type="submit" class="btn btn-success" value="保存">
-                                        </div>
-                                    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <form action="" method="POST" class="form" role="form-horizontal" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ user_form.errors }}
+                {{ user_info_form.errors }}
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <div class="col-md-12">
+                            {{ user_form.username.errors }}
+                            <label for="{{ user_form.username.id_for_label }}">用户名</label>
+                            {% render_field user_form.username class="form-control" disabled="disabled" %}
                             </div>
-
                         </div>
-                    </form>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                            {{ user_form.email.errors }}
+                            <label for="{{ user_form.email.id_for_label }}">邮箱</label>
+                            {% render_field user_form.email class="form-control" disabled="disabled" %}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                {{ user_info_form.picture.errors }}
+                                <label for="{{ user_info_form.picture.id_for_label }}">上传头像</label>
+                                {% render_field user_info_form.picture class="form-control" %}
+                                {{ user_info_form.media }}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                {{ user_info_form.website.errors }}
+                                <label for="{{ user_info_form.website.id_for_label }}">个人网站</label>
+                                {% render_field user_info_form.website class="form-control"  %}
+                            </div>
+                        </div>
+                        <br>
+                        <div class="form-group">
+                            <div class="col-md-12">
+                               <input type="submit" class="btn btn-success" value="保存">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <img class="img-circle" height="200" width="200" src="{{ request.user.user_info.picture.url }}">
-                    <p>个人头像</p>
-                </div>
+            </form>
         </div>
+        <div class="col-md-6 text text-center" >
+            <div class="row">
+                <img class="img-circle" style="border:1px solid;" height="150" width="150" src="
+                {% if request.user.user_info.picture %}
+                    {{request.user.user_info.picture.url}}
+                {% endif %}">
+            </div>
+            <br>
+            <div class="row">
+                <span>个人头像</span>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}

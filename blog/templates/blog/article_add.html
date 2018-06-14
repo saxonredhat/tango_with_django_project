@@ -77,13 +77,13 @@
                         <div class="form-group">
                             <div class="col-md-6" style="width:50%;">
                             {{ form.category.errors }}
-                            <label for="{{ form.category.id_for_label }}">文章类型</label>
+                            <label for="{{ form.category.id_for_label }}">文章分类</label>
                             {% render_field form.category class="form-control" %}
                             </div>
                             <div class="col-md-6" style="width:50%;">
-                                {{ form.tags.errors }}
                                 <label for="{{ form.tags.id_for_label }}">标签</label>
                                 {% render_field form.tags class="form-control" %}
+                                {{ form.tags.errors }}
                             </div>
                         </div>
                         <div class="form-group">

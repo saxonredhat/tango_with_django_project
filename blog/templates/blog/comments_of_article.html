@@ -26,6 +26,7 @@
                     </div>
                     <div class="row">
                         <small>
+                            <span class="hover-font">
                             <span class="comment_layer">
                                 <!--打印评论的楼层,判断当前模板是否在循环中
                                     是，则使用变量forloop.counter值
@@ -47,9 +48,9 @@
                                         空
                                     {% endif %}
                                 {% endif %}
-                            </span>楼
+                            </span>楼</span>
                             <!--打印发表评论的时间-->
-                            <i>{{ comment.published_date|date:"Y-m-d H:i:s"}}</i>
+                            <i class="hover-font">{{ comment.published_date|date:"Y-m-d H:i:s"}}</i>
                         </small>
                     </div>
                 </div>
@@ -60,25 +61,36 @@
         <div class="col-md-12 comment_user_parent">
             <!--获取评论的内容-->
             <p style="font-size:16px;">{{ comment.content }}</p>
-            <span class="glyphicon glyphicon-thumbs-up" style="font-size:20px"></span>&nbsp;&nbsp;0
+            <span class="hover-font">
+                <span class="like_comment" comment_id="{{ comment.id }}">
+                    <span class="glyphicon glyphicon-thumbs-up show_hand" name="like_hand" style="font-size:20px;
+                    {% for like in comment.like_set.all %}
+                        {% if like.user_id == request.user.id %}
+                            color:red;
+                        {% endif %}
+                    {% endfor %}
+                    "></span>&nbsp;&nbsp;
+                    <span class="like_count">{{comment.like_set.all.count}}</span>
+                </span>
                 &nbsp;&nbsp;&nbsp;&nbsp;
-            <span class="show_hand"  onclick="display_form(this)" >
+            </span>
+            <span class="show_hand hover-font"  onclick="display_form(this)" >
                 <span class="glyphicon glyphicon-comment" style="font-size:20px"></span>&nbsp;
-                <span class="replay_counts">{% replies_of_comment comment.id %}</span>
-                人回复
+                <span class="replay_counts">{% replies_of_comment comment.id %}</span>人回复
+
             </span>
             <!--判断当前登录的用户是否是该条评论的用户
                 是，则打印该条评论的删除超链接
             -->
             {% if comment.user == request.user %}
-                <small class="show_hand" id="{{ comment.id }}" onclick="delete_article_comment(this)">&nbsp;删除</small>
+                <small class="show_hand hover-font" id="{{ comment.id }}" onclick="delete_article_comment(this)">&nbsp;删除</small>
             {% endif %}
             <br><br>
             <!--提供当前评论的回复框,默认是隐藏的，只有用户点击-->
-            <form method="POST" action="{% url 'comment_user_first' comment.id article.id %}" class="form article_comment_form" style="display:none;">
+            <form method="POST" action="{% url 'comment_user_first' comment.id article.id %}" name="article_comment_form" class="form article_comment_form" style="display:none;">
                  {% csrf_token %}
                 <div class="form-group">
-                    <textarea class="form-control" name="comment_user_content" rows="6" required></textarea>
+                    <textarea class="form-control" name="comment_user_content" maxlength="500" minlength="1" rows="6" required></textarea>
                 </div>
                 <div class="form-group">
                     <button class="btn btn-success">回复</button>&nbsp;&nbsp;

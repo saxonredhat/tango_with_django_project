@@ -38,7 +38,7 @@
             <div class="row" >
                 <div class="col-md-10" style="padding:0px;">
                     <a href="{% url 'user_zone' article.author.id %}">
-                        {% if article.author.user_info.picture.url %}
+                        {% if article.author.user_info.picture %}
                             <img class="img-circle" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
                         {% else %}
                             <span class="glyphicon glyphicon-user"></span>
@@ -51,7 +51,7 @@
                     &nbsp;&nbsp;
                     <span class="glyphicon glyphicon-tag"></span>
                     {% for tag in article.tags.all %}
-                        <button class="btn btn-success">{{ tag }}</button>
+                        <a href="{% url 'articles_list' %}?tag={{tag}}"><button class="btn btn-success">{{ tag }}</button></a>
                     {% endfor %}
                 </div>
             </div>
@@ -79,7 +79,11 @@
             <div class="row">
                 <div class="col-md-3">
                     {% if articles.has_previous %}
-                        <a href="?page={{ articles.previous_page_number }}">
+                        {% if tag %}
+                            <a href="?page={{ articles.previous_page_number }}&tag={{tag}}">
+                        {% else %}
+                            <a href="?page={{ articles.previous_page_number }}">
+                        {% endif %}
                             <button class="btn btn-primary">上一页</button>
                         </a>
                     {% endif %}
@@ -89,7 +93,12 @@
                     </span>
 
                     {% if articles.has_next %}
-                        <a href="?page={{ articles.next_page_number }}">
+                        {% if tag %}
+                            <a href="?page={{ articles.next_page_number }}&tag={{tag}}">
+                        {% else %}
+                            <a href="?page={{ articles.next_page_number }}">
+                        {% endif %}
+
                             <button class="btn btn-primary">下一页</button>
                         </a>
                     {% endif %}
@@ -98,6 +107,9 @@
                     <form action="" method="get" class="form-inline" role="form">
                              <div class="form-group">
                                 <input style="width:30%" class="form-control input-sm col-sm-1" type="text" name="page">
+                                 {% if tag %}
+                                    <input type="hidden" name="tag" value="{{tag}}">
+                                 {% endif %}
                                 页 <input class="btn btn-primary" type="submit" value="跳转">&nbsp;
                             </div>
                     </form>

@@ -11,22 +11,39 @@ sys.setdefaultencoding("utf-8")
 
 
 class ArticleForm(forms.ModelForm):
+    error_messages = {
+        'tags_too_many': _("标签数量不能超过5个."),
+    }
+    title = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '文章标题'}))
     type = forms.CharField(widget=forms.Select(choices=((1, '原创'), (2, '翻译'), (3, '转载'),)))
+    tags = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '各个标签使用;分隔,最多5个标签'}))
 
     class Meta:
         model = Article
-        fields = ('title', 'type', 'content', 'category', 'tags')
+        fields = ('title', 'type', 'content', 'category')
+
+    def clean_tags(self):
+        tag_list = self.cleaned_data.get('tags').split(';')
+        if len(tag_list) > 5:
+            raise forms.ValidationError(
+                self.error_messages['tags_too_many'],
+                code='tags_too_many',
+            )
+        return self.cleaned_data.get('tags')
 
 
 class UserInfoForm(forms.ModelForm):
+    picture = forms.ImageField(label=_('头像'), required=False, error_messages={'无效': _("仅图片文件")},
+                     widget=forms.FileInput)
     class Meta:
         model = UserInfo
-        fields = ('website', 'picture','cropping')
+        fields = ('website', 'picture', 'cropping')
 
 
 class UserBaseForm(forms.Form):
     username = forms.CharField(max_length=128, help_text="Please enter Username.")
     email = forms.EmailField(max_length=200, help_text="Please enter email.")
+
 
 class UserAddForm(forms.ModelForm):
     error_messages = {

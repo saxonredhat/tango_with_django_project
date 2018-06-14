@@ -6,6 +6,7 @@ from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 from image_cropping import ImageRatioField
 from django.contrib.auth.models import User
+from datetime import datetime
 # Create your models here.
 import sys
 reload(sys)
@@ -49,7 +50,7 @@ class Author(models.Model):
 
 
 class Tag(models.Model):
-    name = models.CharField('名字',max_length=20)
+    name = models.CharField('名字',max_length=20,unique=True)
 
     class Meta:
         db_table = 'blog_Tag'
@@ -62,13 +63,13 @@ class Tag(models.Model):
 class Article(models.Model):
     title = models.CharField('文章标题', max_length=50)
     #content = RichTextUploadingField('文章内容', config_name='default_ckeditor')
-    type = models.IntegerField('文章类型', default=1)
+    type = models.IntegerField('文章分类', default=1)
     content = models.TextField('文章内容')
     abstract = models.CharField('文章摘要', max_length=500, null=True , blank=True)
     author = models.ForeignKey(User)
     category = models.ForeignKey(Category)
     views = models.IntegerField(default=0)
-    pulished_date = models.DateTimeField('发布时间')
+    pulished_date = models.DateTimeField('发布时间',default=datetime.now)
     is_top = models.BooleanField('置顶',  default=0)
     is_public = models.BooleanField('公开', default=1 )
     is_forbbiden_comment = models.BooleanField('禁止评论',  default=0)
@@ -88,7 +89,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User)
     comt = models.ForeignKey("self",null=True)
     likes = models.IntegerField(default=0)
-    published_date = models.DateTimeField(blank=True)
+    published_date = models.DateTimeField(default=datetime.now)
 
     class Meta:
         db_table = 'blog_Comment'
@@ -106,3 +107,11 @@ class Comment(models.Model):
             if 0 < len(_r):
                 r.extend(_r)
         return sorted(r ,key=lambda x: x.published_date, reverse=True)
+
+
+class Like(models.Model):
+    user_id = models.IntegerField()
+    like_article = models.ForeignKey(Article, null=True)
+    like_comment = models.ForeignKey(Comment, null=True)
+    like_user=models.ForeignKey(User,null=True,related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)

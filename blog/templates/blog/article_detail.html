@@ -8,293 +8,111 @@
 {% endblock %}
 {% block script %}
     <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script>
-        function display_form(which){
-             //隐藏其他的用户评论form
-             $("form[name='user_comment_form']").attr("style","display:none;");
-             //隐藏其他的文章评论form
-             $("form[name='article_comment_form']").attr("style","display:none;");
-             //显示当前元素下面的form
-             $(which).nextAll("form").attr("style","inline");
-        }
-        function hidden_form(which){
-             //隐藏当前父form
-             $(which).parents("form").attr("style","display:none;");
-        }
-        function delete_article_comment(which){
-            var comment_id=$(which).attr("id");
-            $.get('/blog/comment_delete/'+comment_id, function(data){
-               //隐藏删除的评论
-               $(which).parents(".article_comment").hide();
-               //更新评论的楼层号
-               $(which).parents(".article_comment").nextAll(".article_comment").each(function(){
-                    var comment_layer=$(this).find(".comment_layer");
-                    comment_layer.text(comment_layer.text()-1);
-               });
-           });
-        }
-        function delete_user_comment(which){
-            var comment_id=$(which).attr("id");
-            $.get('/blog/comment_delete/'+comment_id, function(data){
-               //删除用户的评论
-               $(which).parents(".user_comment").hide();
-               //更新用户评论数
-               var comment_count=$(which).parents(".article_comment").find(".comment_count");
-               comment_count.text(comment_count.text()-1);
-           });
-        }
-        $(document).ready(function(){
-                $(".article_form").submit(function(event){
-                    //阻止默认form提交
-                    event.preventDefault();
-                    //获取form的action参数值
-                    var post_url = $(this).attr("action");
-                    //获取form的method参数值
-                    var request_method = $(this).attr("method");
-                    //序列化form的参数
-                    var form_data = $(this).serialize();
-                    //ajax请求
-                    $.ajax({
-                        url : post_url,
-                        type: request_method,
-                        data : form_data
-                    }).done(function(response){
-                        //把响应的response放到id为comment_all节点内最后
-                        $("#comment_all").append(response);
-                      });
-                });
-                $(".article_comment_form").submit(function(event){
-                    //阻止默认form提交
-                    event.preventDefault();
-                    //获取form的action参数值
-                    var post_url = $(this).attr("action");
-                    //获取form的method参数值
-                    var request_method = $(this).attr("method");
-                    //序列化form的参数
-                    var form_data = $(this).serialize();
-                    //把当前的this赋值给parent_this
-                    var parent_this=this
-                    //ajax请求
-                    $.ajax({
-                        url : post_url,
-                        type: request_method,
-                        data : form_data
-                    }).done(function(response){
-                        //把响应的response放到子节点的前面
-                        $(parent_this).next().before(response);
-                        //获取当前评论的回复数
-                        var comment_count=$(parent_this).parents(".article_comment").find(".comment_count");
-                        //把当前评论的回复数+1
-                        comment_count.text(parseInt(comment_count.text())+1);
-                        //清空当前的form
-                        $(parent_this)[0].reset();
-                        //隐藏当前form
-                        $(parent_this).hide();
-                      });
-                });
-                $(".user_comment_form").submit(function(event){
-                    //阻止默认form提交
-                    event.preventDefault();
-                    //获取form的action参数值
-                    var post_url = $(this).attr("action");
-                    //获取form的method参数值
-                    var request_method = $(this).attr("method");
-                    //序列化form的参数
-                    var form_data = $(this).serialize();
-                    //把当前的this赋值给parent_this
-                    var parent_this=this
-                    //ajax请求
-                    $.ajax({
-                        url : post_url,
-                        type: request_method,
-                        data : form_data
-                    }).done(function(response){
-                        //把响应的response放到子节点的前面
-                        $(parent_this).parents(".comment_user_parent").children('.user_comment').eq(0).before(response);
-                        //获取当前评论的回复数
-                        var comment_count=$(parent_this).parents(".article_comment").find(".comment_count");
-                        //把当前评论的回复数+1
-                        comment_count.text(parseInt(comment_count.text())+1);
-                        //清空当前的form
-                        $(parent_this)[0].reset();
-                        //隐藏当前form
-                        $(parent_this).hide();
-                      });
-                });
-        });
-    </script>
+    <script src="{% static 'js/blog/comments.js' %}"></script>
 {% endblock %}
 {% block body %}
-    {% if article %}
-
-        <div class="container">
+{% if article %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1">
             <div class="row">
-                    <div class="col-md-10 col-md-offset-1">
-                        <h2>{{article.title}} </h2>
-                        <p>作者:{{article.author}}
-                        发布时间:{{article.pulished_date|date:"Y-m-d" }}
+                <div class="col-md-10" style="padding:0px;">
+                    {% if article.type == 1 %}
+                        <h4>
+                            <a href="{% url 'article_detail' article.id %}">
+                                <strong class="text text-success">[ 原创 ] {{article.title}}</strong>
+                            </a>
+                        </h4>
+                    {% endif %}
 
-                            标签:{% for tag in article.tags.all %}
-                                    {% if forloop.last %}
-                                        {{ tag }}
-                                    {% else %}
-                                        {{ tag }},
-                                    {% endif %}
-                                {% endfor %}
-                        </p>
-                        {% autoescape off %}
-                                <p><em>{{article.content|my_markdown}}</em></p>
-                        {% endautoescape %}
-                    </div>
+                    {% if article.type == 2 %}
+                        <h4>
+                            <a href="{% url 'article_detail' article.id %}">
+                                <strong class="text text-warning">[ 翻译 ] {{article.title}}</strong>
+                            </a>
+                        </h4>
+                    {% endif %}
+
+                    {% if article.type == 3 %}
+                        <h4>
+                            <a href="{% url 'article_detail' article.id %}">
+                                <strong class="text text-danger">[ 转载 ] {{article.title}}</strong>
+                            </a>
+                        </h4>
+                    {% endif %}
+                </div>
             </div>
-            <div class="row">
-                <form action="{% url 'article_add_comment' article.id %}" method="POST" class="article_form" role="form">
-                    <div class="form-group">
-                        <div class="col-md-8 col-md-offset-1">
-                            {% csrf_token %}
-                            {{ comment_form.title.errors }}
-                            {% render_field comment_form.content class="form-control" rows="8" %}
-                            <button class="btn btn-primary">评论</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-md-8 col-md-offset-1" id="comment_all">
-                    <div class="row" style="font-size:15px;">
-                        <div class="col-md-6">
-                        {{comments.count}}条评论
-                        </div>
-                        <div class="col-md-3 col-md-8">
-                        </div>
-                    </div>
-                    <br>
-                    {% for comment in comments %}
-                        <div class="article_comment">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="row">
-                                    <div class="col-md-2">
-                                        {% if comment.user.user_info.picture %}
-                                        <img class="img-circle" style="border: 1px solid;" height="35" width="35" src="{{ comment.user.user_info.picture.url }}">
-                                    {% else %}
-                                        <span class="glyphicon glyphicon-user" style="font-size:33px"></span>
-                                    {% endif %}
-                                    </div>
-                                    <div class="col-md-10">
-                                        <div class="row">
-                                            {% if article.author == comment.user %}
-                                            <span class="text text-primary"><strong>[作者]</strong></span>{{comment.user.username}}
-                                            {% else %}
-                                                {{comment.user.username}}
-                                            {% endif %}
-                                        </div>
-                                        <div class="row">
-                                            <small>
-                                                <span class="comment_layer">{{forloop.counter}}</span>楼
-                                                <i>{{ comment.published_date|date:"Y-m-d H:i:s"}}</i>
-                                            </small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12 comment_user_parent">
-                                <p style="font-size:16px;">{{ comment.content }}</p>
-                                <span class="glyphicon glyphicon-thumbs-up" style="font-size:20px"></span>&nbsp;&nbsp;0
-                                    &nbsp;&nbsp;&nbsp;&nbsp;
-                                <span class="show_hand"  onclick="display_form(this)" ><span class="glyphicon glyphicon-comment" style="font-size:20px"></span>&nbsp;<span class="comment_count">{% comment_by_comment comment.id %}</span>人回复</span>
-                                {% if comment.user == request.user %}
-                                    <small class="show_hand" id="{{ comment.id }}" onclick="delete_article_comment(this)">&nbsp;删除</small>
-                                {% endif %}
-                                <br><br>
-                                <form method="POST" action="{% url 'comment_user_first' comment.id user.id article.id %}" class="form article_comment_form" style="display:none;">
-                                     {% csrf_token %}
-                                    <div class="form-group">
-                                        <textarea class="form-control" name="comment_user_first_content" rows="6" required></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <button class="btn btn-success">回复</button>&nbsp;&nbsp;
-                                        <span class="show_hand" onclick="hidden_form(this)">取消</span>
-                                    </div>
-                                </form>
-                                {% for comment_user in comment.get_comments_all %}
-                                    <div class="row user_comment">
-                                        <div class="col-md-11 col-md-offset-1">
-                                            <div style="font-size:16px;">
-                                                {% if article.author == comment_user.user %}
-                                                    {% if comment_user.user.user_info.picture %}
-                                                        <img class="img-circle" style="border: 1px solid;" height="30" width="30" src="{{ comment_user.user.user_info.picture.url }}">
-                                                    {% else %}
-                                                        <span class="glyphicon glyphicon-user"></span>
-                                                    {% endif %}
-                                                    <a class="show_hand"><span class="text text-primary"><strong>[作者]{{article.author.username}}:</strong></span></a>
-                                                    {% if comment_user.user == comment_user.comt.user %}
-                                                        <a class="show_hand"></a>
-                                                    {% else %}
-                                                        <a class="show_hand">@{{comment_user.comt.user.username}}</a>
-                                                    {% endif %}
-                                                {% else %}
-                                                    {% if comment_user.user.user_info.picture %}
-                                                        <img class="img-circle" style="border: 1px solid;" height="30" width="30" src="{{ comment_user.user.user_info.picture.url }}">
-                                                    {% else %}
-                                                        <span class="glyphicon glyphicon-user"></span>
-                                                    {% endif %}
-                                                        <a class="show_hand">{{comment_user.user.username}}:</a>
-                                                    {% if article.author == comment_user.comt.user %}
-                                                        <a class="show_hand"><span class="text text-primary"><strong>@[作者]{{comment_user.comt.user.username}}</strong></span></a>
-                                                    {% else %}
-                                                        {% if comment_user.user == comment_user.comt.user %}
-                                                            <a class="show_hand"></a>
-                                                        {% else %}
-                                                            <a class="show_hand">@{{comment_user.comt.user.username}}</a>
-                                                        {% endif %}
-                                                    {% endif %}
-                                                {% endif %}
-
-                                                {{comment_user.content}}
-                                            </div>
-                                            <i>
-                                                <small>
-                                                    {{comment_user.published_date|date:"Y-m-d H:i:s"}}&nbsp;&nbsp;
-                                                </small>
-                                            </i>
-
-
-                                            {% if request.user != comment_user.user %}
-                                                <span class="show_hand"  onclick="display_form(this)"><small><span class="glyphicon glyphicon-comment" style="font-size:8px"></span> 回复</small></span>
-                                            {% else %}
-                                                <small class="show_hand" id="{{ comment_user.id }}" onclick="delete_user_comment(this)">&nbsp;删除</small>
-                                            {% endif %}
-                                            <br><br>
-                                            <form method="POST" action="{% url 'comment_user_second' comment_user.id user.id article.id %}?article_id={{article.id}}" class="form user_comment_form" style="display:none;">
-                                                 {% csrf_token %}
-                                                <div class="form-group">
-                                                    <textarea class="form-control" name="comment_user_second_content" rows="6" required></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <button class="btn btn-success">回复</button>&nbsp;&nbsp;
-                                                    <span class="show_hand" onclick="hidden_form(this)">取消</span>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                {% empty %}
-                                {% endfor %}
-                            </div>
-                        </div>
-                        </div>
-
-
-                    {% empty %}
-                        没评论
+            <div class="row" >
+                <div class="col-md-10" style="padding:0px;">
+                    <a href="{% url 'user_zone' article.author.id %}">
+                        {% if article.author.user_info.picture %}
+                            <img class="img-circle" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
+                        {% else %}
+                            <span class="glyphicon glyphicon-user"></span>
+                        {% endif %}
+                        {{article.author}}
+                    </a>
+                    &nbsp;&nbsp;
+                    <span class="glyphicon glyphicon-time font-opacity"></span>
+                    <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
+                    &nbsp;&nbsp;
+                    <span class="glyphicon glyphicon-tag"></span>
+                    {% for tag in article.tags.all %}
+                        <a href="{% url 'articles_list' %}?tag={{tag}}"><button class="btn btn-success">{{ tag }}</button></a>
                     {% endfor %}
                 </div>
             </div>
+            <br>
+            <div class="row" >
+                <div class="col-md-10 bg-info" style="border-radius:15px; padding:15px;">
+                    {% autoescape off %}
+                        <p><em>{{article.content|my_markdown}}</em></p>
+                    {% endautoescape %}
+                </div>
+            </div>
         </div>
-    {% else %}
-        404 error
-    {% endif %}
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1" style="padding:0px;">
+            <div class="row">
+                <div class="col-md-10">
+                    <form action="{% url 'article_add_comment' article.id %}" method="POST" class="article_form " role="form">
+                        <div class="form-group">
+
+                                {% csrf_token %}
+                                {{ comment_form.title.errors }}
+                                {% render_field comment_form.content class="form-control" rows="8" required=ture  maxlength="500" minlength="1" %}
+                                <button class="btn btn-primary">评论</button>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-10 col-md-offset-1" id="comment_all" style="padding:0px;">
+            <div class="row" style="font-size:15px;">
+                <div class="col-md-8">
+                <span id="comment_counts">{{comments.count}}</span>
+                    条评论
+                </div>
+                <span class="show_hand hover-font" id="time_asc" onclick="comment_list({{article.id}},'asc')">按时间正序</span>&nbsp;&nbsp;
+                <span class="show_hand hover-font" id="time_desc" onclick="comment_list({{article.id}},'desc')">按时间倒序</span>
+                <div class="col-md-3 col-md-8">
+                </div>
+            </div>
+            <br>
+            <div id="comment_list">
+                <!--打印文章的评论-->
+                {% include 'blog/comment_list.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+    404 NOT FOUND
+{% endif %}
 {% endblock %}

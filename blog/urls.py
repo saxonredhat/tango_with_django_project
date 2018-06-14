@@ -19,6 +19,9 @@ urlpatterns = [
     url(r'^comment_user_second/(?P<comment_id>\d+)/(?P<article_id>\d+)$', views.comment_user_second, name='comment_user_second'),
     url(r'^comment_delete/(?P<comment_id>\d+)$', views.comment_delete, name='comment_delete'),
     url(r'^comment_list/(?P<article_id>\d+)$', views.comment_list, name='comment_list'),
+    url(r'^like_article/(?P<article_id>\d+)$',views.like_article, name='like_article'),
+    url(r'^like_user/(?P<user_id>\d+)$',views.like_user, name='like_user'),
+    url(r'^like_comment/(?P<comment_id>\d+)$',views.like_comment, name='like_comment'),
     url(r'^login', views.user_login, name='user_login'),
     url(r'^logout/$', views.user_logout, name='user_logout'),
     url(r'^register/$', views.user_register, name='user_register'),
@@ -50,7 +53,6 @@ urlpatterns = [
     url(r'activate/(?P<token>\w+.[-_\w]*\w+.[-_\w]*\w+)/$', views.active_user, name='active_user'),
     url(r'^canvas/$', views.canvas, name='canvas'),
     url(r'^testajax/$', views.testajax, name='testajax'),
-
     #url(r'publish_article'),
     #url(r''),
     #url(r''),

@@ -71,6 +71,17 @@ def testajax(request):
 
 def articles_list(request):
     articles = Article.objects.all().order_by('-pulished_date')
+    tag_name=request.GET.get('tag','noexist')
+    tag_str=''
+    if tag_name != 'noexist':
+        tag=Tag.objects.filter(name=tag_name)
+        if tag:
+            articles = Article.objects.filter(tags__in=tag).order_by('-pulished_date')
+            tag_str = tag_name
+        else:
+            articles = Article.objects.all().order_by('-pulished_date')
+    else:
+        articles = Article.objects.all().order_by('-pulished_date')
     paginator = Paginator(articles, 8)
     page = request.GET.get('page', 1)
     try:
@@ -79,7 +90,7 @@ def articles_list(request):
         articles_list = paginator.page(1)
     except EmptyPage:
         articles_list = paginator.page(paginator.num_pages)
-    return render(request, 'blog/articles_list.html',{'articles': articles_list})
+    return render(request, 'blog/articles_list.html',{'articles': articles_list,'tag':tag_str})
 
 
 def article_detail(request, article_id):
@@ -107,10 +118,10 @@ def article_detail(request, article_id):
     context_dict = {'article': article, 'comments': comments,
                   'comment_form':comment_form
                   }
-    return render(request, 'blog/article_detail_new.html', context_dict)
+    return render(request, 'blog/article_detail.html', context_dict)
 
 
-@login_required
+
 def comment_list(request, article_id):
     try:
         article = Article.objects.get(id=article_id)
@@ -124,19 +135,27 @@ def comment_list(request, article_id):
         return HttpResponse('article not exist')
 
 
-@login_required
+#@login_required
 def article_add_comment(request, article_id):
-    #获取文章
-    article=Article.objects.get(id=article_id)
-    #获取评论的内容
-    if request.method == 'POST':
-        content = request.POST.get('content')
-        comment = Comment(content=content,user=request.user,article=article,published_date =datetime.now(tz=timezone.utc))
-        comment.save()
-        comment_layer=article.comment_set.all().count()
-        print comment_layer
-        return render(request, 'blog/comments_of_article.html',{'comment':comment,'article':article,'comment_layer': comment_layer})
-    return HttpResponse('403 request method')
+    #对ajax请求不使用装饰器login_required
+    try:
+        user=User.objects.get(id=request.user.id)
+        if user:
+            #获取文章
+            article=Article.objects.get(id=article_id)
+            #获取评论的内容
+            if request.method == 'POST':
+                content = request.POST.get('content')
+                comment = Comment(content=content,user=request.user,article=article,published_date =datetime.now(tz=timezone.utc))
+                comment.save()
+                comment_layer=article.comment_set.all().count()
+                print comment_layer
+                return render(request, 'blog/comments_of_article.html',{'comment': comment,'article': article,'comment_layer': comment_layer})
+            return HttpResponse('403 request method')
+    except Exception,e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
 
 
 @login_required
@@ -153,33 +172,52 @@ def comment_user(request,comment_id,user_id):
     return HttpResponseRedirect(reverse('index'))
 
 
-@login_required
+#@login_required
 def comment_user_first(request,comment_id,article_id):
-    if request.method == 'POST':
-        user = request.user
-        comment = Comment.objects.get(id=comment_id)
-        article=Article.objects.get(id=article_id)
-        comment_user_content=request.POST.get('comment_user_content')
-        published_date=datetime.now(tz=timezone.utc)
-        comment_user_new=Comment(comt=comment,user=user,published_date=published_date,content=comment_user_content)
-        comment_user_new.save()
-        return render(request, 'blog/comments_of_user.html', {'comment_user': comment_user_new,'article':article,'first_second':'first'})
-    return HttpResponse('403 request method')
+    # 对ajax请求不使用装饰器login_required
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            if request.method == 'POST':
+                user = request.user
+                comment = Comment.objects.get(id=comment_id)
+                article = Article.objects.get(id=article_id)
+                comment_user_content = request.POST.get('comment_user_content')
+                published_date = datetime.now(tz=timezone.utc)
+                comment_user_new = Comment(comt=comment, user=user, published_date=published_date,
+                                           content=comment_user_content)
+                comment_user_new.save()
+                return render(request, 'blog/comments_of_user.html',
+                              {'comment_user': comment_user_new, 'article': article, 'first_second': 'first'})
+            return HttpResponse('403 request method')
+    except Exception,e:
+        print Exception, ":", e
+        return HttpResponse('403')
 
 
-@login_required
+
+#@login_required
 def comment_user_second(request, comment_id, article_id):
-    if request.method == 'POST':
-        comment = Comment.objects.get(id=comment_id)
-        user = request.user
-        article = Article.objects.get(id=article_id)
-        comment_user_content=request.POST.get('comment_user_content')
-        article_id = request.GET.get('article_id')
-        published_date = datetime.now(tz=timezone.utc)
-        comment_user_new = Comment(comt=comment,user=user,published_date=published_date,content=comment_user_content)
-        comment_user_new.save()
-        return render(request, 'blog/comments_of_user.html', {'comment_user': comment_user_new,'article':article,'first_second':'second'})
-    return HttpResponse('403 request method')
+    # 对ajax请求不使用装饰器login_required
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            if request.method == 'POST':
+                comment = Comment.objects.get(id=comment_id)
+                user = request.user
+                article = Article.objects.get(id=article_id)
+                comment_user_content = request.POST.get('comment_user_content')
+                article_id = request.GET.get('article_id')
+                published_date = datetime.now(tz=timezone.utc)
+                comment_user_new = Comment(comt=comment, user=user, published_date=published_date,
+                                           content=comment_user_content)
+                comment_user_new.save()
+                return render(request, 'blog/comments_of_user.html',
+                              {'comment_user': comment_user_new, 'article': article, 'first_second': 'second'})
+            return HttpResponse('403 request method')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
 
 
 @login_required
@@ -195,19 +233,73 @@ def comment_delete(request,comment_id):
         return HttpResponse('error')
 
 
+def like_user(request,user_id):
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            like_user=User.objects.filter(id=user_id)[0]
+            like=Like.objects.filter(like_user=like_user)
+            if like or not like_user:
+                return HttpResponse('error')
+            like=Like(like_user=like_user,user_id=request.user.id)
+            like.save()
+            return HttpResponse('like_user')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+def like_article(request,article_id):
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            like_article = Article.objects.filter(id=article_id)[0]
+            like = Article.objects.filter(like_article=like_article)
+            if like or not like_article:
+                return HttpResponse('error')
+            like = Like(like_article=like_article,user_id=request.user.id)
+            like.save()
+            return HttpResponse('like_article')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
+def like_comment(request,comment_id):
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            like_comment = Comment.objects.filter(id=comment_id)[0]
+            like = Like.objects.filter(like_comment=like_comment,user_id=request.user.id)
+            if like or not like_comment:
+                print 'exist'
+                return HttpResponse('exist')
+            like = Like(like_comment=like_comment,user_id=request.user.id)
+            like.save()
+            print 'like_comment'
+            return HttpResponse('like_comment')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
 @login_required
-@permission_required('blog.publish_article')
 def article_add(request):
     form = ArticleForm()
     if request.method == 'POST':
         form = ArticleForm(request.POST)
         if form.is_valid():
             article = form.save(commit=False)
-            author = request.user
-            article.pulished_date = datetime.now()
-            article.author = author
+            article.author = request.user
             article.save()
-            for tag in form.cleaned_data.get('tags'):
+            print article.tags.all()
+            print form.cleaned_data.get('tags')
+            for t in form.cleaned_data.get('tags').split(';'):
+                try:
+                    tag=Tag.objects.get(name=t)
+                except Exception, e:
+                    print Exception, ":", e
+                    tag=Tag(name=t)
+                    tag.save()
                 article.tags.add(tag)
             return HttpResponseRedirect(reverse('index'))
     return render(request, 'blog/article_add.html', {'form': form})
@@ -221,7 +313,7 @@ def article_update_list(request):
 
 
 @login_required
-@permission_required('blog.update_article')
+#@permission_required('blog.update_article')
 def article_update(request,article_id):
     try:
         article=Article.objects.get(id=article_id)
@@ -240,11 +332,14 @@ def article_update(request,article_id):
                     article.tags.remove(tag)
                 except:
                     pass
-            for tag in form.cleaned_data.get('tags'):
+            for t in form.cleaned_data.get('tags').split(';'):
                 try:
-                    article.tags.add(tag)
-                except:
-                    pass
+                    tag=Tag.objects.get(name=t)
+                except Exception, e:
+                    print Exception, ":", e
+                    tag=Tag(name=t)
+                    tag.save()
+                article.tags.add(tag)
             article.save()
             return HttpResponseRedirect(reverse('article_update_list'))
     else:
@@ -252,7 +347,8 @@ def article_update(request,article_id):
         type = article.type
         content = article.content
         category = article.category
-        tags = article.tags.all()
+        tag_list = [ t.name for t in article.tags.all()]
+        tags=';'.join(tag_list)
         article_dict={'title':title, 'type':type,
                       'content':content, 'category':category,
                       'tags':tags}
@@ -261,7 +357,7 @@ def article_update(request,article_id):
 
 
 @login_required
-@permission_required('blog.del_article')
+#@permission_required('blog.del_article')
 def article_delete_list(request):
     current_user = request.user
     articles = Article.objects.filter(author=current_user)
@@ -269,7 +365,7 @@ def article_delete_list(request):
 
 
 @login_required
-@permission_required('blog.add_article')
+#@permission_required('blog.add_article')
 def article_delete(request,article_id):
     try:
         title=Article.objects.get(id=article_id).title
@@ -306,18 +402,23 @@ def user_logout(request):
 
 def user_register(request):
     user_register_form = UserRegisterForm()
+    user_info_form = UserInfoForm()
     if request.method == 'POST':
         user_register_form = UserRegisterForm(request.POST)
-        if user_register_form.is_valid():
+        user_info_form = UserInfoForm(request.POST)
+        if user_register_form.is_valid() and user_info_form.is_valid():
             username = user_register_form.cleaned_data.get('username')
             email = user_register_form.cleaned_data.get('email')
             password = user_register_form.cleaned_data.get('password1')
             user = User.objects.create_user(username=username, password=password, email=email)
             user.is_active = False
             user.save()
+            user_info=user_info_form.save(commit=False)
+            user_info.user=user
+            user_info.save()
             token = token_confirm.generate_validate_token(username)
             text = "\n".join([u'{0},欢迎加入我的博客'.format(username), u'请访问该链接，完成用户验证:',
-                                 '/'.join([django_settings.DOMAIN, 'blog/activate', token])])
+                                 '/'.join(['http://codemax.vicp.io:8888', 'blog/activate', token])])
             send_mail(u'注册用户验证信息', text, 'sys_blog@163.com', [email], fail_silently=False)
             message='恭喜,注册成功!请注意查收邮件激活账号.'
             return render(request,'blog/message.html',{'message':message})
@@ -334,13 +435,14 @@ def user_info(request, user_id):
         user_form = UserBaseForm(request.POST)
         user_info_form = UserInfoForm(request.POST)
         if user_info_form.is_valid() and user_form.is_valid():
-            user.username = user_form.cleaned_data.get('username')
-            user.email = user_form.cleaned_data.get('email')
+            #user.username = user_form.cleaned_data.get('username')
+            #user.email = user_form.cleaned_data.get('email')
             user.save()
             try:
                 user_info = UserInfo.objects.get(user=user)
             except:
                 user_info = user_info_form.save(commit=False)
+            user_info.website=user_info_form.cleaned_data.get('website','')
             user_info.user = user
             if 'picture' in request.FILES:
                 user_info.picture = request.FILES['picture']
@@ -361,7 +463,7 @@ def user_info(request, user_id):
             user_info=UserInfo.objects.get(user=user)
             website = user_info.website
             picture = user_info.picture
-            user_info_dict = {'website':website,'picture':picture}
+            user_info_dict = {'website': website,'picture':picture}
         except:
             user_info_dict={}
         user_form=UserBaseForm(user_dict)

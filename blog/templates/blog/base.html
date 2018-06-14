@@ -20,11 +20,29 @@
             .font-40-size{
                 font-size:20px;
             }
+            .hover-font{
+                opacity: 0.7;
+            }
+            .hover-font:hover{
+                opacity: 1;
+            }
             .text-center
             @font-face {
                 font-family: 'Light';
                 src: url('{% static 'fonts/Light.ttf' %}');
                 src: local('{% static 'fonts/Light.ttf' %}');
+            }
+            .footer {
+              position: relative;
+              margin-top: -150px; /* negative value of footer height */
+              height: 150px;
+              clear:both;
+              padding-top:80px;
+            }
+            img{
+                #border: green solid 1px;
+                max-width:100%;
+                display:block;  /* ... */
             }
         </style>
     {% endblock %}
@@ -83,11 +101,9 @@
                       <span class="glyphicon glyphicon-envelope"></span>
                       注册</a></li>
                 {% else %}
-                  <li><a href="{% url 'user_zone' user.id %}">
-                      {% if request.user.user_info.picture %}
-                      <img class="img-circle" style="border: 1px solid;" height="30" width="30" src="{{ request.user.user_info.picture.url }}">
-                      {% endif %}
-                      {{user.username}}</a></li>
+                  <li class="text text-left"><a href="{% url 'user_zone' user.id %}">
+                      欢迎,{{user.username}}</a>
+                  </li>
 
                   <li class="dropdown">
                   <li><a href="{% url 'user_info' user.id %}">
@@ -166,13 +182,16 @@
      </script>
      -->
     {% block footer %}
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12 text-center">
-                个人网站
+    <br>
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12 text-center hover-font" style="border-radius:15px; padding:15px;">
+                    Copyright © 2005-2018 SYS_BLOG.COM 版权所有 粤ICP证xxxxxx号
+                </div>
             </div>
         </div>
-    </div>
+    </footer>
     {% endblock %}
 </body>
 </html>

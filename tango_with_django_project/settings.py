@@ -48,8 +48,8 @@ INSTALLED_APPS = [
     'bootstrapform',
     'bootstrap3',
     'blog',
-    'ckeditor',
-    'ckeditor_uploader',
+#    'ckeditor',
+#    'ckeditor_uploader',
     'captcha',
     'widget_tweaks',
     'easy_thumbnails',
@@ -111,9 +111,10 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'test',
         'HOST': '192.168.50.251',
-        'PORT': '3306',
-        'USER': 'testuser',
-        'PASSWORD': 'testuser123',
+        'PORT': '3388',
+        'USER': 'sys',
+        'PASSWORD': 'codemax123',
+        'OPTIONS': {'charset':'utf8mb4'},
     }
 }
 #

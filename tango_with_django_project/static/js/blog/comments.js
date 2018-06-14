@@ -23,12 +23,14 @@ function delete_article_comment(which){
        if(order=='desc'){
             $(which).parents(".article_comment").prevAll(".article_comment").each(function(){
                 var comment_layer=$(this).find(".comment_layer");
+                console.log(comment_layer)
                 comment_layer.text(comment_layer.text()-1);
            });
        }
        else{
            $(which).parents(".article_comment").nextAll(".article_comment").each(function(){
                 var comment_layer=$(this).find(".comment_layer");
+                console.log(comment_layer.text());
                 comment_layer.text(comment_layer.text()-1);
            });
        };
@@ -54,6 +56,7 @@ function comment_list(article_id,order){
    });
 }
 
+
 //获取按时间倒序的评论
 
 $(document).ready(function(){
@@ -75,6 +78,9 @@ $(document).ready(function(){
                 type: request_method,
                 data : form_data
             }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
                 //把响应的response放到id为comment_all节点内最后
                 var order=$("#comment_order").attr("value");
                 if(order=='desc'){
@@ -92,7 +98,7 @@ $(document).ready(function(){
         });
         //回复用户评论表单,通过on关键字动态添加元素绑定事件
         $("body").on("submit", ".article_comment_form", function(event) {
-           //阻止默认form提交
+            //阻止默认form提交
             event.preventDefault();
             //获取form的action参数值
             var post_url = $(this).attr("action");
@@ -108,6 +114,9 @@ $(document).ready(function(){
                 type: request_method,
                 data : form_data
             }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
                 //把响应的response放到子节点的前面
                 $(parent_this).after(response);
                 //alert(response);
@@ -139,6 +148,9 @@ $(document).ready(function(){
                 type: request_method,
                 data : form_data
             }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
                 //把响应的response放到子节点的前面
                 $(parent_this).parents(".comment_user_parent").children('.user_comment').eq(0).before(response);
                 //获取当前评论的回复数
@@ -149,6 +161,31 @@ $(document).ready(function(){
                 $(parent_this)[0].reset();
                 //隐藏当前form
                 $(parent_this).hide();
+              });
+        });
+        //点赞用户评论,通过on关键字动态添加元素绑定事件
+        $("body").on("click", ".like_comment", function(event) {
+            //阻止默认form提交
+            //event.preventDefault();
+            //获取form的action参数值
+            var post_url = '/blog/like_comment/'+$(this).attr("comment_id");
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
+                if(response == 'like_comment'){
+                    $(parent_this).children("span[name='like_hand']").css('color','red');
+                    var like_count=$(parent_this).children(".like_count");
+                    like_count.text(parseInt(like_count.text())+1);
+                }
               });
         });
 });

@@ -7,7 +7,8 @@ from markdown import markdown
 import re
 #import datetime
 register = template.Library()
-
+import sys
+sys.setrecursionlimit(5000)
 
 @register.filter
 def del_html_tag(content):
