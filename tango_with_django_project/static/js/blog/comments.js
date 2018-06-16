@@ -182,10 +182,109 @@ $(document).ready(function(){
                     window.location.replace('/blog/login/');
                 }
                 if(response == 'like_comment'){
-                    $(parent_this).children("span[name='like_hand']").css('color','red');
+                    $(parent_this).children("span[name='like_hand']").css('color','#ee9f49');
                     var like_count=$(parent_this).children(".like_count");
                     like_count.text(parseInt(like_count.text())+1);
+                    like_count.addClass("gold-color");
                 }
               });
+        });
+
+        //点赞文章,通过on关键字动态添加元素绑定事件
+        $("body").on("click", ".like_article", function(event) {
+            //阻止默认form提交
+            //event.preventDefault();
+            //获取form的action参数值
+            var post_url = '/blog/like_article/'+$(this).attr("article_id");
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
+                if(response == 'like_article'){
+                    $(parent_this).children("span[name='like_hand']").css('color','#ee9f49');
+                    var like_article_count=$(parent_this).children(".like_article_count");
+                    like_article_count.text(parseInt(like_article_count.text())+1);
+                    like_article_count.addClass("gold-color");
+                }
+              });
+        });
+
+        //点赞用户,通过on关键字动态添加元素绑定事件(暂时没有使用)
+        $("body").on("click", ".like_user", function(event) {
+            //阻止默认form提交
+            //event.preventDefault();
+            //获取form的action参数值
+            var post_url = '/blog/like_user/'+$(this).attr("user_id");
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
+                if(response == 'like_user'){
+                    $(parent_this).children("span[name='like_hand']").css('color','red');
+                    var like_user_count=$(parent_this).children(".like_user_count");
+                    like_user_count.text(parseInt(like_user_count.text())+1);
+                }
+              });
+        });
+
+        //关注或取消关注,通过on关键字动态添加元素绑定事件
+        $("body").on("click", ".follow_or_unfollow", function(event) {
+            //阻止默认form提交
+            //event.preventDefault();
+            //获取form的action参数值
+            var post_url = '/blog/user_follow/'+$(this).attr("user_id");
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
+                if(response == 'follow'){
+                    $(parent_this).removeClass('btn-success');
+                    $(parent_this).addClass('btn-danger');
+                    $(parent_this).children("span[name='follow_icon']").removeClass('glyphicon-plus');
+                    $(parent_this).children("span[name='follow_icon']").addClass('glyphicon-ok');
+                    $(parent_this).children("span[name='follow_word']").text('已关注');
+                }
+                if(response == 'unfollow'){
+                    $(parent_this).removeClass('btn-danger');
+                    $(parent_this).addClass('btn-success');
+                    $(parent_this).children("span[name='follow_icon']").removeClass('glyphicon-ok');
+                    $(parent_this).children("span[name='follow_icon']").addClass('glyphicon-plus');
+                    $(parent_this).children("span[name='follow_word']").text('关注');
+                }
+              });
+        });
+
+        //显示用户的全名,通过on关键字动态添加元素绑定事件(暂时没有使用)
+        $("body").on("mouseenter", ".follower_name", function(event) {
+            $(this).children(".cut_name_dot").hide();
+            $(this).children(".get_name_tail").show();
+        });
+        $("body").on("mouseleave", ".follower_name", function(event) {
+            $(this).children(".cut_name_dot").show();
+            $(this).children(".get_name_tail").hide();
         });
 });

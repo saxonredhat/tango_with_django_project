@@ -2,15 +2,17 @@
 {% load blog_templatetags %}
 <div class="article_comment">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-10">
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-2" style="width:70px;">
                     <!--打印评论用户的头像,没有头像则使用默认头像-->
-                    {% if comment.user.user_info.picture %}
-                        <img class="img-circle" style="border: 1px solid;" height="35" width="35" src="{{ comment.user.user_info.picture.url }}">
+                    <a href="{% url 'user_zone' comment.user.id %}">
+                    {% if comment.user.user_info.picture  %}
+                        <img class="img-circle" height="35" width="35" src="{{ comment.user.user_info.picture.url }}">
                     {% else %}
                         <span class="glyphicon glyphicon-user" style="font-size:33px"></span>
                     {% endif %}
+                    </a>
                 </div>
                 <div class="col-md-10">
                     <div class="row">
@@ -18,11 +20,13 @@
                             是，则在用户名前面加上[作者]
                             否，则直接打印用户名
                         -->
-                        {% if article.author == comment.user %}
-                        <span class="text text-primary"><strong>[作者]</strong></span>{{comment.user.username}}
+                        <a href="{% url 'user_zone' comment.user.id %}">
+                        {% if article.author.username == comment.user.username %}
+                            <span class="text text-danger" ><strong><span class="gold-color">[作者] </span></strong></span>{{comment.user.username}}
                         {% else %}
-                            {{comment.user.username}}
+                            <span class="hover-bigger">{{comment.user.username}}</span>
                         {% endif %}
+                        </a>
                     </div>
                     <div class="row">
                         <small>
@@ -59,18 +63,23 @@
     </div>
     <div class="row">
         <div class="col-md-12 comment_user_parent">
-            <!--获取评论的内容-->
             <p style="font-size:16px;">{{ comment.content }}</p>
             <span class="hover-font">
                 <span class="like_comment" comment_id="{{ comment.id }}">
                     <span class="glyphicon glyphicon-thumbs-up show_hand" name="like_hand" style="font-size:20px;
                     {% for like in comment.like_set.all %}
                         {% if like.user_id == request.user.id %}
-                            color:red;
+                            color:#ee9f49;
                         {% endif %}
                     {% endfor %}
-                    "></span>&nbsp;&nbsp;
-                    <span class="like_count">{{comment.like_set.all.count}}</span>
+                    "></span>&nbsp;
+                    <span class="like_count" style="
+                    {% for like in comment.like_set.all %}
+                        {% if like.user_id == request.user.id %}
+                            color:#ee9f49;
+                        {% endif %}
+                    {% endfor %}
+                    ">{{comment.like_set.all.count}}</span>
                 </span>
                 &nbsp;&nbsp;&nbsp;&nbsp;
             </span>

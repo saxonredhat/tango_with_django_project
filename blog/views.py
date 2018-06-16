@@ -90,7 +90,7 @@ def articles_list(request):
         articles_list = paginator.page(1)
     except EmptyPage:
         articles_list = paginator.page(paginator.num_pages)
-    return render(request, 'blog/articles_list.html',{'articles': articles_list,'tag':tag_str})
+    return render(request, 'blog/articles_list.html',{'articles': articles_list,'tag':tag_str,'current_url':'articles_list'})
 
 
 def article_detail(request, article_id):
@@ -165,7 +165,7 @@ def comment_user(request,comment_id,user_id):
         user = User.objects.get(id=user_id)
         comment_user=request.POST.get('comment_user')
         article_id=request.GET.get('article_id')
-        published_date=datetime.now()
+        published_date=datetime.now(tz=timezone.utc)
         c=Comment(comt=comment,user=user,published_date=published_date,content=comment_user)
         c.save()
         return HttpResponseRedirect(reverse('article_detail',kwargs={'article_id':article_id}))
@@ -264,6 +264,7 @@ def like_article(request,article_id):
         return HttpResponse('403')
 
 
+#点赞文章评论view处理
 def like_comment(request,comment_id):
     try:
         user = User.objects.get(id=request.user.id)
@@ -280,6 +281,71 @@ def like_comment(request,comment_id):
     except Exception, e:
         print Exception, ":", e
         return HttpResponse('403')
+
+
+#点赞文章view处理
+def like_article(request,article_id):
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            like_article = Article.objects.filter(id=article_id)[0]
+            like = Like.objects.filter(like_article=like_article,user_id=request.user.id)
+            if like or not like_article:
+                print 'exist'
+                return HttpResponse('exist')
+            like = Like(like_article=like_article,user_id=request.user.id)
+            like.save()
+            print 'like_article'
+            return HttpResponse('like_article')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
+#点赞用户view处理
+def like_user(request,user_id):
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            like_user = User.objects.filter(id=user_id)[0]
+            like = Like.objects.filter(like_user=like_user,user_id=request.user.id)
+            if like or not like_user:
+                print 'exist'
+                return HttpResponse('exist')
+            like = Like(like_user=like_user,user_id=request.user.id)
+            like.save()
+            print 'like_user'
+            return HttpResponse('like_user')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+#添加关注用户、取消关注用户
+def user_follow(request,user_id):
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            try:
+                followee_user = User.objects.get(id=user_id)
+            except Exception, e:
+                print Exception, ":", e
+                return HttpResponse('noexist')
+            follow = Follow.objects.filter(followee=followee_user,follower=request.user)
+            if follow:
+                follow[0].delete()
+                return HttpResponse('unfollow')
+            else:
+                follow = Follow(followee=followee_user,follower=request.user)
+                follow.save()
+                return HttpResponse('follow')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
+#取消关注用户
+def user_un_follower(request,user_id):
+    pass
 
 
 @login_required
@@ -315,9 +381,14 @@ def article_update_list(request):
 @login_required
 #@permission_required('blog.update_article')
 def article_update(request,article_id):
+    current_user=request.user
     try:
-        article=Article.objects.get(id=article_id)
+        article = Article.objects.get(id=article_id)
+        if article.author != current_user:
+            messages.error(request, '无权编辑其他用户的文章.')
+            return HttpResponseRedirect(reverse('article_update_list'))
     except:
+        messages.error(request, '请求的对象错误.')
         return HttpResponseRedirect(reverse('article_update_list'))
     if request.method == 'POST':
         form = ArticleForm(request.POST)
@@ -366,10 +437,16 @@ def article_delete_list(request):
 
 @login_required
 #@permission_required('blog.add_article')
-def article_delete(request,article_id):
+def article_delete(request, article_id):
+    current_user = request.user
     try:
-        title=Article.objects.get(id=article_id).title
-        Article.objects.get(id=article_id).delete()
+        article = Article.objects.get(id=article_id)
+        title = article.title
+        if article.author == current_user:
+            Article.objects.get(id=article_id).delete()
+        else:
+            messages.error(request, '无权删除其他用户的文章.')
+            return HttpResponseRedirect(reverse('article_delete_list'))
         messages.success(request, '文章'+title+'删除成功.')
     except:
         messages.error(request, '文章删除失败.')
@@ -426,9 +503,9 @@ def user_register(request):
 
 
 @login_required
-def user_info(request, user_id):
+def user_info(request):
     try:
-        user = User.objects.get(id=user_id)
+        user = request.user
     except:
         return HttpResponse('用户id'+str(user_id)+'不存在')
     if request.method == 'POST':
@@ -454,7 +531,7 @@ def user_info(request, user_id):
                 'detail': True,
             }).url
 
-        return HttpResponseRedirect(reverse('user_info',kwargs={'user_id':user_id}))
+        return HttpResponseRedirect(reverse('user_info'))
     else:
         username=user.username
         email=user.email
@@ -476,7 +553,31 @@ def user_zone(request, user_id):
         get_user = User.objects.get(id=user_id)
     except:
         return HttpResponse('用户id'+str(user_id)+'不存在')
-    articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
+    #print request.AnonymousUser.username
+    visit_history = None
+    if not request.user.is_anonymous() and request.user != get_user:
+        try:
+            visit_history = VisitHistory.objects.get(interviewee=get_user,visitor=request.user)
+            visit_history.accessed_at = datetime.now(tz=timezone.utc)
+            visit_history.save()
+        except Exception, e:
+            print Exception, ":", e
+        if not visit_history:
+            visit_history = VisitHistory(interviewee=get_user, visitor=request.user)
+            visit_history.save()
+    tag_name = request.GET.get('tag', 'noexist')
+    tag_str = ''
+    if tag_name != 'noexist':
+        tag = Tag.objects.filter(name=tag_name)
+        if tag:
+            articles = Article.objects.filter(tags__in=tag,author=get_user).order_by('-pulished_date')
+            tag_str = tag_name
+        else:
+            articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
+    else:
+        articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
+    articles_hot= Article.objects.filter(author=get_user).order_by('-views')
+    #articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
     paginator = Paginator(articles, 6)
     page = request.GET.get('page', 1)
     try:
@@ -485,7 +586,7 @@ def user_zone(request, user_id):
         articles_list = paginator.page(1)
     except EmptyPage:
         articles_list = paginator.page(paginator.num_pages)
-    return render(request,'blog/user_zone.html',{'get_user':get_user,'articles':articles_list})
+    return render(request,'blog/user_zone.html',{'get_user':get_user,'articles': articles_list,'articles_hot': articles_hot,'current_url':'user_zone'})
 
 
 def active_user(request, token):
@@ -524,6 +625,20 @@ def user_add(request):
             user_form.save(commit=True)
             return HttpResponseRedirect(reverse('user_manage'))
     return render(request, 'blog/user_add.html', {'user_form': user_form})
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def user_active(request,user_id):
+    try:
+        user=User.objects.get(id=user_id)
+        if user.is_active:
+            user.is_active = False
+        else:
+            user.is_active = True
+        user.save()
+        return HttpResponseRedirect(reverse('user_manage'))
+    except:
+        return HttpResponse('用户id不存在')
 
 
 @login_required

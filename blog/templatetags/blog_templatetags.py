@@ -1,8 +1,10 @@
+# -*- coding:utf-8 -*-
 from django import template
 from django.contrib.auth.models import User,Group,Permission
 from django.template.base import TemplateSyntaxError,NodeList
-from blog.models import Comment
+from blog.models import Comment,Article,Follow
 from markdown import markdown
+from django.shortcuts import render
 #from guardian.core import ObjectPermissionChecker
 import re
 #import datetime
@@ -20,6 +22,21 @@ def my_markdown(content):
     return markdown(content)
 
 
+@register.filter
+def cut_name(content):
+    return content[0:5]
+
+
+@register.filter
+def cut_name_dot(content):
+    if len(content) > 5:
+        return '...'
+    return ''
+
+@register.filter
+def get_name_tail(content):
+    return content[5:]
+
 @register.simple_tag
 def replies_of_comment(comment_id):
     counts = 0
@@ -31,6 +48,48 @@ def replies_of_comment(comment_id):
     else:
         return 0
     return counts
+
+
+@register.simple_tag
+def user_article_count(user, article_type):
+    counts = Article.objects.filter(author=user, type=article_type).count()
+    return counts
+
+
+@register.simple_tag
+def user_get_comment_count(user):
+    counts=0
+    for article in  Article.objects.filter(author=user):
+        counts+=article.comment_set.all().count()
+    return counts
+
+
+@register.simple_tag
+def user_get_like_count(user):
+    counts = 0
+    #评论获得的赞数
+    for comment in Comment.objects.filter(user=user):
+        counts += comment.like_set.all().count()
+    #文章获得的赞数
+    for article in Article.objects.filter(author=user):
+        counts += article.like_set.all().count()
+    #用户获得的赞数
+    #暂时没有开发该功能
+    return counts
+
+
+#获取点赞的boolean结果
+@register.assignment_tag
+def is_follow(followee,follower):
+    try:
+        follow=Follow.objects.get(followee=followee,follower=follower)
+        if follow:
+            return True
+        return False
+    except Exception, e:
+        print Exception, e
+        return False
+
 
 
 

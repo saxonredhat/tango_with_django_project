@@ -10,18 +10,9 @@
     <script src="{% static 'js/bootstrap-markdown.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="{% static 'js/jquery.Jcrop.min.js' %}"></script>
-    <script>
-        function show_jcrop() {
-            $('#myjcrop').Jcrop({
-            onSelect: selectedCoordinates,
-            onChange: changingCoordinates,
-            onRelease: finalCoordinates,
-            aspectRatio: 2 / 3,
-            minSize: [2,100],
-            maxSize: [500, 750]
-            });
-        };
-    </script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/blog/comments.js' %}"></script>
+
 {% endblock %}
 
 {% block base_css %}
@@ -30,136 +21,98 @@
 {% endblock %}
 
 {% block body %}
-<div class="container">
-        <div class="row">
-            <div class="col-md-2">
-                <div class="row">
-                   <img class="img-circle" style="border:1px solid;" height="97" width="97" src="
-                   {% if get_user.user_info.picture %}
 
-                   {{get_user.user_info.picture.url}}
-                   {% endif %}">
-                </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="row text text-right" style="padding-right:10%;">
+               <img class="img-circle" style="border:1px solid;" height="97" width="97" src="
+               {% if get_user.user_info.picture %}
+
+               {{get_user.user_info.picture.url}}
+               {% endif %}">
             </div>
-            <div class="col-md-8">
-                <div class="row">
-                  <h3><span>{{get_user.username}}</span></h3>
-                </div>
-                <div class="row" style="">
-                    <div class="col-md-2">
-                        <div class="row">
-                            <span >文章</span>
-                        </div>
-                        <div class="row ">
-                            <span>{{get_user.article_set.count}}</span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="row">
-                            <span >评论</span>
-                        </div>
-                        <div class="row">
-                            <span>{{get_user.article_set.count}}</span>
-                        </div>
-                    </div>
-                    <div class="col-md-2">
-                        <div class="row">
-                            <span >点赞</span>
-                        </div>
-                        <div class="row">
-                            <span>{{get_user.article_set.count}}</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="row text text-right" style="padding-right:14%;padding-top:2%;">
+                {% is_follow get_user request.user as follow %}
+                {% if get_user != request.user %}
+                    {% if follow %}
+                        <button class="btn btn-danger follow_or_unfollow" name="follow_or_unfollow" user_id="{{get_user.id}}">
+                            <span class="glyphicon glyphicon-ok" name="follow_icon"></span>
+                            <span name="follow_word">已关注</span>
+                        </button>
+                    {% else %}
+                        <button class="btn btn-success follow_or_unfollow" name="follow_or_unfollow" user_id="{{get_user.id}}">
+                            <span class="glyphicon glyphicon-plus" name="follow_icon"></span>
+                            <span name="follow_word">关注</span>
+                        </button>
+                    {% endif %}
+                {% endif %}
+
             </div>
         </div>
-        <hr style="border-top: 1px solid #8c8b8b;" />
-        <div class="row">
-            <div class="col-md-1 col-md-offset-2">
-                <span>原创 0</span>
-            </div>
-            <div class="col-md-1">
-                <span>翻译 0</span>
-            </div>
-            <div class="col-md-1">
-                <span>转载 12</span>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-md-8">
-                {% for article in articles %}
+        <div class="col-md-8" style="padding-left:30px;">
             <div class="row">
-                <div class="col-md-12">
+              <h3><span>{{get_user.username}}</span></h3>
+            </div>
+            <div class="row" style="">
+                <div class="col-md-2">
                     <div class="row">
-                        <div class="col-md-10" style="padding:0px;">
-                            {% if article.type == 1 %}
-                                <h4>
-                                    <a href="{% url 'article_detail' article.id %}">
-                                        <strong class="text text-success">[ 原创 ] {{article.title}}</strong>
-                                    </a>
-                                </h4>
-                            {% endif %}
+                        <span class="glyphicon glyphicon-file"></span>
+                        <span >文章</span>
+                    </div>
+                    <div class="row ">
 
-                            {% if article.type == 2 %}
-                                <h4>
-                                    <a href="{% url 'article_detail' article.id %}">
-                                        <strong class="text text-warning">[ 翻译 ] {{article.title}}</strong>
-                                    </a>
-                                </h4>
-                            {% endif %}
-
-                            {% if article.type == 3 %}
-                                <h4>
-                                    <a href="{% url 'article_detail' article.id %}">
-                                        <strong class="text text-danger">[ 转载 ] {{article.title}}</strong>
-                                    </a>
-                                </h4>
-                            {% endif %}
-                        </div>
+                        <span>{{get_user.article_set.count}}</span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="row">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                        <span >评论</span>
+                    </div>
+                    <div class="row">
+                        <span>{% user_get_comment_count get_user %}</span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="row">
+                        <span class="glyphicon glyphicon-thumbs-up"></span>
+                        <span >点赞</span>
+                    </div>
+                    <div class="row">
+                        <span>{% user_get_like_count get_user %}</span>
                     </div>
                 </div>
             </div>
-            <div class="row" >
-                <div class="col-md-12" style="padding:0px;">
-                    <a href="{% url 'user_zone' article.author.id %}">
-                        {% if article.author.user_info.picture %}
-                            <img class="img-circle" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
-                        {% else %}
-                            <span class="glyphicon glyphicon-user"></span>
-                        {% endif %}
-                        {{article.author}}
-                    </a>
-                    &nbsp;&nbsp;
-                    <span class="glyphicon glyphicon-time font-opacity"></span>
-                    <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
-                    &nbsp;&nbsp;
-                    <span class="glyphicon glyphicon-tag"></span>
-                    {% for tag in article.tags.all %}
-                        <button class="btn btn-success">{{ tag }}</button>
-                    {% endfor %}
-                </div>
-            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-1 col-md-offset-2">
+            <span class="text text-success"><em>原创 {% user_article_count get_user 1 %}</em></span>
+        </div>
+        <div class="col-md-1">
+            <span class="text text-warning"><em>翻译 {% user_article_count get_user 2 %}</em></span>
+        </div>
+        <div class="col-md-1">
+            <span class="text text-danger"><em>转载 {% user_article_count get_user 3 %}</em></span>
+        </div>
+    </div>
+</div>
+<hr style="border-top: 1px solid #eeeeee;" />
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-1">
+
+            {% for article in articles %}
+                {% include "blog/articles.html" %}
             <br>
-            <div class="row">
-                <div class="col-md-10 bg-info" style="border-radius:15px; padding:15px;">
-                    {{article.content |my_markdown|del_html_tag|truncatechars:300}}
+            {% empty %}
+                <div class="row text text-center">
+                    你还没有文章，快去<a href="{% url 'article_add' %}">写文章</a>
                 </div>
-            </div>
-            <div class="row" style="padding:0px;">
-                <div class="col-md-1">
-                    <small class="font-opacity">阅读 {{article.views}}</small>
-                </div>
-                <div class="col-md-1">
-                    <small class="font-opacity">评论 {{article.comment_set.count}}</small>
-                </div>
-                <div class="col-md-1">
-                    <small class="font-opacity">收藏 0</small>
-                </div>
-            </div>
-            <br>
-        {% empty %}
-            no articles
-        {% endfor %}
+            {% endfor %}
+            {% if articles %}
             <div class="row">
                 <div class="col-md-5">
                     {% if articles.has_previous %}
@@ -187,41 +140,83 @@
                     </form>
                 </div>
             </div>
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            <div class="row" style="border: 1px solid #eeeeee;border-radius:10px;">
+                <div>
+                    <div class="text text-center" style="padding-top:15px;">
+                        个人信息
+                    </div>
+                    <hr style="border: 1px solid #eeeeee;">
+                    <div style="padding:10px;">
+                       关注 :
+                        {% for follower in get_user.followers.all %}
+                            {% if forloop.last %}
+                                <a href="{% url 'user_zone' follower.followee.id %}"
+                                   name="follower_name" class="follower_name" user_id="{{follower.followee.id}}">
+                                    <span class="cut_name">{{follower.followee.username|cut_name}}</span><span class="cut_name_dot">{{follower.followee.username|cut_name_dot}}</span><span class="get_name_tail" hidden>{{follower.followee.username|get_name_tail}}</span>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'user_zone' follower.followee.id %}"
+                                   class="follower_name" user_id="{{follower.followee.id}}">
+                                    <span class="cut_name">{{follower.followee.username|cut_name}}</span><span class="cut_name_dot">{{follower.followee.username|cut_name_dot}}</span><span class="get_name_tail" hidden>{{follower.followee.username|get_name_tail}}</span>
+                                </a> |
+                            {% endif %}
+                        {% empty %}
+                            无
+                        {% endfor %}
+                    </div>
+                    <div style="padding:10px;">
+                       文章 : {{get_user.article_set.all.count}} 篇
+                    </div>
+                    <div style="padding:10px;">
+                        注册时间 : {{get_user.date_joined|date:"Y-m-d"}}
+                    </div>
+                </div>
             </div>
-            <div class="col-md-4">
-                <div class="row">
-                    <div style="border: 1px solid #8c8b8b;">
-                        <div class="text text-center">
-                            作者个人信息
-                        </div>
-                        <hr style="border-top: 1px solid #8c8b8b;">
-                        <div>
-                           文章 : {{get_user.article_set.all.count}} 篇
-                        </div>
-                        <div>
-                            博币 : 0
-                        </div>
-                        <div>
-                            注册时间 : {{get_user.date_joined|date:"Y-m-d"}}
-                        </div>
+            <div class="row" style="border-left: 3px solid #4285f4;padding-left:5px;margin-top:25px;margin-bottom:8px;"> 热门文章</div>
+            <div class="row" style="border: 1px solid #eeeeee;border-radius:10px;">
+                <div style="border: 0px solid #8c8b8b;">
+                    <div class="col-md-12">
+                        {% for article in articles_hot|slice:":8" %}
+                               <div class="row" style="padding-left:10px;padding-top:10px;padding-bottom:5px;">
+                                   <a class="show hand" href="{% url 'article_detail' article.id %}">
+                                       <span class="glyphicon glyphicon-file"></span>
+                                       {{ article.title}}</a>
+                               </div>
+                        {% empty %}
+                        你还没有文章，快去<a href="{% url 'article_add' %}">写文章</a>
+                        {% endfor %}
                     </div>
                 </div>
-                <div class="row">
-                    热门文章
-                    <div style="border: 1px solid #8c8b8b;">
-                        <div class="">
-                            热门文章
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    最近来访
-                    <div style="border: 1px solid #8c8b8b;">
+            </div>
+            <div class="row" style="border-left: 3px solid #4285f4;padding-left:5px;margin-top:25px;margin-bottom:8px;"> 最近来访</div>
+            <div class="row" style="border: 1px solid #eeeeee;border-radius:10px;">
+                {% for visit_history in get_user.interviewee.all|slice:":12" %}
+                    <div class="col-md-2 " style="border: 0px solid #8c8b8b;">
+                    <a href="{% url 'user_zone' visit_history.visitor.id %}">
 
+                        {% if visit_history.visitor.user_info.picture %}
+                            <div class="row text text-center" style="padding-top:19%">
+                                <img class="img-circle" height="33" width="33" src="{{ visit_history.visitor.user_info.picture.url }}">
+                            </div>
+                        {% else %}
+                            <div class="row text text-center" style="padding-top:18%">
+                                <span class="glyphicon glyphicon-user" style="font-size:29px;"></span>
+                            </div>
+                        {% endif %}
+                        <div class="row text text-center" style="padding-top:19%">
+                            {{visit_history.visitor.username}}
+                        </div>
+                    </a>
                     </div>
-                </div>
+                {% empty %}
+                无访问者
+                {% endfor %}
             </div>
         </div>
+    </div>
 </div>
 
 {% endblock %}

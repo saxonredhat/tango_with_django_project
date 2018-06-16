@@ -18,6 +18,7 @@ class UserInfo(models.Model):
     website = models.URLField(blank=True,null=True)
     picture = models.ImageField(upload_to='profile_images', blank=True, null=True)
     cropping = ImageRatioField('picture', '100x100')
+
     def __unicode__(self):
         return self.user.username
 
@@ -109,9 +110,26 @@ class Comment(models.Model):
         return sorted(r ,key=lambda x: x.published_date, reverse=True)
 
 
+class VisitHistory(models.Model):
+    interviewee = models.ForeignKey(User, related_name='interviewee')
+    visitor = models.ForeignKey(User, related_name='visitors')
+    accessed_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['-accessed_at']
+
+class LoginHistory(models.Model):
+    pass
+
+
 class Like(models.Model):
     user_id = models.IntegerField()
     like_article = models.ForeignKey(Article, null=True)
     like_comment = models.ForeignKey(Comment, null=True)
-    like_user=models.ForeignKey(User,null=True,related_name='likes')
+    like_user = models.ForeignKey(User, null=True, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Follow(models.Model):
+    follower = models.ForeignKey(User, related_name='followers')
+    followee = models.ForeignKey(User, related_name='followees')
     created_at = models.DateTimeField(auto_now_add=True)

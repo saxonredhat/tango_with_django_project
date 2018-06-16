@@ -26,23 +26,38 @@
             .hover-font:hover{
                 opacity: 1;
             }
-            .text-center
+            .hover-bigger:hover{
+                text-decoration:none;
+                transform:scale(1.2);
+                -ms-transform:scale(1.2); 	/* IE 9 */
+                -moz-transform:scale(1.2); 	/* Firefox */
+                -webkit-transform:scale(1.2); /* Safari 和 Chrome */
+                -o-transform:scale(1.2); 	/* Opera */
+            }
+            a:hover{
+                color:#ee9f49;
+                text-decoration:none;
+            }
+            .gold-color{
+                color:#ee9f49;
+            }
             @font-face {
                 font-family: 'Light';
                 src: url('{% static 'fonts/Light.ttf' %}');
                 src: local('{% static 'fonts/Light.ttf' %}');
             }
-            .footer {
-              position: relative;
-              margin-top: -150px; /* negative value of footer height */
-              height: 150px;
-              clear:both;
-              padding-top:80px;
-            }
             img{
                 #border: green solid 1px;
                 max-width:100%;
-                display:block;  /* ... */
+                /*display:block;   ... */
+            }
+            .div-inline{
+                display:inline;
+            }
+            @media (min-width: 1500px) {
+              .container {
+                width: 1500px;
+              }
             }
         </style>
     {% endblock %}
@@ -106,7 +121,7 @@
                   </li>
 
                   <li class="dropdown">
-                  <li><a href="{% url 'user_info' user.id %}">
+                  <li><a href="{% url 'user_info' %}">
                       <span class="glyphicon glyphicon-user"></span>
                       个人中心</a></li>
                   <li class="dropdown">
@@ -158,15 +173,17 @@
           </div><!-- /.container-fluid -->
         </nav>
     {% endblock %}
+
+
     {% block body %}
     {% endblock %}
     <!--
     <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
 	<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	-->
-        <script src="{% static 'js/jquery.min.js' %}"></script>
-        <script src="{% static 'js/bootstrap.min.js' %}"></script>
-        <script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
 
     <!--
     <script type="text/javascript" charset="utf8" src="{% static 'js/kindeditor/kindeditor-all-min.js' %}"></script>
@@ -183,15 +200,18 @@
      -->
     {% block footer %}
     <br>
-    <footer class="footer">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12 text-center hover-font" style="border-radius:15px; padding:15px;">
-                    Copyright © 2005-2018 SYS_BLOG.COM 版权所有 粤ICP证xxxxxx号
+
+
+            <footer class="footer">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 text text-center">
+                            <span class="hover-font">Copyright © 2005-2018 SYS_BLOG.COM 版权所有 粤ICP证xxxxxx号</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </footer>
+            </footer>
+
     {% endblock %}
 </body>
 </html>

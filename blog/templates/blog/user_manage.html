@@ -63,11 +63,13 @@
                         {{myuser.email}}
                     </td>
                     <td>
+                        <a href="{% url 'user_active' myuser.id %}">
                         {% if myuser.is_active %}
                             <span class="glyphicon glyphicon-ok-sign text-success"></span>
                         {% else %}
                             <span class="glyphicon glyphicon-remove-sign text-danger"></span>
                         {% endif%}
+                        </a>
                     </td>
                     <td>
                         {% if myuser.is_superuser %}

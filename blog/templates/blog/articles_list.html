@@ -3,87 +3,26 @@
 {% load blog_templatetags %}
 {% block body %}
     <div class="container">
-        {% for article in articles %}
+        <div class="row">
+            <div class="col-md-offset-1">
+                {% for article in articles %}
+                    {% include "blog/articles.html" %}
+                {% empty %}
+                    no articles
+                {% endfor %}
+            </div>
+        </div>
+        <br>
             <div class="row">
-                <div class="col-md-10">
-                    <div class="row">
-                        <div class="col-md-10" style="padding:0px;">
-                            {% if article.type == 1 %}
-                                <h4>
-                                    <a href="{% url 'article_detail' article.id %}">
-                                        <strong class="text text-success">[ 原创 ] {{article.title}}</strong>
-                                    </a>
-                                </h4>
-                            {% endif %}
-
-                            {% if article.type == 2 %}
-                                <h4>
-                                    <a href="{% url 'article_detail' article.id %}">
-                                        <strong class="text text-warning">[ 翻译 ] {{article.title}}</strong>
-                                    </a>
-                                </h4>
-                            {% endif %}
-
-                            {% if article.type == 3 %}
-                                <h4>
-                                    <a href="{% url 'article_detail' article.id %}">
-                                        <strong class="text text-danger">[ 转载 ] {{article.title}}</strong>
-                                    </a>
-                                </h4>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row" >
-                <div class="col-md-10" style="padding:0px;">
-                    <a href="{% url 'user_zone' article.author.id %}">
-                        {% if article.author.user_info.picture %}
-                            <img class="img-circle" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
-                        {% else %}
-                            <span class="glyphicon glyphicon-user"></span>
-                        {% endif %}
-                        {{article.author}}
-                    </a>
-                    &nbsp;&nbsp;
-                    <span class="glyphicon glyphicon-time font-opacity"></span>
-                    <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
-                    &nbsp;&nbsp;
-                    <span class="glyphicon glyphicon-tag"></span>
-                    {% for tag in article.tags.all %}
-                        <a href="{% url 'articles_list' %}?tag={{tag}}"><button class="btn btn-success">{{ tag }}</button></a>
-                    {% endfor %}
-                </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-md-10 bg-info" style="border-radius:15px; padding:15px;">
-                    {{article.content |my_markdown|del_html_tag|truncatechars:300}}
-                </div>
-            </div>
-            <div class="row" style="padding:0px;">
-                <div class="col-md-1">
-                    <small class="font-opacity">阅读 {{article.views}}</small>
-                </div>
-                <div class="col-md-1">
-                    <small class="font-opacity">评论 {{article.comment_set.count}}</small>
-                </div>
-                <div class="col-md-1">
-                    <small class="font-opacity">收藏 0</small>
-                </div>
-            </div>
-            <br>
-        {% empty %}
-            no articles
-        {% endfor %}
-            <div class="row">
-                <div class="col-md-3">
+                {% if articles %}
+                <div class="col-md-3 col-md-offset-1">
                     {% if articles.has_previous %}
+                        <a href="
                         {% if tag %}
-                            <a href="?page={{ articles.previous_page_number }}&tag={{tag}}">
+                            ?page={{ articles.previous_page_number }}&tag={{tag}}
                         {% else %}
-                            <a href="?page={{ articles.previous_page_number }}">
-                        {% endif %}
+                            ?page={{ articles.previous_page_number }}
+                        {% endif %}">
                             <button class="btn btn-primary">上一页</button>
                         </a>
                     {% endif %}
@@ -93,11 +32,12 @@
                     </span>
 
                     {% if articles.has_next %}
+                        <a href="
                         {% if tag %}
-                            <a href="?page={{ articles.next_page_number }}&tag={{tag}}">
+                            ?page={{ articles.next_page_number }}&tag={{tag}}
                         {% else %}
-                            <a href="?page={{ articles.next_page_number }}">
-                        {% endif %}
+                            ?page={{ articles.next_page_number }}
+                        {% endif %}">
 
                             <button class="btn btn-primary">下一页</button>
                         </a>
@@ -115,5 +55,6 @@
                     </form>
                 </div>
             </div>
+            {% endif %}
     </div>
 {% endblock %}

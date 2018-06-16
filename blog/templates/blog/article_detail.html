@@ -14,7 +14,7 @@
 {% if article %}
 <div class="container">
     <div class="row">
-        <div class="col-md-10 col-md-offset-1">
+        <div class="col-md-12 col-md-offset-1">
             <div class="row">
                 <div class="col-md-10" style="padding:0px;">
                     {% if article.type == 1 %}
@@ -44,14 +44,13 @@
             </div>
             <div class="row" >
                 <div class="col-md-10" style="padding:0px;">
-                    <a href="{% url 'user_zone' article.author.id %}">
                         {% if article.author.user_info.picture %}
-                            <img class="img-circle" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
+                            <a href="{% url 'user_zone' article.author.id %}"><img class="img-circle " height="35" width="35" src="{{ article.author.user_info.picture.url }}"></a>
                         {% else %}
-                            <span class="glyphicon glyphicon-user"></span>
+                            <a href="{% url 'user_zone' article.author.id %}"><span class="glyphicon glyphicon-user"></span></a>
                         {% endif %}
-                        {{article.author}}
-                    </a>
+                        <a href="{% url 'user_zone' article.author.id %}">{{article.author}}</a>
+
                     &nbsp;&nbsp;
                     <span class="glyphicon glyphicon-time font-opacity"></span>
                     <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
@@ -66,17 +65,40 @@
             <div class="row" >
                 <div class="col-md-10 bg-info" style="border-radius:15px; padding:15px;">
                     {% autoescape off %}
-                        <p><em>{{article.content|my_markdown}}</em></p>
+                        {{article.content|my_markdown}}
                     {% endautoescape %}
                 </div>
             </div>
         </div>
     </div>
     <br>
+    <!--显示用户点赞区域-->
+    <div class="row">
+        <div class="col-md-12 col-md-offset-1">
+            <span class="like_article" article_id="{{ article.id }}">
+                <span class="glyphicon glyphicon-thumbs-up show_hand" name="like_hand" style="font-size:20px;
+                {% for like in article.like_set.all %}
+                    {% if like.user_id == request.user.id %}
+                        color:#ee9f49;
+                    {% endif %}
+                {% endfor %}
+                "></span>
+                <span class="like_article_count" style="
+                {% for like in article.like_set.all %}
+                    {% if like.user_id == request.user.id %}
+                        color:#ee9f49;
+                    {% endif %}
+                {% endfor %}
+                ">{{article.like_set.all.count}}</span>
+
+            </span>
+        </div>
+    </div>
+    <br>
     <div class="row">
         <div class="col-md-10 col-md-offset-1" style="padding:0px;">
             <div class="row">
-                <div class="col-md-10">
+                <div class="col-md-12">
                     <form action="{% url 'article_add_comment' article.id %}" method="POST" class="article_form " role="form">
                         <div class="form-group">
 
@@ -95,11 +117,11 @@
     <div class="row">
         <div class="col-md-10 col-md-offset-1" id="comment_all" style="padding:0px;">
             <div class="row" style="font-size:15px;">
-                <div class="col-md-8">
+                <div class="col-md-10">
                 <span id="comment_counts">{{comments.count}}</span>
                     条评论
                 </div>
-                <span class="show_hand hover-font" id="time_asc" onclick="comment_list({{article.id}},'asc')">按时间正序</span>&nbsp;&nbsp;
+                <span class="show_hand hover-font" id="time_asc" onclick="comment_list({{article.id}},'asc')">按时间正序</span>&nbsp;&nbsp; | &nbsp;&nbsp;
                 <span class="show_hand hover-font" id="time_desc" onclick="comment_list({{article.id}},'desc')">按时间倒序</span>
                 <div class="col-md-3 col-md-8">
                 </div>
