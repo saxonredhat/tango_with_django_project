@@ -17,7 +17,6 @@ class UserInfo(models.Model):
     user = models.OneToOneField(User,related_name='user_info')
     website = models.URLField(blank=True,null=True)
     picture = models.ImageField(upload_to='profile_images', blank=True, null=True)
-    cropping = ImageRatioField('picture', '100x100')
 
     def __unicode__(self):
         return self.user.username

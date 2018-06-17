@@ -68,6 +68,8 @@ def about(request):
 def testajax(request):
     return render(request, 'blog/testajax.html')
 
+def testdiv(reqeust):
+    return  render(reqeust,'blog/testdiv.html')
 
 def articles_list(request):
     articles = Article.objects.all().order_by('-pulished_date')
@@ -343,6 +345,55 @@ def user_follow(request,user_id):
         return HttpResponse('403')
 
 
+def user_followers(request,user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        followers=[]
+        for follow in user.followees.all():
+            followers.append(follow.follower)
+            print follow.follower
+        return render(request,'blog/user_followers.html',{'followers':followers})
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('noexist')
+
+
+def user_followees(request,user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        followees = []
+        for follow in user.followers.all():
+            followees.append(follow.followee)
+            print follow.follower
+        return render(request, 'blog/user_followees.html', {'followees': followees})
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('noexist')
+
+
+def user_articles(request,user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        tag_name = request.GET.get('tag', 'noexist')
+        tag_str = ''
+        print 'ok'
+        if tag_name != 'noexist':
+            tag = Tag.objects.filter(name=tag_name)
+            print 'ok2'
+            if tag:
+                articles = Article.objects.filter(tags__in=tag, author=user).order_by('-pulished_date')
+                tag_str = tag_name
+            else:
+                articles = Article.objects.filter(author=user).order_by('-pulished_date')
+        else:
+            print 'ok3'
+            articles = Article.objects.filter(author=user).order_by('-pulished_date')
+            print 'ok4'
+        return render(request,'blog/user_articles.html',{'articles':articles,'get_user':user,'current_url':'user_zone'})
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('noexist')
+
 #取消关注用户
 def user_un_follower(request,user_id):
     pass
@@ -509,27 +560,28 @@ def user_info(request):
     except:
         return HttpResponse('用户id'+str(user_id)+'不存在')
     if request.method == 'POST':
-        user_form = UserBaseForm(request.POST)
-        user_info_form = UserInfoForm(request.POST)
-        if user_info_form.is_valid() and user_form.is_valid():
-            #user.username = user_form.cleaned_data.get('username')
-            #user.email = user_form.cleaned_data.get('email')
-            user.save()
-            try:
-                user_info = UserInfo.objects.get(user=user)
-            except:
-                user_info = user_info_form.save(commit=False)
-            user_info.website=user_info_form.cleaned_data.get('website','')
-            user_info.user = user
-            if 'picture' in request.FILES:
-                user_info.picture = request.FILES['picture']
-            user_info.save()
-            thumbnail_url = get_thumbnailer(user_info.picture).get_thumbnail({
-                'size': (100, 100),
-                'box': user_info.cropping,
-                'crop': True,
-                'detail': True,
-            }).url
+        try:
+            #user_form = UserBaseForm(request.POST)
+            user_info_form = UserInfoForm(request.POST)
+            #print user_info_form.is_valid(),user_form.is_valid()
+            print
+            if user_info_form.is_valid():
+                #user.username = user_form.cleaned_data.get('username')
+                #user.email = user_form.cleaned_data.get('email')
+                #user.save()
+                try:
+                    user_info = UserInfo.objects.get(user=user)
+                except:
+                    user_info = user_info_form.save(commit=False)
+                user_info.website=user_info_form.cleaned_data.get('website','')
+                user_info.user = user
+                print request.FILES
+                print 'ok'
+                if 'picture' in request.FILES:
+                    user_info.picture = request.FILES['picture']
+                user_info.save()
+        except Exception,e:
+            print Exception,e
 
         return HttpResponseRedirect(reverse('user_info'))
     else:

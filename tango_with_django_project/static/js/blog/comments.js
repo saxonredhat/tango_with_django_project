@@ -278,6 +278,75 @@ $(document).ready(function(){
               });
         });
 
+        //获取关注的用户,通过on关键字动态添加元素绑定事件(暂时没有使用)
+        $("body").on("click", "div[name='show_followees']", function(event) {
+            //阻止默认form提交
+            //event.preventDefault();
+            //获取form的action参数值
+            var post_url = '/blog/user_followees/'+$(this).attr("user_id");
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+                if(response == 'noexist'){
+                    window.location.replace('/blog/login/');
+                }
+                else{
+                    $("div[name='user_info_show_zone']").html(response);
+                }
+              });
+        });
+
+        //获取用户粉丝,通过on关键字动态添加元素绑定事件(暂时没有使用)
+        $("body").on("click", "div[name='show_followers']", function(event) {
+            //阻止默认form提交
+            //event.preventDefault();
+            //获取form的action参数值
+            var post_url = '/blog/user_followers/'+$(this).attr("user_id");
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+                if(response == 'noexist'){
+                    window.location.replace('/blog/login/');
+                }
+                else{
+                    $("div[name='user_info_show_zone']").html(response);
+                }
+              });
+        });
+
+
+        //获取用户粉丝,通过on关键字动态添加元素绑定事件(暂时没有使用)
+        $("body").on("click", "div[name='show_articles']", function(event) {
+            //阻止默认form提交
+            //event.preventDefault();
+            //获取form的action参数值
+            var post_url = '/blog/user_articles/'+$(this).attr("user_id");
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+               $("div[name='user_info_show_zone']").html(response);
+              });
+        });
+
+
         //显示用户的全名,通过on关键字动态添加元素绑定事件(暂时没有使用)
         $("body").on("mouseenter", ".follower_name", function(event) {
             $(this).children(".cut_name_dot").hide();

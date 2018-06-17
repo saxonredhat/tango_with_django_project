@@ -46,23 +46,17 @@
         &nbsp;&nbsp;
         <span class="glyphicon glyphicon-tag"></span>
         {% for tag in article.tags.all %}
-            <a href="
-            {% if current_url == 'articles_list' %}
-                {% url current_url %}?tag={{tag}}
-            {% else %}
-                {% url current_url get_user.id %}?tag={{tag}}
-            {% endif %}
-            ">
+            <a href="#">
                 <button class="btn btn-success">{{ tag }}</button></a>
         {% endfor %}
     </div>
 </div>
 <div class="row" style="margin-top:5px;">
-    <div class="col-md-10 bg-info box-shadow-md" style="border-radius:15px; padding:15px;">
+    <div class="col-md-10 bg-info" style="border-radius:15px; padding:15px;">
         {{article.content |my_markdown|del_html_tag|truncatechars:300}}
     </div>
 </div>
-<div class="row" style="padding:5px;">
+<div class="row" style="padding:0px;">
     <div class="col-md-1">
         <small class="font-opacity">阅读 {{article.views}}</small>
     </div>

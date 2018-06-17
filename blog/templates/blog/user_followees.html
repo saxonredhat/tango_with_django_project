@@ -1,0 +1,8 @@
+
+{% for my_user in followees %}
+    <!--包含用户banner的模板-->
+    {% include 'blog/user_banner.html' %}
+
+{% empty %}
+没有关注任何用户
+{% endfor %}

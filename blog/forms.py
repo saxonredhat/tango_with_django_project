@@ -37,7 +37,7 @@ class UserInfoForm(forms.ModelForm):
                      widget=forms.FileInput)
     class Meta:
         model = UserInfo
-        fields = ('website', 'picture', 'cropping')
+        fields = ('website', 'picture')
 
 
 class UserBaseForm(forms.Form):

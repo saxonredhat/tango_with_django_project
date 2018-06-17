@@ -1,0 +1,55 @@
+{% load blog_templatetags %}
+<div class="row">
+    <div class="col-md-10">
+        <div class="row bg-info box-shadow" style="border-radius:15px;padding:8px;margin-top:10px;box-shadow: 4px 4px 2px #888888" >
+            <div class="col-md-1 text text-right" style="border:0px solid red;">
+                <div class="row" style="border:0px solid yellow;">
+                    <div class="col-md-12" style="border:0px solid blue;">
+                {% if my_user.user_info.picture %}
+                    <div class="row">
+                        <img class="img-circle" height="40" width="40" src="{{ my_user.user_info.picture.url }}">
+                    </div>
+                {% else %}
+                    <div class="row">
+                        <span class="glyphicon glyphicon-user" style="font-size:29px;"></span>
+                    </div>
+                {% endif %}
+                        </div>
+                </div>
+
+            </div>
+            <div class="col-md-8" style="border:0px solid;padding-top:8px;">
+
+                <div class="row">
+                    <div class="col-md-6">
+                        {{my_user.username}}
+                    </div>
+                </div>
+                <div class="row" >
+                    <div class="col-md-2">文章</div>
+                    <div class="col-md-2">关注</div>
+                    <div class="col-md-2">粉丝</div>
+                </div>
+            </div>
+            <div class="col-md-2 text text-right" style="border:0px solid;padding-top:8px;margin-left:48px;">
+                <div class="row">
+                    <!--获取当前用户是否关注该用户-->
+                    {% is_follow my_user request.user as follow %}
+                    {% if my_user != request.user %}
+                        {% if follow %}
+                            <button class="btn btn-danger follow_or_unfollow" name="follow_or_unfollow" user_id="{{my_user.id}}">
+                                <span class="glyphicon glyphicon-ok" name="follow_icon"></span>
+                                <span name="follow_word">已关注</span>
+                            </button>
+                        {% else %}
+                            <button class="btn btn-success follow_or_unfollow" name="follow_or_unfollow" user_id="{{my_user.id}}">
+                                <span class="glyphicon glyphicon-plus" name="follow_icon"></span>
+                                <span name="follow_word">关注</span>
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

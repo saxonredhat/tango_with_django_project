@@ -101,17 +101,28 @@
 <hr style="border-top: 1px solid #eeeeee;" />
 
 <div class="container">
+
     <div class="row">
         <div class="col-md-6 col-md-offset-1">
+            <div class="row">
+                <div class="col-md-2 show_hand hover-font"  name="show_articles" user_id="{{get_user.id}}">文章</div>
+                <div class="col-md-2"></div>
+                <div class="col-md-2 show_hand hover-font" name="show_followees" user_id="{{get_user.id}}">关注</div>
+                <div class="col-md-2"></div>
+                <div class="col-md-2 show_hand hover-font" name="show_followers" user_id="{{get_user.id}}">粉丝</div>
+            </div>
+            <div class="row" name="user_info_show_zone">
 
-            {% for article in articles %}
-                {% include "blog/articles.html" %}
-            <br>
-            {% empty %}
-                <div class="row text text-center">
-                    你还没有文章，快去<a href="{% url 'article_add' %}">写文章</a>
-                </div>
-            {% endfor %}
+                {% for article in articles %}
+                    {% include "blog/articles.html" %}
+                <br>
+                {% empty %}
+                    <div class="row text text-center">
+                        你还没有文章，快去<a href="{% url 'article_add' %}">写文章</a>
+                    </div>
+                {% endfor %}
+
+            </div>
             {% if articles %}
             <div class="row">
                 <div class="col-md-5">
