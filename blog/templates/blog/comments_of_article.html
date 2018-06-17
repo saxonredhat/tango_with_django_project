@@ -66,20 +66,16 @@
             <p style="font-size:16px;">{{ comment.content }}</p>
             <span class="hover-font">
                 <span class="like_comment" comment_id="{{ comment.id }}">
-                    <span class="glyphicon glyphicon-thumbs-up show_hand" name="like_hand" style="font-size:20px;
-                    {% for like in comment.like_set.all %}
-                        {% if like.user_id == request.user.id %}
-                            color:#ee9f49;
-                        {% endif %}
-                    {% endfor %}
-                    "></span>&nbsp;
-                    <span class="like_count" style="
-                    {% for like in comment.like_set.all %}
-                        {% if like.user_id == request.user.id %}
-                            color:#ee9f49;
-                        {% endif %}
-                    {% endfor %}
-                    ">{{comment.like_set.all.count}}</span>
+                    {% is_like_comment comment request.user as liked_comment %}
+                    {% if liked_comment %}
+                        <span class="glyphicon glyphicon-thumbs-up show_hand"
+                              name="like_hand" style="font-size:20px;color:#ee9f49;"></span>
+                        <span class="like_count" style="color:#ee9f49;">{{comment.like_set.all.count}}</span>
+                    {% else %}
+                        <span class="glyphicon glyphicon-thumbs-up show_hand"
+                              name="like_hand" style="font-size:20px;"></span>
+                        <span class="like_count">{{comment.like_set.all.count}}</span>
+                    {% endif %}
                 </span>
                 &nbsp;&nbsp;&nbsp;&nbsp;
             </span>

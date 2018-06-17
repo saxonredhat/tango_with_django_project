@@ -1,0 +1,12 @@
+{% with favorites as paginator %}
+<!--显示收藏的文章列表-->
+    {% for article in paginator %}
+        {% include "blog/articles.html" %}
+    {% empty %}
+    {% endfor %}
+<br>
+<!--显示分页-->
+    {% if paginator.paginator.num_pages > 1 %}
+        {% include 'blog/paginator.html' %}
+    {% endif %}
+{% endwith %}

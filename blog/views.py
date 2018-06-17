@@ -73,8 +73,8 @@ def testdiv(reqeust):
 
 def articles_list(request):
     articles = Article.objects.all().order_by('-pulished_date')
-    tag_name=request.GET.get('tag','noexist')
-    tag_str=''
+    tag_name = request.GET.get('tag','noexist')
+    tag_str = ''
     if tag_name != 'noexist':
         tag=Tag.objects.filter(name=tag_name)
         if tag:
@@ -92,7 +92,9 @@ def articles_list(request):
         articles_list = paginator.page(1)
     except EmptyPage:
         articles_list = paginator.page(paginator.num_pages)
-    return render(request, 'blog/articles_list.html',{'articles': articles_list,'tag':tag_str,'current_url':'articles_list'})
+    if tag_str:
+        articles_list.tag=tag_str
+    return render(request, 'blog/articles_list.html',{'articles': articles_list})
 
 
 def article_detail(request, article_id):
@@ -345,6 +347,32 @@ def user_follow(request,user_id):
         return HttpResponse('403')
 
 
+#用户收藏文章
+def user_favorite(request, article_id):
+    try:
+        # 判断用户是否登录
+        user = User.objects.get(id=request.user.id)
+        if user:
+            try:
+                article = Article.objects.get(id=article_id)
+            except Exception, e:
+                print Exception, ":", e
+                return HttpResponse('noexist')
+            if article.author == user:
+                return HttpResponse('selferror')
+            favorite = Favorite.objects.filter(article=article, user=user)
+            if favorite:
+                favorite[0].delete()
+                return HttpResponse('unfavorite')
+            else:
+                favorite = Favorite(article=article,user=user)
+                favorite.save()
+                return HttpResponse('favorite')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
 def user_followers(request,user_id):
     try:
         user = User.objects.get(id=user_id)
@@ -401,7 +429,7 @@ def user_articles(request,user_id):
                 articles = Article.objects.filter(author=user).order_by('-pulished_date')
         else:
             articles = Article.objects.filter(author=user).order_by('-pulished_date')
-        paginator = Paginator(articles, 8)
+        paginator = Paginator(articles, 6)
         page = request.GET.get('page', 1)
         try:
             articles_list = paginator.page(page)
@@ -409,7 +437,49 @@ def user_articles(request,user_id):
             articles_list = paginator.page(1)
         except EmptyPage:
             articles_list = paginator.page(paginator.num_pages)
-        return render(request,'blog/user_articles.html',{'articles':articles_list,'get_user':user,'current_url':'user_zone'})
+        if tag_str:
+            articles_list.tag = tag_str
+        return render(request,'blog/user_articles.html',{'articles':articles_list,'get_user':user})
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('noexist')
+
+#用户收藏的文章
+def user_favorites(request,user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        tag_name = request.GET.get('tag', 'noexist')
+        tag_str = ''
+        favorites=[]
+        if tag_name != 'noexist':
+            tag = Tag.objects.filter(name=tag_name)
+            if tag:
+                for favorite in Favorite.objects.filter(user=user):
+                    print favorite
+                    article=Article.objects.filter(tags__in=tag, id=favorite.article.id)
+                    favorites.extend(article)
+                tag_str = tag_name
+            else:
+                for favorite in Favorite.objects.filter(user=user):
+                    article=Article.objects.filter(id=favorite.article.id)
+                    favorites.extend(article)
+        else:
+            for favorite in Favorite.objects.filter(user=user):
+                print favorite
+                article = Article.objects.filter(id=favorite.article.id)
+                favorites.extend(article)
+        paginator = Paginator(favorites, 6)
+        page = request.GET.get('page', 1)
+        try:
+            articles_list = paginator.page(page)
+        except PageNotAnInteger:
+            articles_list = paginator.page(1)
+        except EmptyPage:
+            articles_list = paginator.page(paginator.num_pages)
+        if tag_str:
+            articles_list.tag = tag_str
+        articles_list.page_type = 'favorites'
+        return render(request,'blog/user_favorites.html',{'favorites':articles_list,'get_user':user})
     except Exception, e:
         print Exception, ":", e
         return HttpResponse('noexist')
@@ -671,6 +741,8 @@ def user_zone(request,user_id):
         except EmptyPage:
             articles_list = paginator.page(paginator.num_pages)
         articles_list.page_type = 'articles'
+        if tag_str:
+            articles_list.tag = tag_str
         context_dict['articles'] = articles_list
     # 如果page_type为followers，获取粉丝列表
     elif page_type == 'followers':
@@ -703,6 +775,39 @@ def user_zone(request,user_id):
             followees_list = paginator.page(paginator.num_pages)
         followees_list.page_type = 'followees'
         context_dict['followees'] = followees_list
+    elif page_type == 'favorites':
+        tag_name = request.GET.get('tag', 'noexist')
+        tag_str = ''
+        favorites = []
+        if tag_name != 'noexist':
+            tag = Tag.objects.filter(name=tag_name)
+            if tag:
+                for favorite in Favorite.objects.filter(user=get_user):
+                    article = Article.objects.filter(tags__in=tag, id=favorite.article.id)
+                    favorites.extend(article)
+                tag_str = tag_name
+            else:
+                for favorite in Favorite.objects.filter(user=get_user):
+                    article = Article.objects.filter(id=favorite.article.id)
+                    favorites.extend(article)
+        else:
+            for favorite in Favorite.objects.filter(user=get_user):
+                article = Article.objects.filter(id=favorite.article.id)
+                favorites.extend(article)
+        paginator = Paginator(favorites, 6)
+        page = request.GET.get('page', 1)
+        try:
+            articles_list = paginator.page(page)
+        except PageNotAnInteger:
+            articles_list = paginator.page(1)
+        except EmptyPage:
+            articles_list = paginator.page(paginator.num_pages)
+        articles_list.page_type = 'favorites'
+        if tag_str:
+            articles_list.tag = tag_str
+        print articles_list,'ok'
+        context_dict['favorites'] = articles_list
+        print context_dict
     else:
         pass
     #当前页面的url

@@ -106,10 +106,13 @@
         <div class="col-md-6 col-md-offset-1">
             <div class="row">
                 <div class="col-md-2 show_hand hover-font"  name="show_articles" user_id="{{get_user.id}}">文章</div>
-                <div class="col-md-2"></div>
+                <div class="col-md-1"></div>
                 <div class="col-md-2 show_hand hover-font" name="show_followees" user_id="{{get_user.id}}">关注</div>
-                <div class="col-md-2"></div>
+                <div class="col-md-1"></div>
                 <div class="col-md-2 show_hand hover-font" name="show_followers" user_id="{{get_user.id}}">粉丝</div>
+                <div class="col-md-1"></div>
+                <div class="col-md-2 show_hand hover-font" name="show_favorites" user_id="{{get_user.id}}">收藏</div>
+
             </div>
             <div class="row" name="user_info_show_zone">
                 {% if articles %}
@@ -120,6 +123,9 @@
                 {% endif %}
                 {% if followees %}
                     {% include 'blog/user_followees.html' %}
+                {% endif %}
+                {% if favorites %}
+                    {% include 'blog/user_favorites.html' %}
                 {% endif %}
             </div>
 

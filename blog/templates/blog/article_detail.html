@@ -19,29 +19,11 @@
         <div class="col-md-12 col-md-offset-1">
             <div class="row">
                 <div class="col-md-10" style="padding:0px;">
-                    {% if article.type == 1 %}
                         <h4>
                             <a href="{% url 'article_detail' article.id %}">
-                                <strong class="text text-success">[ 原创 ] {{article.title}}</strong>
+                                <strong class="text text-{% article_color article.id %}">[ {% article_type article.id %} ] {{article.title}}</strong>
                             </a>
                         </h4>
-                    {% endif %}
-
-                    {% if article.type == 2 %}
-                        <h4>
-                            <a href="{% url 'article_detail' article.id %}">
-                                <strong class="text text-warning">[ 翻译 ] {{article.title}}</strong>
-                            </a>
-                        </h4>
-                    {% endif %}
-
-                    {% if article.type == 3 %}
-                        <h4>
-                            <a href="{% url 'article_detail' article.id %}">
-                                <strong class="text text-danger">[ 转载 ] {{article.title}}</strong>
-                            </a>
-                        </h4>
-                    {% endif %}
                 </div>
             </div>
             <div class="row" >
@@ -74,24 +56,46 @@
     <br>
     <!--显示用户点赞区域-->
     <div class="row">
-        <div class="col-md-12 col-md-offset-1">
+        <div class="col-md-6 col-md-offset-1">
             <span class="like_article" article_id="{{ article.id }}">
-                <span class="glyphicon glyphicon-thumbs-up show_hand" name="like_hand" style="font-size:20px;
-                {% for like in article.like_set.all %}
-                    {% if like.user_id == request.user.id %}
-                        color:#ee9f49;
-                    {% endif %}
-                {% endfor %}
-                "></span>
-                <span class="like_article_count" style="
-                {% for like in article.like_set.all %}
-                    {% if like.user_id == request.user.id %}
-                        color:#ee9f49;
-                    {% endif %}
-                {% endfor %}
-                ">{{article.like_set.all.count}}</span>
+                {% is_like_article article request.user as liked_article %}
+                {% if liked_article %}
+                    <span class="glyphicon glyphicon-thumbs-up show_hand gold-color"
+                          name="like_hand" style="font-size:20px;">
+                    </span>
+                    <span class="like_article_count gold-color">{{article.like_set.all.count}}</span>
+                {% else %}
+                    <span class="glyphicon glyphicon-thumbs-up show_hand"
+                          name="like_hand" style="font-size:20px;"></span>
+                    <span class="like_article_count">{{article.like_set.all.count}}</span>
+                {% endif %}
 
             </span>
+        </div>
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-md-3 col-md-offset-6">
+                    <span class="like_article" article_id="{{ article.id }}">
+                        {% if article.author != request.user %}
+                            {% is_favorite_article article request.user as favorited_article %}
+                            {% if favorited_article %}
+                                <span class="glyphicon glyphicon-star show_hand gold-color favorite_or_unfavorite font-20-size"
+                                      name="like_hand" article_id="{{article.id}}"><span class="font-size-15">收藏 </span></span>
+
+                            {% else %}
+                                <span class="glyphicon glyphicon-star-empty show_hand favorite_or_unfavorite font-20-size"
+                                      name="like_hand" article_id="{{article.id}}"><span class="font-size-15">收藏 </span></span>
+                            {% endif %}
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="col-md-3">
+                    <span class="like_article" article_id="{{ article.id }}">
+                        <span class="glyphicon glyphicon-share show_hand font-20-size" name="like_hand"></span>
+                        <span class="show_hand font-20-size">分享</span>
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
     <br>

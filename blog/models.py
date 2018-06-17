@@ -128,6 +128,12 @@ class Like(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
+class Favorite(models.Model):
+    user = models.ForeignKey(User, null=True)
+    article = models.ForeignKey(Article, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 class Follow(models.Model):
     follower = models.ForeignKey(User, related_name='followers')
     followee = models.ForeignKey(User, related_name='followees')

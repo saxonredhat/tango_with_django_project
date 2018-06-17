@@ -2,7 +2,7 @@
 from django import template
 from django.contrib.auth.models import User,Group,Permission
 from django.template.base import TemplateSyntaxError,NodeList
-from blog.models import Comment,Article,Follow
+from blog.models import *
 from markdown import markdown
 from django.shortcuts import render
 #from guardian.core import ObjectPermissionChecker
@@ -33,9 +33,16 @@ def cut_name_dot(content):
         return '...'
     return ''
 
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary[key]
+
+
 @register.filter
 def get_name_tail(content):
     return content[5:]
+
 
 @register.simple_tag
 def replies_of_comment(comment_id):
@@ -78,7 +85,7 @@ def user_get_like_count(user):
     return counts
 
 
-#获取点赞的boolean结果
+#获取关注的boolean结果
 @register.assignment_tag
 def is_follow(followee,follower):
     try:
@@ -91,6 +98,77 @@ def is_follow(followee,follower):
         return False
 
 
+#判断用户是否对文章点赞，返回boolean结果
+@register.assignment_tag
+def is_like_article(article,user):
+    try:
+        like = Like.objects.filter(like_article=article, user_id=user.id)
+        if like:
+            return True
+    except Exception, e:
+        print Exception, e
+        return False
+
+
+#判断用户是否对评论点赞，返回boolean结果
+@register.assignment_tag
+def is_like_comment(comment, user):
+    try:
+        like = Like.objects.filter(like_comment=comment, user_id=user.id)
+        if like:
+            return True
+    except Exception, e:
+        print Exception, e
+        return False
+
+
+@register.assignment_tag
+def is_favorite_article(article, user):
+    try:
+        favorite=Favorite.objects.filter(article=article,user=user)
+        if favorite:
+            return True
+    except Exception, e:
+        print Exception, e
+        return False
+
+
+#判断文章的类型
+@register.simple_tag
+def article_type(article_id):
+    try:
+        article = Article.objects.get(id=article_id)
+        if article.type == 1:
+            return '原创'
+        elif article.type == 2:
+            return '翻译'
+        elif article.type == 3:
+            return '转载'
+        else:
+            return '其他'
+
+    except Exception,e:
+        print Exception,e
+        return {'text-color': '', 'type': ''}
+
+
+#判断文章的类型
+@register.simple_tag
+def article_color(article_id):
+    try:
+        article = Article.objects.get(id=article_id)
+        if article.type == 1:
+            return 'success'
+        elif article.type == 2:
+            return 'warning'
+        elif article.type == 3:
+            return 'danger'
+        else:
+            return 'info'
+
+    except Exception,e:
+        print Exception,e
+        return {'text-color': '', 'type': ''}
 
 
 @register.tag("ifuserperm")

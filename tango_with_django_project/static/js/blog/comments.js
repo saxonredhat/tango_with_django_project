@@ -278,6 +278,37 @@ $(document).ready(function(){
               });
         });
 
+        //收藏或取消收藏,通过on关键字动态添加元素绑定事件
+        $("body").on("click", ".favorite_or_unfavorite", function(event) {
+            //阻止默认form提交
+            //event.preventDefault();
+            //获取form的action参数值
+            var post_url = '/blog/user_favorite/'+$(this).attr("article_id");
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            console.log(post_url)
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+                if(response == '403'){
+                    //window.location.replace('/blog/login/');
+                }
+                if(response == 'favorite'){
+                    $(parent_this).addClass('gold-color');
+                    $(parent_this).removeClass('glyphicon-star-empty');
+                    $(parent_this).addClass('glyphicon-star');
+                }
+                if(response == 'unfavorite'){
+                    $(parent_this).removeClass('gold-color');
+                    $(parent_this).removeClass('glyphicon-star');
+                    $(parent_this).addClass('glyphicon-star-empty');
+                }
+              });
+        });
         //获取关注的用户,通过on关键字动态添加元素绑定事件(暂时没有使用)
         $("body").on("click", "div[name='show_followees']", function(event) {
             //阻止默认form提交
@@ -333,6 +364,25 @@ $(document).ready(function(){
             //event.preventDefault();
             //获取form的action参数值
             var post_url = '/blog/user_articles/'+$(this).attr("user_id");
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+               $("div[name='user_info_show_zone']").html(response);
+              });
+        });
+
+        //获取用户收藏,通过on关键字动态添加元素绑定事件(暂时没有使用)
+        $("body").on("click", "div[name='show_favorites']", function(event) {
+            //阻止默认form提交
+            //event.preventDefault();
+            //获取form的action参数值
+            var post_url = '/blog/user_favorites/'+$(this).attr("user_id");
             //获取form的method参数值
             var request_method = 'get';
             //把当前的this赋值给parent_this
