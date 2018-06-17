@@ -5,10 +5,12 @@
 {% block base_css %}
     {{ block.super }}
     <link href="{% static 'css/bubbles.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-markdown.min.css' %}" rel="stylesheet">
 {% endblock %}
 {% block script %}
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/blog/comments.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 {% endblock %}
 {% block body %}
 {% if article %}
@@ -63,10 +65,8 @@
             </div>
             <br>
             <div class="row" >
-                <div class="col-md-10 bg-info box-shadow-lg" style="border-radius:15px; padding:15px;">
-                    {% autoescape off %}
-                        {{article.content|my_markdown}}
-                    {% endautoescape %}
+                <div class="col-md-10 bg-info box-shadow-lg" name="article_markdown_content"
+                     style="border-radius:15px; padding:15px;">{{article.content}}
                 </div>
             </div>
         </div>
@@ -137,4 +137,10 @@
 {% else %}
     404 NOT FOUND
 {% endif %}
+    <script>
+        $(document).ready(function(){
+            var article_markdown_content=$("div[name='article_markdown_content']")
+            article_markdown_content.html(marked(article_markdown_content.text()));
+        });
+    </script>
 {% endblock %}

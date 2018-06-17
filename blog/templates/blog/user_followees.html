@@ -2,7 +2,13 @@
 {% for my_user in followees %}
     <!--包含用户banner的模板-->
     {% include 'blog/user_banner.html' %}
-
 {% empty %}
 没有关注任何用户
 {% endfor %}
+<br>
+<!--显示分页-->
+{% with followees as paginator %}
+    {% if paginator.paginator.num_pages > 1 %}
+        {% include 'blog/paginator.html' %}
+    {% endif %}
+{% endwith %}

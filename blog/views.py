@@ -351,8 +351,16 @@ def user_followers(request,user_id):
         followers=[]
         for follow in user.followees.all():
             followers.append(follow.follower)
-            print follow.follower
-        return render(request,'blog/user_followers.html',{'followers':followers})
+        paginator = Paginator(followers, 8)
+        page = request.GET.get('page', 1)
+        try:
+            followers_list = paginator.page(page)
+        except PageNotAnInteger:
+            followers_list = paginator.page(1)
+        except EmptyPage:
+            followers_list = paginator.page(paginator.num_pages)
+        followers_list.page_type='followers'
+        return render(request,'blog/user_followers.html',{'followers':followers_list})
     except Exception, e:
         print Exception, ":", e
         return HttpResponse('noexist')
@@ -364,8 +372,16 @@ def user_followees(request,user_id):
         followees = []
         for follow in user.followers.all():
             followees.append(follow.followee)
-            print follow.follower
-        return render(request, 'blog/user_followees.html', {'followees': followees})
+        paginator = Paginator(followees, 8)
+        page = request.GET.get('page', 1)
+        try:
+            followees_list = paginator.page(page)
+        except PageNotAnInteger:
+            followees_list = paginator.page(1)
+        except EmptyPage:
+            followees_list = paginator.page(paginator.num_pages)
+        followees_list.page_type = 'followees'
+        return render(request, 'blog/user_followees.html', {'followees': followees_list})
     except Exception, e:
         print Exception, ":", e
         return HttpResponse('noexist')
@@ -376,20 +392,24 @@ def user_articles(request,user_id):
         user = User.objects.get(id=user_id)
         tag_name = request.GET.get('tag', 'noexist')
         tag_str = ''
-        print 'ok'
         if tag_name != 'noexist':
             tag = Tag.objects.filter(name=tag_name)
-            print 'ok2'
             if tag:
                 articles = Article.objects.filter(tags__in=tag, author=user).order_by('-pulished_date')
                 tag_str = tag_name
             else:
                 articles = Article.objects.filter(author=user).order_by('-pulished_date')
         else:
-            print 'ok3'
             articles = Article.objects.filter(author=user).order_by('-pulished_date')
-            print 'ok4'
-        return render(request,'blog/user_articles.html',{'articles':articles,'get_user':user,'current_url':'user_zone'})
+        paginator = Paginator(articles, 8)
+        page = request.GET.get('page', 1)
+        try:
+            articles_list = paginator.page(page)
+        except PageNotAnInteger:
+            articles_list = paginator.page(1)
+        except EmptyPage:
+            articles_list = paginator.page(paginator.num_pages)
+        return render(request,'blog/user_articles.html',{'articles':articles_list,'get_user':user,'current_url':'user_zone'})
     except Exception, e:
         print Exception, ":", e
         return HttpResponse('noexist')
@@ -408,8 +428,6 @@ def article_add(request):
             article = form.save(commit=False)
             article.author = request.user
             article.save()
-            print article.tags.all()
-            print form.cleaned_data.get('tags')
             for t in form.cleaned_data.get('tags').split(';'):
                 try:
                     tag=Tag.objects.get(name=t)
@@ -600,45 +618,96 @@ def user_info(request):
     return render(request,'blog/user_info.html',{'user_form': user_form, 'user_info_form': user_info_form})
 
 
-def user_zone(request, user_id):
+def user_zone(request,user_id):
+    #判断请求的user_id对应的用户是否存在
     try:
         get_user = User.objects.get(id=user_id)
     except:
         return HttpResponse('用户id'+str(user_id)+'不存在')
-    #print request.AnonymousUser.username
+    #获取访问记录
+    #初始化字典context_dict
+    context_dict={}
+    #赋值请求的用户对象
+    context_dict['get_user']=get_user
     visit_history = None
+    #判断用户不是匿名并且不是该访问页面的用户自己的页面，保存用户的访问记录
     if not request.user.is_anonymous() and request.user != get_user:
         try:
+            #如果当前用户访问过该页面，则更新访问时间
             visit_history = VisitHistory.objects.get(interviewee=get_user,visitor=request.user)
             visit_history.accessed_at = datetime.now(tz=timezone.utc)
             visit_history.save()
         except Exception, e:
             print Exception, ":", e
         if not visit_history:
+            # 如果当前用户未访问过该页面，则增加访问记录
             visit_history = VisitHistory(interviewee=get_user, visitor=request.user)
             visit_history.save()
-    tag_name = request.GET.get('tag', 'noexist')
-    tag_str = ''
-    if tag_name != 'noexist':
-        tag = Tag.objects.filter(name=tag_name)
-        if tag:
-            articles = Article.objects.filter(tags__in=tag,author=get_user).order_by('-pulished_date')
-            tag_str = tag_name
+    #热门文章
+    articles_hot = Article.objects.filter(author=get_user).order_by('-views')
+    context_dict['articles_hot'] = articles_hot
+    #获取请求的页面类型，如果没有，默认articles页面
+    page_type = request.GET.get('page_type', 'articles')
+    #如果page_type为articles，获取文章列表
+    if page_type == 'articles':
+        tag_name = request.GET.get('tag', 'noexist')
+        tag_str = ''
+        if tag_name != 'noexist':
+            tag = Tag.objects.filter(name=tag_name)
+            if tag:
+                articles = Article.objects.filter(tags__in=tag,author=get_user).order_by('-pulished_date')
+                tag_str = tag_name
+            else:
+                articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
         else:
             articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
+        paginator = Paginator(articles, 6)
+        paginator.page_type='articles'
+        page = request.GET.get('page', 1)
+        try:
+            articles_list = paginator.page(page)
+        except PageNotAnInteger:
+            articles_list = paginator.page(1)
+        except EmptyPage:
+            articles_list = paginator.page(paginator.num_pages)
+        articles_list.page_type = 'articles'
+        context_dict['articles'] = articles_list
+    # 如果page_type为followers，获取粉丝列表
+    elif page_type == 'followers':
+        followers = []
+        for follow in get_user.followees.all():
+            followers.append(follow.follower)
+        paginator = Paginator(followers, 8)
+        paginator.page_type = 'followers'
+        page = request.GET.get('page', 1)
+        try:
+            followers_list = paginator.page(page)
+        except PageNotAnInteger:
+            followers_list = paginator.page(1)
+        except EmptyPage:
+            followers_list = paginator.page(paginator.num_pages)
+        followers_list.page_type = 'followers'
+        context_dict['followers'] = followers_list
+    # 如果page_type为followees，获取关注列表
+    elif page_type == 'followees':
+        followees = []
+        for follow in get_user.followers.all():
+            followees.append(follow.followee)
+        paginator = Paginator(followees, 8)
+        page = request.GET.get('page', 1)
+        try:
+            followees_list = paginator.page(page)
+        except PageNotAnInteger:
+            followees_list = paginator.page(1)
+        except EmptyPage:
+            followees_list = paginator.page(paginator.num_pages)
+        followees_list.page_type = 'followees'
+        context_dict['followees'] = followees_list
     else:
-        articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
-    articles_hot= Article.objects.filter(author=get_user).order_by('-views')
-    #articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
-    paginator = Paginator(articles, 6)
-    page = request.GET.get('page', 1)
-    try:
-        articles_list = paginator.page(page)
-    except PageNotAnInteger:
-        articles_list = paginator.page(1)
-    except EmptyPage:
-        articles_list = paginator.page(paginator.num_pages)
-    return render(request,'blog/user_zone.html',{'get_user':get_user,'articles': articles_list,'articles_hot': articles_hot,'current_url':'user_zone'})
+        pass
+    #当前页面的url
+    context_dict['current_url']='user_zone'
+    return render(request, 'blog/user_zone.html', context_dict)
 
 
 def active_user(request, token):

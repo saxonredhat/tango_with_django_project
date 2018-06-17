@@ -5,3 +5,10 @@
 {% empty %}
 没有关注任何用户
 {% endfor %}
+<br>
+<!--显示分页-->
+{% with followers as paginator %}
+    {% if paginator.paginator.num_pages > 1 %}
+        {% include 'blog/paginator.html' %}
+    {% endif %}
+{% endwith %}

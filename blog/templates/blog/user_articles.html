@@ -1,5 +1,12 @@
+<!--显示文章列表-->
 {% for article in articles %}
     {% include "blog/articles.html" %}
-<br>
 {% empty %}
 {% endfor %}
+<br>
+<!--显示分页-->
+{% with articles as paginator %}
+    {% if paginator.paginator.num_pages > 1 %}
+        {% include 'blog/paginator.html' %}
+    {% endif %}
+{% endwith %}

@@ -5,16 +5,18 @@
             <div class="col-md-1 text text-right" style="border:0px solid red;">
                 <div class="row" style="border:0px solid yellow;">
                     <div class="col-md-12" style="border:0px solid blue;">
-                {% if my_user.user_info.picture %}
-                    <div class="row">
-                        <img class="img-circle" height="40" width="40" src="{{ my_user.user_info.picture.url }}">
+                        <a href="{% url 'user_zone' my_user.id %}">
+                        {% if my_user.user_info.picture %}
+                            <div class="row">
+                                <img class="img-circle" height="40" width="40" src="{{ my_user.user_info.picture.url }}">
+                            </div>
+                        {% else %}
+                            <div class="row">
+                                <span class="glyphicon glyphicon-user" style="font-size:29px;"></span>
+                            </div>
+                        {% endif %}
+                        </a>
                     </div>
-                {% else %}
-                    <div class="row">
-                        <span class="glyphicon glyphicon-user" style="font-size:29px;"></span>
-                    </div>
-                {% endif %}
-                        </div>
                 </div>
 
             </div>
@@ -22,13 +24,15 @@
 
                 <div class="row">
                     <div class="col-md-6">
+                        <a href="{% url 'user_zone' my_user.id %}">
                         {{my_user.username}}
+                        </a>
                     </div>
                 </div>
                 <div class="row" >
-                    <div class="col-md-2">文章</div>
-                    <div class="col-md-2">关注</div>
-                    <div class="col-md-2">粉丝</div>
+                    <div class="col-md-4">文章 {{my_user.article_set.all.count}}</div>
+                    <div class="col-md-4">关注 {{my_user.followers.all.count}}</div>
+                    <div class="col-md-4">粉丝 {{my_user.followees.all.count}}</div>
                 </div>
             </div>
             <div class="col-md-2 text text-right" style="border:0px solid;padding-top:8px;margin-left:48px;">

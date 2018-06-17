@@ -5,56 +5,20 @@
     <div class="container">
         <div class="row">
             <div class="col-md-offset-1">
+                <!--显示文章列表-->
                 {% for article in articles %}
                     {% include "blog/articles.html" %}
                 {% empty %}
                     no articles
                 {% endfor %}
+
+                <!--显示分页-->
+                {% with articles as paginator %}
+                    {% if paginator.paginator.num_pages > 1 %}
+                        {% include "blog/paginator.html" %}
+                    {% endif %}
+                {% endwith %}
             </div>
         </div>
-        <br>
-            <div class="row">
-                {% if articles %}
-                <div class="col-md-3 col-md-offset-1">
-                    {% if articles.has_previous %}
-                        <a href="
-                        {% if tag %}
-                            ?page={{ articles.previous_page_number }}&tag={{tag}}
-                        {% else %}
-                            ?page={{ articles.previous_page_number }}
-                        {% endif %}">
-                            <button class="btn btn-primary">上一页</button>
-                        </a>
-                    {% endif %}
-
-                    <span class="current">
-                        第 {{ articles.number }} 页 / 共 {{ articles.paginator.num_pages }} 页
-                    </span>
-
-                    {% if articles.has_next %}
-                        <a href="
-                        {% if tag %}
-                            ?page={{ articles.next_page_number }}&tag={{tag}}
-                        {% else %}
-                            ?page={{ articles.next_page_number }}
-                        {% endif %}">
-
-                            <button class="btn btn-primary">下一页</button>
-                        </a>
-                    {% endif %}
-                </div>
-                <div class="col-md-4">
-                    <form action="" method="get" class="form-inline" role="form">
-                             <div class="form-group">
-                                <input style="width:30%" class="form-control input-sm col-sm-1" type="text" name="page">
-                                 {% if tag %}
-                                    <input type="hidden" name="tag" value="{{tag}}">
-                                 {% endif %}
-                                页 <input class="btn btn-primary" type="submit" value="跳转">&nbsp;
-                            </div>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
     </div>
 {% endblock %}
