@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^user_favorite/(?P<article_id>\d+)', views.user_favorite, name='user_favorite'),
     url(r'^user_favorites/(?P<user_id>\d+)', views.user_favorites, name='user_favorites'),
     url(r'^user_articles/(?P<user_id>\d+)', views.user_articles, name='user_articles'),
+    url(r'^user_messages/$', views.user_messages, name='user_messages'),
     url(r'^user_un_follower/(?P<user_id>\d+)', views.user_un_follower, name='user_un_follower'),
     url(r'^user_active/(?P<user_id>\d+)', views.user_active, name='user_active'),
     url(r'^group_manage/$',views.group_manage,name='group_manage'),

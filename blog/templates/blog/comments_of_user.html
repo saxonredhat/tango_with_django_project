@@ -1,6 +1,7 @@
 <!--用户对用户的评论进行递归的模板-->
+{% load blog_templatetags %}
 <div class="row user_comment">
-    <div class="col-md-11" style="margin-left:60px;">
+    <div class="col-md-11 col-md-offset-1">
         <div style="font-size:16px;">
             {% if comment_user.user.user_info.picture %}
                 <a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}">
@@ -30,7 +31,7 @@
             {% if article.author == comment_user.user %}
 
                     <span class="text text-primary">
-                        <strong><a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}"><span class="gold-color">[作者]</span>{{comment_user.user.username}}:</a></strong>
+                        <strong><a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}"><span class="gold-color box-radius-3">作者</span> {{comment_user.user.username}}:</a></strong>
                     </span>
 
                 {% if comment_user.user != comment_user.comt.user %}
@@ -39,7 +40,7 @@
             {% else %}
                 <a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}">{{comment_user.user.username}}:</a>
                 {% if article.author == comment_user.comt.user %}
-            <span class="text text-primary"><strong><a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@<span class="gold-color">[作者]</span>{{comment_user.comt.user.username}}</a></strong></span>
+            <span class="text text-primary"><strong><a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@<span class="gold-color box-radius-3">作者</span> {{comment_user.comt.user.username}}</a></strong></span>
                 {% else %}
                     {% if comment_user.user != comment_user.comt.user %}
                         <a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@{{comment_user.comt.user.username}}</a>
@@ -47,7 +48,9 @@
                 {% endif %}
             {% endif %}
             <!--打印回复的内容-->
-            {{comment_user.content}}
+            <div class="in-line user_comment">
+                <p>{{comment_user.content}}</p>
+            </div>
         </div>
         <i>
             <small class="hover-font">
@@ -78,7 +81,7 @@
         " class="form user_comment_form" name="user_comment_form" style="display:none;">
              {% csrf_token %}
             <div class="form-group">
-                <textarea class="form-control" name="comment_user_content" rows="6" maxlength="500" minlength="1" required></textarea>
+                <textarea class="form-control" name="comment_user_content" rows="6" maxlength="100" minlength="1" required></textarea>
             </div>
             <div class="form-group">
                 <button class="btn btn-success">回复</button>&nbsp;&nbsp;

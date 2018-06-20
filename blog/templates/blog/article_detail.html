@@ -1,16 +1,21 @@
 {% extends 'blog/base.html' %}
 {% load staticfiles %}
 {% load blog_templatetags %}
+{% load emoji_tags %}
 {% load widget_tweaks %}
 {% block base_css %}
     {{ block.super }}
     <link href="{% static 'css/bubbles.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap-markdown.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/default.css' %}" rel="stylesheet">
+
+
 {% endblock %}
 {% block script %}
-    <script src="{% static 'js/jquery.min.js' %}"></script>
+    {{ block.super }}
     <script src="{% static 'js/blog/comments.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 {% endblock %}
 {% block body %}
 {% if article %}
@@ -21,7 +26,7 @@
                 <div class="col-md-10" style="padding:0px;">
                         <h4>
                             <a href="{% url 'article_detail' article.id %}">
-                                <strong class="text text-{% article_color article.id %}">[ {% article_type article.id %} ] {{article.title}}</strong>
+                                <strong class="text text-{% article_color article.id %}">[ {% article_type article.id %} ] <span class="article-title">{{article.title}}</span></strong>
                             </a>
                         </h4>
                 </div>
@@ -60,13 +65,13 @@
             <span class="like_article" article_id="{{ article.id }}">
                 {% is_like_article article request.user as liked_article %}
                 {% if liked_article %}
-                    <span class="glyphicon glyphicon-thumbs-up show_hand gold-color"
-                          name="like_hand" style="font-size:20px;">
+                    <span class="glyphicon glyphicon-thumbs-up show_hand gold-color font-20-size"
+                          name="like_hand">
                     </span>
                     <span class="like_article_count gold-color">{{article.like_set.all.count}}</span>
                 {% else %}
-                    <span class="glyphicon glyphicon-thumbs-up show_hand"
-                          name="like_hand" style="font-size:20px;"></span>
+                    <span class="glyphicon glyphicon-thumbs-up show_hand font-20-size"
+                          name="like_hand" ></span>
                     <span class="like_article_count">{{article.like_set.all.count}}</span>
                 {% endif %}
 
@@ -74,22 +79,24 @@
         </div>
         <div class="col-md-4">
             <div class="row">
-                <div class="col-md-3 col-md-offset-6">
-                    <span class="like_article" article_id="{{ article.id }}">
+                <div class="col-md-3 col-md-offset-6 text text-right">
                         {% if article.author != request.user %}
                             {% is_favorite_article article request.user as favorited_article %}
                             {% if favorited_article %}
-                                <span class="glyphicon glyphicon-star show_hand gold-color favorite_or_unfavorite font-20-size"
-                                      name="like_hand" article_id="{{article.id}}"><span class="font-size-15">收藏 </span></span>
+                                <span class="favorite_or_unfavorite gold-color show_hand font-20-size" article_id="{{article.id}}">
+                                    <span class="glyphicon glyphicon-star"></span>
+                                    <span class="">收藏</span>
+                                </span>
 
                             {% else %}
-                                <span class="glyphicon glyphicon-star-empty show_hand favorite_or_unfavorite font-20-size"
-                                      name="like_hand" article_id="{{article.id}}"><span class="font-size-15">收藏 </span></span>
+                                <span class="favorite_or_unfavorite show_hand font-20-size" article_id="{{article.id}}">
+                                    <span class="glyphicon glyphicon-star-empty"></span>
+                                    <span >收藏</span>
+                                </span>
                             {% endif %}
                         {% endif %}
-                    </span>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 text text-right">
                     <span class="like_article" article_id="{{ article.id }}">
                         <span class="glyphicon glyphicon-share show_hand font-20-size" name="like_hand"></span>
                         <span class="show_hand font-20-size">分享</span>
@@ -105,12 +112,10 @@
                 <div class="col-md-12">
                     <form action="{% url 'article_add_comment' article.id %}" method="POST" class="article_form " role="form">
                         <div class="form-group">
-
                                 {% csrf_token %}
                                 {{ comment_form.title.errors }}
                                 {% render_field comment_form.content class="form-control" rows="8" required=ture  maxlength="500" minlength="1" %}
                                 <button class="btn btn-primary">评论</button>
-
                         </div>
                     </form>
                 </div>
@@ -121,13 +126,13 @@
     <div class="row">
         <div class="col-md-10 col-md-offset-1" id="comment_all" style="padding:0px;">
             <div class="row" style="font-size:15px;">
-                <div class="col-md-10">
+                <div class="col-md-9">
                 <span id="comment_counts">{{comments.count}}</span>
                     条评论
                 </div>
-                <span class="show_hand hover-font" id="time_asc" onclick="comment_list({{article.id}},'asc')">按时间正序</span>&nbsp;&nbsp; | &nbsp;&nbsp;
-                <span class="show_hand hover-font" id="time_desc" onclick="comment_list({{article.id}},'desc')">按时间倒序</span>
-                <div class="col-md-3 col-md-8">
+                <div class="col-md-3 text text-right">
+                    <span class="show_hand hover-font" id="time_asc" onclick="comment_list({{article.id}},'asc')">按时间正序</span>&nbsp;&nbsp; | &nbsp;&nbsp;
+                    <span class="show_hand hover-font" id="time_desc" onclick="comment_list({{article.id}},'desc')">按时间倒序</span>
                 </div>
             </div>
             <br>
@@ -143,8 +148,39 @@
 {% endif %}
     <script>
         $(document).ready(function(){
-            var article_markdown_content=$("div[name='article_markdown_content']")
-            article_markdown_content.html(marked(article_markdown_content.text()));
+            //字符替换函数
+            function Char2HTMLTag(str) {
+                str = str.replace(/ /g, '&nbsp;'); //替换空格成&nbsp;
+                str = str.replace(/\n/g, '<br>'); //替换换行符成<br>
+                return str;
+            }
+            //转换标题包含emoji表情的字符成emoji图片
+            var article_title=$(".article-title");
+            //html转义
+            var value = article_title.text();
+            var code = $('<div/>').text(value).html();
+            article_title.html(emojione.toImage(code));
+
+            //1.转换文章内容markdown格式成html,内容防跨站，2.转换包含emoji表情的字符成emoji图片
+            var article_markdown_content=$("div[name='article_markdown_content']");
+            article_markdown_content.html(emojione.toImage(marked(article_markdown_content.text(),{sanitize: true})));
+            //高亮显示pre-code代码,显示行号
+            $("pre code[class*=language]").each(function(i, e) {
+                hljs.highlightBlock(e);
+            });
+            //$('code.hljs').each(function(i, block) {
+            //    hljs.lineNumbersBlock(block);
+            //});
+            //绑定评论框emojioneArea
+            $("#id_content").emojioneArea();
+
+            //转换文章评论、用户评论内容包含emoji表情的字符成emoji图片
+            $(".comment_user_parent p,.user_comment p").each(function(){
+                //html转义
+                var value = $(this).text();
+                var code = $('<div/>').text(value).html();
+                $(this).html(emojione.toImage(code));
+            });
         });
     </script>
 {% endblock %}

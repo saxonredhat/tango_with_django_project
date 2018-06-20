@@ -201,7 +201,7 @@ class PermissionForm(forms.ModelForm):
 
 
 class CommentForm(forms.ModelForm):
-    content = forms.CharField(widget=forms.Textarea)
+    content = forms.CharField(widget=forms.Textarea,max_length=100)
 
     class Meta:
         model = Comment

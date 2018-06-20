@@ -1,6 +1,13 @@
 {% extends 'blog/base.html' %}
 {% load staticfiles %}
+{% load emoji_tags %}
 {% load blog_templatetags %}
+{% block script %}
+    {{ block.super }}
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="{% static 'js/bootstrap-markdown.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+{% endblock %}
 {% block body %}
     <div class="container">
         <div class="row">
@@ -21,4 +28,27 @@
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function(){
+            //去除html标签
+            function removeHTMLTag(str) {
+                str = str.replace(/<\/?[^>]*>/g, ''); //去除HTML tag
+                str = str.replace(/[ | ]*\n/g, '\n'); //去除行尾空白
+                //str = str.replace(/\n[\s| | ]*\r/g,'\n'); //去除多余空行
+                str = str.replace(/ /ig, ''); //去掉
+                return str;
+            }
+            $(".article-title").each(function(){
+                //html转义
+                var value = $(this).text();
+                var code = $('<div/>').text(value).html();
+                $(this).html(emojione.toImage(code));
+            });
+
+            $(".article-abstract").each(function(){
+                //html转义,marked参数sanitize 消毒内容
+                $(this).html(emojione.toImage(removeHTMLTag(marked($(this).text(),{sanitize: true}))));
+            });
+        });
+    </script>
 {% endblock %}

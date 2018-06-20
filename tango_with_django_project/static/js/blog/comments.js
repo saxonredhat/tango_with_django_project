@@ -4,6 +4,7 @@ function display_form(which){
      //隐藏其他的文章评论form
      $("form[name='article_comment_form']").attr("style","display:none;");
      //显示当前元素下面的form
+     $(which).nextAll("form").find("textarea").emojioneArea();
      $(which).nextAll("form").attr("style","inline");
 }
 function hidden_form(which){
@@ -52,7 +53,7 @@ function comment_list(article_id,order){
     var article_id=article_id;
     $.get('/blog/comment_list/'+article_id+'?order='+order, function(data){
        $("#comment_list").html('');
-       $("#comment_list").html(data);
+       $("#comment_list").html(emojione.toImage(data));
    });
 }
 
@@ -60,6 +61,12 @@ function comment_list(article_id,order){
 //获取按时间倒序的评论
 
 $(document).ready(function(){
+        //字符替换函数
+        function Char2HTMLTag(str) {
+            str = str.replace(/ /g, '&nbsp;'); //替换空格成&nbsp;
+            str = str.replace(/\n/g, '<br>'); //替换换行符成<br>
+            return str;
+        }
         //文章评论表单
         $(".article_form").submit(function(event){
             //阻止默认form提交
@@ -83,6 +90,7 @@ $(document).ready(function(){
                 }
                 //把响应的response放到id为comment_all节点内最后
                 var order=$("#comment_order").attr("value");
+                response=emojione.toImage(response);
                 if(order=='desc'){
                     $("#comment_order").prepend(response);
                 }else{
@@ -92,6 +100,7 @@ $(document).ready(function(){
                 //清空当前的form
                 var comment_counts=$("#comment_counts");
                 $(parent_this)[0].reset();
+                $(".emojionearea-editor").html('');
                 comment_counts.text(parseInt(comment_counts.text())+1)
 
               });
@@ -118,6 +127,7 @@ $(document).ready(function(){
                     window.location.replace('/blog/login/');
                 }
                 //把响应的response放到子节点的前面
+                response=emojione.toImage(response);
                 $(parent_this).after(response);
                 //alert(response);
                 //获取当前评论的回复数
@@ -126,6 +136,7 @@ $(document).ready(function(){
                 comment_count.text(parseInt(comment_count.text())+1);
                 //清空当前的form
                 $(parent_this)[0].reset();
+                $(".emojionearea-editor").html('');
                 //隐藏当前form
                 $(parent_this).hide();
               });
@@ -152,6 +163,7 @@ $(document).ready(function(){
                     window.location.replace('/blog/login/');
                 }
                 //把响应的response放到子节点的前面
+                response=emojione.toImage(response);
                 $(parent_this).parents(".comment_user_parent").children('.user_comment').eq(0).before(response);
                 //获取当前评论的回复数
                 var comment_count=$(parent_this).parents(".article_comment").find(".replay_counts");
@@ -159,6 +171,7 @@ $(document).ready(function(){
                 comment_count.text(parseInt(comment_count.text())+1);
                 //清空当前的form
                 $(parent_this)[0].reset();
+                $(".emojionearea-editor").html('');
                 //隐藏当前form
                 $(parent_this).hide();
               });
@@ -299,13 +312,13 @@ $(document).ready(function(){
                 }
                 if(response == 'favorite'){
                     $(parent_this).addClass('gold-color');
-                    $(parent_this).removeClass('glyphicon-star-empty');
-                    $(parent_this).addClass('glyphicon-star');
+                    $(parent_this).children(":first-child").removeClass('glyphicon-star-empty');
+                    $(parent_this).children(":first-child").addClass('glyphicon-star');
                 }
                 if(response == 'unfavorite'){
                     $(parent_this).removeClass('gold-color');
-                    $(parent_this).removeClass('glyphicon-star');
-                    $(parent_this).addClass('glyphicon-star-empty');
+                    $(parent_this).children(":first-child").removeClass('glyphicon-star');
+                    $(parent_this).children(":first-child").addClass('glyphicon-star-empty');
                 }
               });
         });
@@ -373,6 +386,7 @@ $(document).ready(function(){
                 url : post_url,
                 type: request_method,
             }).done(function(response){
+               //response=emojione.toImage(response);
                $("div[name='user_info_show_zone']").html(response);
               });
         });
@@ -392,6 +406,7 @@ $(document).ready(function(){
                 url : post_url,
                 type: request_method,
             }).done(function(response){
+                //response=emojione.toImage(response);
                $("div[name='user_info_show_zone']").html(response);
               });
         });

@@ -484,6 +484,12 @@ def user_favorites(request,user_id):
         print Exception, ":", e
         return HttpResponse('noexist')
 
+
+@login_required
+def user_messages(request):
+    return render(request,'blog/user_messages.html')
+
+
 #取消关注用户
 def user_un_follower(request,user_id):
     pass
@@ -698,7 +704,7 @@ def user_zone(request,user_id):
     #初始化字典context_dict
     context_dict={}
     #赋值请求的用户对象
-    context_dict['get_user']=get_user
+    context_dict['get_user'] = get_user
     visit_history = None
     #判断用户不是匿名并且不是该访问页面的用户自己的页面，保存用户的访问记录
     if not request.user.is_anonymous() and request.user != get_user:
@@ -744,6 +750,7 @@ def user_zone(request,user_id):
         if tag_str:
             articles_list.tag = tag_str
         context_dict['articles'] = articles_list
+        context_dict['page_content'] = 'articles'
     # 如果page_type为followers，获取粉丝列表
     elif page_type == 'followers':
         followers = []
@@ -760,6 +767,7 @@ def user_zone(request,user_id):
             followers_list = paginator.page(paginator.num_pages)
         followers_list.page_type = 'followers'
         context_dict['followers'] = followers_list
+        context_dict['page_content'] = 'followers'
     # 如果page_type为followees，获取关注列表
     elif page_type == 'followees':
         followees = []
@@ -775,6 +783,7 @@ def user_zone(request,user_id):
             followees_list = paginator.page(paginator.num_pages)
         followees_list.page_type = 'followees'
         context_dict['followees'] = followees_list
+        context_dict['page_content'] = 'followees'
     elif page_type == 'favorites':
         tag_name = request.GET.get('tag', 'noexist')
         tag_str = ''
@@ -805,9 +814,8 @@ def user_zone(request,user_id):
         articles_list.page_type = 'favorites'
         if tag_str:
             articles_list.tag = tag_str
-        print articles_list,'ok'
         context_dict['favorites'] = articles_list
-        print context_dict
+        context_dict['page_content'] = 'favorites'
     else:
         pass
     #当前页面的url

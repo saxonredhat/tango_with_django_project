@@ -1,29 +1,39 @@
-<div class = "container" style="border:2px solid green;">
-  <div class="centerwrapper" style="border:6px solid red;">
-    <div class = "square" style="border:2px solid yellow;">hello</div>
-    <div class = "square" style="border:2px solid yellow;">hello</div>
-    <div class = "square" style="border:2px solid yellow;">hello</div>
-    <div class = "square" style="border:2px solid yellow;">hello</div>
-  </div>
-</div>
-
-<style>
-    .square
-    {
-        float: left;
-        margin:1pt;
-        width:72pt;
-        height:72pt;
-    }
-    .container
-    {
-        text-align:center;
-        width:450pt;
-        height: 80pt;
-    }
-    .centerwrapper
-    {
-       margin: auto;
-       width: 30pt;
-    }
-</style>
+<html>
+{% load staticfiles %}
+<head>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://rawgit.com/mervick/emojionearea/master/dist/emojionearea.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://rawgit.com/mervick/emojionearea/master/dist/emojionearea.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/paraiso-dark.css' %}">
+    <link rel="stylesheet" href="{% static 'css/highlight/github.css' %}">
+    <script src="https://highlightjs.org/static/highlight.pack.js"></script>
+</head>
+<body>
+   <div class="codehilite"><pre><span></span><code><span class="n">window</span><span class="o">.</span><span class="n">addEventListener</span><span class="p">(</span><span class="s1">'load'</span><span class="p">,</span> <span class="n">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">'window loaded'</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<pre>
+    <code class="python">
+@register.filter(is_safe=True)
+@stringfilter
+def markdown2(value):
+    try:
+        import markdown2
+    except ImportError:
+        if settings.DEBUG:
+            raise template.TemplateSyntaxError("Error in 'markdonw' filter: The Python markdown2 library isn't install.")
+        return force_text(value)
+    else:
+        return mark_safe(markdown2.markdown(force_unicode(value),
+                                            safe_mode=True,
+                                            extras=["fenced-code-blocks"]))
+    </code>
+</pre>
+<script>
+    $(document).ready(function() {
+          $('pre code').each(function(i, e) {hljs.highlightBlock(e)});
+        });
+</script>
+</body>
+</html>

@@ -84,7 +84,7 @@ class Article(models.Model):
 
 
 class Comment(models.Model):
-    content = models.CharField(max_length=500)
+    content = models.TextField()
     article = models.ForeignKey(Article,null=True)
     user = models.ForeignKey(User)
     comt = models.ForeignKey("self",null=True)

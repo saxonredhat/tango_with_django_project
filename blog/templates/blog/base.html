@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% load staticfiles %}
 {% load blog_templatetags %}
+{% load emoji_tags %}
 
 <html lang="en">
 <head>
@@ -10,9 +11,52 @@
     {% endblock %}
     {% block base_css %}
         <link href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <script src="{% static 'js/jquery.min.js' %}"></script>
+        <script src="{% static 'js/bootstrap.min.js' %}"></script>
+        <!--emojione v2.1.1 使用bootstrap的cdn-->
+        <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/emojione/2.1.1/assets/sprites/emojione.sprites.css">
+        <script type="text/javascript" src="http://cdn.bootcss.com/emojione/2.1.1/lib/js/emojione.min.js"></script>
+
+        <!--emojionearea-->
+        <link rel="stylesheet" type="text/css" href="{% static 'css/emojionearea.min.css' %}">
+        <script type="text/javascript" src="{% static 'js/emojionearea.min.js' %}"></script>
+
+        <!--code高亮显示-->
+        <!--<link rel="stylesheet" href="{% static 'css/highlight/atom-one-dark.css' %}">-->
+        <link rel="stylesheet" href="{% static 'css/highlight/zenburn.css' %}">
+
         <style>
+            pre {
+                border-radius:10px;
+            }
+            pre code{
+                border-radius:5px;
+            }
+
+            /* for block of numbers */
+            td.hljs-ln-numbers {
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                -khtml-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+
+                text-align: left;
+                color: #ccc;
+                border-right: 1px solid #CCC;
+                vertical-align: top;
+                /* your custom style here */
+            }
+            div.hljs-ln-line {
+                padding-right:8px;
+                padding-left:10px;
+            }
             .show_hand{
                 cursor: pointer;
+            }
+            .word-wrap{
+                word-wrap: break-word;
             }
             .font-opacity{
                opacity: 0.5;
@@ -35,6 +79,9 @@
             .hover-font:hover{
                 opacity: 1;
             }
+            .in-line{
+                display: inline-block;
+            }
             .hover-bigger:hover{
                 text-decoration:none;
                 transform:scale(1.2);
@@ -42,6 +89,33 @@
                 -moz-transform:scale(1.2); 	/* Firefox */
                 -webkit-transform:scale(1.2); /* Safari 和 Chrome */
                 -o-transform:scale(1.2); 	/* Opera */
+            }
+            .border-1{
+                border:1px solid;
+            }
+            .border-radius-3{
+                border-radius:3px;
+            }
+            .border-radius-5{
+                border-radius:5px;
+            }
+            .border-radius-15{
+                border-radius:15px;
+            }
+            .box-radius-2{
+                border:1px solid;
+                border-radius:2px;
+                padding:2px;
+            }
+            .box-radius-3{
+                border:1px solid;
+                border-radius:3px;
+                padding:2px;
+            }
+            .box-radius-5{
+                border:1px solid;
+                border-radius:5px;
+                padding:5px;
             }
             a:hover{
                 color:#ee9f49;
@@ -86,9 +160,47 @@
                 width: 1500px;
               }
             }
+            .margin-top-20{
+                margin-top:20px;
+            }
+            .margin-bottom-20{
+                margin-bottom:20px;
+            }
+            .emojione{
+                font-size: inherit;
+                height: 2ex;
+                width: 2.1ex;
+                min-height: 20px;
+                min-width: 20px;
+                display: inline-block;
+                margin: -.2ex .15em .2ex;
+                line-height: normal;
+                vertical-align: middle;
+                max-width: 100%;
+                top: 0;
+            }
         </style>
     {% endblock %}
     {% block script %}
+        <script src="https://highlightjs.org/static/highlight.pack.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.3.0/highlightjs-line-numbers.min.js"></script>
+        <!--<script>hljs.initHighlightingOnLoad();</script>-->
+        <!--<script>hljs.initLineNumbersOnLoad();</script>-->
+        <script>
+            function html_encode(str)
+              {
+                  var s = "";
+                  if (str.length == 0) return "";
+                  s = str.replace(/&/g, ">");
+                  s = s.replace(/</g, "<");
+                  s = s.replace(/>/g, ">");
+                  s = s.replace(/ /g, " ");
+                  s = s.replace(/\'/g, "'");
+                  s = s.replace(/\"/g, '"');
+                  s = s.replace(/\n/g, "<br>");
+                  return s;
+              }
+        </script>
     {% endblock %}
 </head>
 <body>
@@ -116,9 +228,7 @@
                 <li><a href="{% url 'articles_list' %}">
                     <span class="glyphicon glyphicon-book"></span>
                     文章</a></li>
-                <li><a href="{% url 'about' %}">
-                    <span class="glyphicon glyphicon-info-sign"></span>
-                    关于</a></li>
+
                   <li>
                   <form class="navbar-form">
                     <div class="form-group">
@@ -144,13 +254,16 @@
                       注册</a></li>
                 {% else %}
                   <li class="text text-left"><a href="{% url 'user_zone' user.id %}">
-                      欢迎,{{user.username}}</a>
+                      欢迎,<span class="gold-color">{{user.username}}</span>!</a>
                   </li>
 
-                  <li class="dropdown">
+
                   <li><a href="{% url 'user_info' %}">
                       <span class="glyphicon glyphicon-user"></span>
                       个人中心</a></li>
+                  <li><a href="{% url 'user_messages' %}">
+                    <span class="glyphicon glyphicon-envelope"></span>
+                    消息</a></li>
                   <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                             <span class="glyphicon glyphicon-book"></span>
@@ -188,8 +301,8 @@
                       </li>
                   {% endif %}
                   <li><a href="{% url 'user_logout' %}">
-                  <span class="glyphicon glyphicon-off"></span>
-                      注销
+                  <span class="glyphicon glyphicon-log-out"></span>
+                      退出
                   </a></li>
 
                 {% endif %}
@@ -207,11 +320,10 @@
     <!--
     <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
 	<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	-->
+
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
-
+    -->
     <!--
     <script type="text/javascript" charset="utf8" src="{% static 'js/kindeditor/kindeditor-all-min.js' %}"></script>
     <script type="text/javascript" charset="utf8" src="{% static 'js/kindeditor/lang/zh-CN.js' %} "></script>

@@ -3,6 +3,7 @@
     {% for article in paginator %}
         {% include "blog/articles.html" %}
     {% empty %}
+        没有收藏
     {% endfor %}
 <br>
 <!--显示分页-->
@@ -10,3 +11,14 @@
         {% include 'blog/paginator.html' %}
     {% endif %}
 {% endwith %}
+
+<script>
+        $(document).ready(function(){
+            $(".article-title").each(function(){
+                $(this).html(emojione.toImage($(this).html()));
+            });
+            $(".article-abstract").each(function(){
+                $(this).html(emojione.toImage($(this).html()));
+            });
+        });
+    </script>

@@ -6,6 +6,10 @@ from blog.models import *
 from markdown import markdown
 from django.shortcuts import render
 #from guardian.core import ObjectPermissionChecker
+from django.conf import settings
+from django.utils.encoding import force_text, force_unicode
+from django.utils.safestring import mark_safe
+from django.template.defaultfilters import stringfilter
 import re
 #import datetime
 register = template.Library()
@@ -22,6 +26,22 @@ def my_markdown(content):
     return markdown(content)
 
 
+@register.filter(is_safe=True)
+@stringfilter
+def markdown2(value):
+    try:
+        import markdown
+    except ImportError:
+        if settings.DEBUG:
+            raise template.TemplateSyntaxError("Error in 'markdonw' filter: The Python markdown2 library isn't install.")
+        return force_text(value)
+    else:
+        return mark_safe(markdown.markdown(value,
+                                       extensions=['markdown.extensions.fenced_code', 'markdown.extensions.codehilite'],
+                                       safe_mode=True,
+                                       enable_attributes=False))
+
+
 @register.filter
 def cut_name(content):
     return content[0:5]
@@ -32,6 +52,16 @@ def cut_name_dot(content):
     if len(content) > 5:
         return '...'
     return ''
+
+
+@register.filter
+def convert_html_white(content):
+    return "&nbsp;".join(content.split(' '))
+
+
+@register.filter
+def string_safe(content):
+    return content
 
 
 @register.filter
