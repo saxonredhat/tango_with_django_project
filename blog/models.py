@@ -138,3 +138,20 @@ class Follow(models.Model):
     follower = models.ForeignKey(User, related_name='followers')
     followee = models.ForeignKey(User, related_name='followees')
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Message(models.Model):
+    send_user = models.ForeignKey(User, related_name='message_send_user')  # 私信的发送者
+    receive_user = models.ForeignKey(User, related_name='message_receive_user')  # 私信的接收者
+    content = models.TextField()  # 私信的内容
+    is_read = models.BooleanField(default=0)  # 0:未读 1:已读
+    created_at = models.DateTimeField(auto_now_add=True)  # 私信的创建时间
+
+
+class News(models.Model):
+    from_user = models.ForeignKey(User, related_name='news_from_user')  # 消息的发送者
+    to_user = models.ForeignKey(User, related_name='news_to_user')  # 消息的接收者用户
+    to_article = models.ForeignKey(Article, related_name='news_to_article')  # 消息操作的对象文章
+    to_comment = models.ForeignKey(Comment, related_name='news_to_comment')  # 消息操作的对象评论
+    type = models.IntegerField()  # 消息的类型 1:关注 2:收藏 3:赞 4:评论
+    created_at = models.DateTimeField(auto_now_add=True)  # 消息的创建时间

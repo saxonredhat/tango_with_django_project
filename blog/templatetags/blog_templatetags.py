@@ -88,6 +88,16 @@ def replies_of_comment(comment_id):
 
 
 @register.simple_tag
+def last_message(send_user, receive_user):
+    try:
+        message = Message.objects.filter(send_user=send_user,receive_user=receive_user).order_by('-created_at')[0]
+    except Exception, e:
+        print Exception, e
+        return ''
+    return message
+
+
+@register.simple_tag
 def user_article_count(user, article_type):
     counts = Article.objects.filter(author=user, type=article_type).count()
     return counts

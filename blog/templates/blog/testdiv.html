@@ -7,33 +7,17 @@
     <link rel="stylesheet" type="text/css" href="{% static 'css/paraiso-dark.css' %}">
     <link rel="stylesheet" href="{% static 'css/highlight/github.css' %}">
     <script src="https://highlightjs.org/static/highlight.pack.js"></script>
+    <style>
+        div{
+            border-style: solid;
+            border-width: 100px 0px 0px 100px;
+            border-color: blue transparent transparent transparent;
+            width: 0px;
+            height: 0px;
+        }
+    </style>
 </head>
 <body>
-   <div class="codehilite"><pre><span></span><code><span class="n">window</span><span class="o">.</span><span class="n">addEventListener</span><span class="p">(</span><span class="s1">'load'</span><span class="p">,</span> <span class="n">function</span><span class="p">()</span> <span class="p">{</span>
-  <span class="n">console</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s1">'window loaded'</span><span class="p">);</span>
-<span class="p">});</span>
-</code></pre></div>
-<pre>
-    <code class="python">
-@register.filter(is_safe=True)
-@stringfilter
-def markdown2(value):
-    try:
-        import markdown2
-    except ImportError:
-        if settings.DEBUG:
-            raise template.TemplateSyntaxError("Error in 'markdonw' filter: The Python markdown2 library isn't install.")
-        return force_text(value)
-    else:
-        return mark_safe(markdown2.markdown(force_unicode(value),
-                                            safe_mode=True,
-                                            extras=["fenced-code-blocks"]))
-    </code>
-</pre>
-<script>
-    $(document).ready(function() {
-          $('pre code').each(function(i, e) {hljs.highlightBlock(e)});
-        });
-</script>
+<div></div>
 </body>
 </html>

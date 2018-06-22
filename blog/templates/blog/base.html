@@ -58,8 +58,17 @@
             .word-wrap{
                 word-wrap: break-word;
             }
+            .overflow{
+                overflow: scroll;
+            }
             .font-opacity{
                opacity: 0.5;
+            }
+            .font-opacity-3{
+                opacity: 0.3;
+            }
+            .bigger:hover{
+                width:106%;
             }
             .font-40-size{
                 font-size:20px;
@@ -103,19 +112,20 @@
                 border-radius:15px;
             }
             .box-radius-2{
-                border:1px solid;
                 border-radius:2px;
                 padding:2px;
             }
             .box-radius-3{
-                border:1px solid;
                 border-radius:3px;
                 padding:2px;
             }
             .box-radius-5{
-                border:1px solid;
                 border-radius:5px;
                 padding:5px;
+            }
+            .box-radius-8{
+                border-radius:8px;
+                padding:10px;
             }
             a:hover{
                 color:#ee9f49;
@@ -261,8 +271,8 @@
                   <li><a href="{% url 'user_info' %}">
                       <span class="glyphicon glyphicon-user"></span>
                       个人中心</a></li>
-                  <li><a href="{% url 'user_messages' %}">
-                    <span class="glyphicon glyphicon-envelope"></span>
+                  <li><a href="{% url 'user_notifications' %}">
+                    <span class="glyphicon glyphicon-bell"></span>
                     消息</a></li>
                   <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">

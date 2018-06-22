@@ -1,0 +1,20 @@
+<div class="row">
+    <div id="right-windows-demo"  class="col-md-12 right-windows-demo" user_id="{{ talk_user.id }}" style="border:1px solid;overflow-y: auto;height:400px;bottom:0;">
+        {% for user_message in user_messages %}
+            {% include 'blog/user_message_entry.html' %}
+        {% endfor %}
+    </div>
+</div>
+<form class="user_send_message" method="post" action="{% url 'user_send_message' talk_user.id %}">
+    {% csrf_token %}
+    <div class="row form-group">
+        <div class="right-windows-form">
+            <textarea name="message_content" class="form-control" rows="6"></textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div class="right-windows-button text text-right">
+            <button class="btn btn-success" type="submit">发送</button>
+        </div>
+    </div>
+</form>

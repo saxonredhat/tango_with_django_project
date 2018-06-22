@@ -1,0 +1,28 @@
+<div class="row" style="margin-top:16px;">
+{% if user_message.send_user == request.user %}
+    <div class="col-md-12 text text-right">
+        <span class="box-radius-8 bg-info">{{user_message.content}}</span>
+        <a href="{% url 'user_zone' user_message.send_user.id %}">
+        {% if user_message.send_user.user_info.picture  %}
+            <img class="img-circle" height="35" width="35" src="{{ user_message.send_user.user_info.picture.url }}">
+        {% else %}
+            <span class="glyphicon glyphicon-user" style="font-size:33px"></span>
+
+        {% endif %}
+        </a>
+        <span class="font-opacity-3" style="display:block;font-size:1px;">{{user_message.created_at|date:"Y-m-d H:i:s"}}</span>
+    </div>
+{% else %}
+    <div class="col-md-12 text text-left" >
+        <a href="{% url 'user_zone' user_message.send_user.id %}">
+        {% if user_message.send_user.user_info.picture  %}
+            <img class="img-circle" height="35" width="35" src="{{ user_message.send_user.user_info.picture.url }}">
+        {% else %}
+            <span class="glyphicon glyphicon-user" style="font-size:33px"></span>
+        {% endif %}
+        </a>
+        <span class="box-radius-8 bg-info">{{user_message.content}}</span>
+        <span class="font-opacity-3" style="display:block;font-size:1px;">{{user_message.created_at|date:"Y-m-d H:i:s"}}</span>
+    </div>
+{% endif %}
+</div>

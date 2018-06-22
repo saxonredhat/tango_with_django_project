@@ -1,0 +1,169 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+
+{% block body %}
+<div class="container box-radius-5">
+    <div class="row">
+        <div class="col-md-1 col-md-offset-2 box-radius-5">
+            <div class="row">
+                <div class="margin-bottom-20 box-radius-5">
+                    <span class="font-20-size">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                        <span>关注</span>
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="margin-bottom-20 box-radius-5">
+                    <span class="font-20-size">
+                        <span class="glyphicon glyphicon-thumbs-up"></span>
+                        <span>收藏和赞</span>
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="margin-bottom-20 box-radius-5">
+                    <span class="user_messages">
+                        <span class="font-20-size show_hand">
+                            <span class="glyphicon glyphicon-send"></span>
+                            <span>私信</span>
+                        </span>
+                    </span>
+                </div>
+            </div>
+            <div class="row">
+                <div class="margin-bottom-20 box-radius-5">
+                    <span class="font-20-size">
+                        <span class="glyphicon glyphicon-comment"></span>
+                        <span>评论</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 col-md-offset-0">
+            <div class="row ">
+                <div class="col-md-11 col-md-offset-1">
+                    <span>全部私信</span>
+                </div>
+            </div>
+            <!--右边的显示框-->
+            <div class="row ">
+                <div class="col-md-11 col-md-offset-1 right-windows">
+                    <!--针对不同的page_type展现不同的内容-->
+                    {% if page_type == 'follow' %}
+                    {% endif %}
+                    {% if page_type == 'favorite_like' %}
+                    {% endif %}
+                    {% if page_type == 'message' %}
+                        {% if content_type == 'list' %}
+                            {% for send_user in send_user_list %}
+                                {% with send_user as my_user %}
+                                    {% include 'blog/user_senduser.html' %}
+                                {% endwith %}
+                                <br>
+                            {% empty %}
+                              没有私信
+                            {% endfor %}
+                        {% endif %}
+                        {% if content_type == 'user' %}
+
+                        {% endif %}
+                    {% endif %}
+                    {% if page_type == 'comment' %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+
+
+        //点击私信触发请求
+        $("body").on("click", ".user_messages", function(event) {
+            //获取form的action参数值
+            var post_url = '/blog/user_notifications/messages/list/';
+            //获取form的method参数值
+            var request_method = 'get';
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
+                $(".right-windows").html(response);
+             });
+        });
+
+        function getMessages(url,method){
+            $.ajax({
+                url : url,
+                type: method,
+            }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
+                console.log('ok');
+                $("#right-windows-demo").html(response);
+            });
+        }
+
+        function updateScroll(){
+            var element = document.getElementById("right-windows-demo");
+            element.scrollTop = element.scrollHeight;
+        }
+        $("body").on("click", ".user_message_entry", function(event) {
+            //获取form的action参数值
+            var user_id = $(this).attr("user_id");
+            var post_url = '/blog/user_message/'+user_id;
+            //获取form的method参数值
+            var request_method = 'get';
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+            }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
+                $(".right-windows").html(response);
+            });
+            var get_url= '/blog/user_get_message/user/'+user_id;
+            setInterval(function(){getMessages(get_url,request_method);}, 3000);
+
+        });
+
+
+        //点击发送触发
+        $("body").on("submit", ".user_send_message", function(event) {
+            //阻止默认form提交
+            event.preventDefault();
+            //获取form的action参数值
+            var post_url = $(this).attr("action");
+            //获取form的method参数值
+            var request_method = $(this).attr("method");
+            //序列化form的参数
+            var form_data = $(this).serialize();
+            //把当前的this赋值给parent_this
+            var parent_this=this
+            //ajax请求
+            $.ajax({
+                url : post_url,
+                type: request_method,
+                data : form_data
+            }).done(function(response){
+                if(response == '403'){
+                    window.location.replace('/blog/login/');
+                }
+                $(parent_this)[0].reset();
+                $("#right-windows-demo").append(response);
+              });
+        });
+    });
+</script>
+{% endblock %}

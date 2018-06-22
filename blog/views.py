@@ -20,6 +20,7 @@ from image_cropping.utils import get_backend
 from easy_thumbnails.files import get_thumbnailer
 from markdown import markdown
 from django.utils import timezone
+from django.db.models import Q
 import mytools
 import base64
 import re
@@ -486,9 +487,106 @@ def user_favorites(request,user_id):
 
 
 @login_required
-def user_messages(request):
-    return render(request,'blog/user_messages.html')
+def user_notifications(request,):
+    context_dict={}
+    page_type=request.GET.get('page_type','follow')
+    page_type_list=['follow','favorite_like','message','comment']
+    if page_type not in page_type_list:
+        page_type='follow'
+    if page_type == 'message':
+        content_type_list = ['list','user']
+        content_type = request.GET.get('content_type', 'list')
+        if content_type not in content_type_list:
+            content_type = 'list'
+        if content_type == 'list':
+            try:
+                user = User.objects.get(id=request.user.id)
+                if user:
+                    user_messages = Message.objects.filter(receive_user=user)
+                    send_user_list = set()
+                    for user_message in user_messages:
+                        send_user_list.add(user_message.send_user)
+                    send_user_list = list(send_user_list)
+                    return render(request, 'blog/user_notifications.html', {'send_user_list': send_user_list})
+            except Exception, e:
+                print Exception, ":", e
+                return HttpResponse('403')
+        context_dict['content_type']=content_type
+    context_dict['page_type'] = page_type
+    return render(request, 'blog/user_notifications.html',context_dict)
 
+
+def user_messages_list(request):
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            user_messages = Message.objects.filter(receive_user=user)
+            send_user_list=set()
+            for user_message in user_messages:
+                send_user_list.add(user_message.send_user)
+            send_user_list = list(send_user_list)
+            return render(request, 'blog/user_messages_list.html',{'send_user_list':send_user_list})
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
+def user_message(request, user_id):
+    try:
+        myuser = User.objects.get(id=request.user.id)
+        if myuser:
+            try:
+                otheruser=User.objects.get(id=user_id)
+                #查询当前用户收到指定用户的信息，和发送给指定用户的信息
+                user_messages = Message.objects.filter(Q(send_user=otheruser, receive_user=myuser) | Q(send_user=myuser, receive_user=otheruser)).order_by('-created_at')[:30]
+                #排序
+                user_messages=sorted(user_messages,key=lambda x:x.created_at,reverse=False)
+                return render(request, 'blog/user_message.html', {'user_messages' : user_messages ,'talk_user':otheruser})
+            except Exception, e:
+                print Exception, ":", e
+                return HttpResponse('403')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
+def user_get_message(request, user_id):
+    try:
+        myuser = User.objects.get(id=request.user.id)
+        if myuser:
+            try:
+                otheruser=User.objects.get(id=user_id)
+                #查询当前用户收到指定用户的信息，和发送给指定用户的信息
+                user_messages = Message.objects.filter(Q(send_user=otheruser, receive_user=myuser) | Q(send_user=myuser, receive_user=otheruser)).order_by('-created_at')[:30]
+                #排序
+                user_messages=sorted(user_messages,key=lambda x:x.created_at,reverse=False)
+                return render(request, 'blog/user_get_message.html', {'user_messages' : user_messages ,'talk_user':otheruser})
+            except Exception, e:
+                print Exception, ":", e
+                return HttpResponse('403')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
+def user_send_message(request,recevie_user_id):
+    try:
+        myuser = User.objects.get(id=request.user.id)
+        if myuser:
+            try:
+                task_user=User.objects.get(id=recevie_user_id)
+                #查询当前用户收到指定用户的信息，和发送给指定用户的信息
+                message_content=request.POST.get('message_content')
+                print request.POST
+                new_message = Message(send_user=myuser,receive_user=task_user,content=message_content)
+                new_message.save()
+                return render(request,'blog/user_send_message.html',{'new_message': new_message})
+            except Exception, e:
+                print Exception, ":", e
+                return HttpResponse('403')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
 
 #取消关注用户
 def user_un_follower(request,user_id):
