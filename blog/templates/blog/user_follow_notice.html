@@ -1,0 +1,13 @@
+{% for follow in followers %}
+        <!--包含用户user_follower_banner的模板-->
+        {% include 'blog/user_follow_banner.html' %}
+{% empty %}
+没有粉丝用户
+{% endfor %}
+<br>
+<!--显示分页-->
+{% with followers as paginator %}
+    {% if paginator.paginator.num_pages > 1 %}
+        {% include 'blog/paginator.html' %}
+    {% endif %}
+{% endwith %}

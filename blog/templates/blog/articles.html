@@ -34,8 +34,10 @@
     </div>
 </div>
 <div class="row" style="margin-top:5px;">
-    <div class="col-md-10 bg-info box-shadow-md article-abstract" style="border-radius:15px; padding:15px;">{{article.content|truncatechars:600}}
-    </div>
+    <a href="{% url 'article_detail' article.id %}" class="black">
+        <div class="col-md-10 bg-gray-light box-shadow-entry article-abstract" style="border-radius:15px; padding:15px;">{{article.content|truncatechars:600}}
+        </div>
+    </a>
 </div>
 <div class="row" style="padding:5px;">
     <div class="col-md-1">

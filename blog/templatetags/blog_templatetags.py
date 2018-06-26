@@ -10,8 +10,9 @@ from django.conf import settings
 from django.utils.encoding import force_text, force_unicode
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import stringfilter
+from django.db.models import Q
 import re
-#import datetime
+import datetime
 register = template.Library()
 import sys
 sys.setrecursionlimit(5000)
@@ -98,6 +99,38 @@ def last_message(send_user, receive_user):
 
 
 @register.simple_tag
+def get_follow_time(follower,followee):
+    try:
+        follow_time=Follow.objects.get(follower=follower,followee=followee).created_at
+    except Exception, e:
+        print Exception, e
+        return ''
+    return follow_time.strftime("%Y-%m-%d %H:%M:%S")
+
+
+@register.simple_tag
+def format_time(f_time):
+    now_t = datetime.datetime.now()
+    yestoday_str= datetime.datetime.strftime(now_t - datetime.timedelta(1), '%Y-%m-%d')
+    current_year_start_time = datetime.datetime.strptime(str(now_t.year)+'-01-01 00:00:00', '%Y-%m-%d %H:%M:%S')
+    yestoday_start_time = datetime.datetime.strptime(yestoday_str+' 00:00:00', '%Y-%m-%d %H:%M:%S')
+    today_start_time= datetime.datetime.strptime(now_t.strftime("%Y-%m-%d")+' 00:00:00', '%Y-%m-%d %H:%M:%S')
+    current_year_seconds = (now_t-current_year_start_time).total_seconds()
+    yestoday_seconds = (now_t-yestoday_start_time).total_seconds()
+    today_seconds = (now_t-today_start_time).total_seconds()
+    total_seconds = (now_t-f_time).total_seconds()
+    print
+    if total_seconds > current_year_seconds:
+        return f_time.strftime("%Y年%m月%d日 %H:%M:%S")
+    elif total_seconds > yestoday_seconds:
+        return f_time.strftime("%m月%d日 %H:%M:%S")
+    elif total_seconds > today_seconds:
+        return f_time.strftime("昨天 %H:%M:%S")
+    else:
+        return f_time.strftime("今天 %H:%M:%S")
+
+
+@register.simple_tag
 def user_article_count(user, article_type):
     counts = Article.objects.filter(author=user, type=article_type).count()
     return counts
@@ -125,6 +158,33 @@ def user_get_like_count(user):
     return counts
 
 
+#获取用户消息数
+@register.simple_tag
+def get_user_messages_count(user):
+    counts = 0
+    # 获取用户关注数
+    follow_count = sum([1 for f in user.followees.all() if f.is_read == 0])
+    # 获取未读的收藏数量
+    favorite_count = Favorite.objects.filter(article__in=user.article_set.all(), is_read=0).count()
+    # 获取未读的点赞数量
+    like_count = Like.objects.filter(
+        Q(like_article__in=user.article_set.all(), is_read=0) | Q(like_comment__in=user.comment_set.all(),
+                                                                  is_read=0)).filter(~Q(user_id=user.id)).count()
+    # 获取文章的评论数
+    article_comment_count = Comment.objects.filter(article__in=user.article_set.all(), is_read=0).filter(
+        ~Q(user=user)).count()
+
+    # 获取用户评论的回复数
+    comment_replies_counts = Comment.objects.filter(comt__in=user.comment_set.all(), is_read=0).filter(
+        ~Q(user=user)).count()
+
+    counts = follow_count+favorite_count+like_count+article_comment_count+comment_replies_counts
+    if counts > 0:
+        return counts
+    return ''
+
+
+
 #获取关注的boolean结果
 @register.assignment_tag
 def is_follow(followee,follower):
@@ -136,6 +196,17 @@ def is_follow(followee,follower):
     except Exception, e:
         print Exception, e
         return False
+
+
+#获取用户的对象
+@register.assignment_tag
+def get_user(user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        return user
+    except Exception, e:
+        print Exception, e
+        return ''
 
 
 #判断用户是否对文章点赞，返回boolean结果

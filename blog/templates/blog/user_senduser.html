@@ -1,44 +1,46 @@
 {% load blog_templatetags %}
 <div class="row">
     <div class="col-md-10">
-        <div class="row bg-info bigger show_hand box-shadow user_message_entry" user_id="{{my_user.id}}" style="border-radius:15px;padding:8px;box-shadow: 4px 4px 2px #888888" >
-            <div class="col-md-1" style="border:0px solid red;">
-                <div class="row" style="border:0px solid yellow;">
-                    <div class="col-md-12" style="border:0px solid blue;">
-                        <a href="{% url 'user_zone' my_user.id %}">
-                        {% if my_user.user_info.picture %}
-                            <div class="row">
-                                <img class="img-circle" height="45" width="45" src="{{ my_user.user_info.picture.url }}">
-                            </div>
-                        {% else %}
-                            <div class="row">
-                                <span class="glyphicon glyphicon-user" style="font-size:29px;"></span>
-                            </div>
-                        {% endif %}
-                        </a>
+        <a href="?page_type='message'&content_type='user'">
+            <div class="row bg-chat-green box-shadow-entry show_hand box-shadow user_message_entry" user_id="{{my_user.id}}" style="border-radius:15px;padding:8px;" >
+                <div class="col-md-1" style="border:0px solid red;">
+                    <div class="row" style="border:0px solid yellow;">
+                        <div class="col-md-12" style="border:0px solid blue;">
+                            <a href="{% url 'user_zone' my_user.id %}">
+                            {% if my_user.user_info.picture %}
+                                <div class="row">
+                                    <img class="img-circle" height="45" width="45" src="{{ my_user.user_info.picture.url }}">
+                                </div>
+                            {% else %}
+                                <div class="row">
+                                    <span class="glyphicon glyphicon-user" style="font-size:29px;"></span>
+                                </div>
+                            {% endif %}
+                            </a>
+                        </div>
                     </div>
-                </div>
 
-            </div>
-            <div class="col-md-11" style="border:0px solid;">
+                </div>
+                <div class="col-md-11" style="border:0px solid;">
 
-                <div class="row" style="border:0px solid;">
-                    <div class="col-md-6">
-                        <a href="{% url 'user_zone' my_user.id %}">
-                        {{my_user.username}}
-                        </a>
+                    <div class="row" style="border:0px solid;">
+                        <div class="col-md-6">
+                            <a href="{% url 'user_zone' my_user.id %}" class="white">
+                            {{my_user.username}}
+                            </a>
+                        </div>
+                        <div class="col-md-6 text text-right">
+                            {% last_message my_user request.user as user_message %}
+                            {{user_message.created_at|date:"Y-m-d H:i:s"}}
+                        </div>
                     </div>
-                    <div class="col-md-6 text text-right">
-                        {% last_message my_user request.user as user_message %}
-                        {{user_message.created_at|date:"Y-m-d H:i:s"}}
-                    </div>
-                </div>
-                <div class="row" >
-                    <div class="col-md-12" style="border:0px solid;padding-top:8px;">
-                        {{user_message.content}}
+                    <div class="row" >
+                        <div class="col-md-12" style="border:0px solid;padding-top:8px;">
+                            {{user_message.content}}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 </div>

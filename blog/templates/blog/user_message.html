@@ -1,5 +1,14 @@
+{% load staticfiles %}
+{% load blog_templatetags %}
+{% load emoji_tags %}
+<link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/emojione/2.1.1/assets/sprites/emojione.sprites.css">
+<script type="text/javascript" src="http://cdn.bootcss.com/emojione/2.1.1/lib/js/emojione.min.js"></script>
+
+<!--emojionearea-->
+<link rel="stylesheet" type="text/css" href="{% static 'css/emojionearea.min.css' %}">
+<script type="text/javascript" src="{% static 'js/emojionearea.min.js' %}"></script>
 <div class="row">
-    <div id="right-windows-demo"  class="col-md-12 right-windows-demo" user_id="{{ talk_user.id }}" style="border:1px solid;overflow-y: auto;height:400px;bottom:0;">
+    <div id="right-windows-demo" enter_method="{{enter_method}}"  class="col-md-12 right-windows-demo box-radius-5-gray bg-chat-gray" user_id="{{ talk_user.id }}" style="overflow-y: auto;height:400px;">
         {% for user_message in user_messages %}
             {% include 'blog/user_message_entry.html' %}
         {% endfor %}
@@ -9,7 +18,7 @@
     {% csrf_token %}
     <div class="row form-group">
         <div class="right-windows-form">
-            <textarea name="message_content" class="form-control" rows="6"></textarea>
+            <textarea name="message_content" id="user_message_textarea" class="form-control" rows="6"></textarea>
         </div>
     </div>
     <div class="row">
@@ -18,3 +27,9 @@
         </div>
     </div>
 </form>
+<script>
+    $(document).ready(function(){
+        //绑定评论框emojioneArea
+        $("#user_message_textarea").emojioneArea();
+    });
+</script>

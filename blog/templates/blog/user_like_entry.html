@@ -1,0 +1,36 @@
+{% load blog_templatetags %}
+{% get_user favorite_like.obj.user_id as user %}
+{% if user %}
+<div class="row">
+    <div class="col-md-10">
+        <div class="row {% if favorite_like.is_new %}bg-danger{% else %}bg-gray-light{% endif %} box-shadow box-shadow-entry" style="border-radius:15px;padding:8px;margin-top:10px;" >
+            <div class="col-md-12" style="padding-top:8px;">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% url 'user_zone' user.id %}" class="white">
+                        {{user.username}}
+                        </a>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<strong><span class="glyphicon glyphicon-thumbs-up"></span>点赞 </strong>
+                            {% if favorite_like.obj.like_article %}
+                                你的文章
+                                <a class="yellow" href="{% url 'article_detail' favorite_like.obj.like_article.id %}">
+                                    《{{favorite_like.obj.like_article.title}}》
+                                </a>
+                            {% endif %}
+                            {% if favorite_like.obj.like_comment %}
+                                你的评论
+                                <a class="yellow" href="{% url 'article_detail' favorite_like.obj.like_comment.article.id %}">
+                                    “{{favorite_like.obj.like_comment.content}}”
+                                </a>
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="row" >
+                    <div class="col-md-8 font-opacity">{{ favorite_like.obj.created_at|date:"Y-m-d H:i:s" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

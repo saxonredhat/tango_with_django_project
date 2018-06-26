@@ -1,0 +1,53 @@
+{% load blog_templatetags %}
+<div class="row">
+    <div class="col-md-10">
+        <div class="row">
+            <div class="col-md-10" style="padding:0px;">
+                <h4>
+                    <a href="{% url 'article_detail' favorite_like.obj.article.id %}">
+                        <strong class="text text-{% article_color favorite_like.obj.article.id %}">[ {% article_type favorite_like.obj.article.id %} ] <span class="article-title">{{favorite_like.obj.article.title}}</span></strong>
+                    </a>
+                </h4>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row" >
+    <div class="col-md-10" style="padding:0px;">
+        <a href="{% url 'user_zone' favorite_like.obj.article.author.id %}">
+            {% if favorite_like.obj.article.author.user_info.picture %}
+                <img class="img-circle" height="35" width="35" src="{{ favorite_like.obj.article.author.user_info.picture.url }}">
+            {% else %}
+                <span class="glyphicon glyphicon-user"></span>
+            {% endif %}
+            {{favorite_like.obj.article.author}}
+        </a>
+        &nbsp;&nbsp;
+        <span class="glyphicon glyphicon-time font-opacity"></span>
+        <span class="font-opacity">{{favorite_like.obj.article.pulished_date|date:"Y-m-d H:i:s" }}</span>
+        &nbsp;&nbsp;
+        <span class="glyphicon glyphicon-tag"></span>
+        {% for tag in favorite_like.obj.article.tags.all %}
+            <a href="?tag={{tag}}{% if paginator.page_type %}&page_type={{paginator.page_type}}{% endif %}">
+                <button class="btn btn-success">{{ tag }}</button></a>
+        {% endfor %}
+    </div>
+</div>
+<div class="row" style="margin-top:5px;">
+    <a href="{% url 'article_detail' favorite_like.obj.article.id %}" class="black">
+        <div class="col-md-10 bg-gray-light box-shadow-entry article-abstract" style="border-radius:15px; padding:15px;">{{favorite_like.obj.article.content|truncatechars:100}}
+        </div>
+    </a>
+</div>
+<div class="row" style="padding:5px;">
+    <div class="col-md-1">
+        <small class="font-opacity">阅读 {{favorite_like.obj.article.views}}</small>
+    </div>
+    <div class="col-md-1">
+        <small class="font-opacity">评论 {{favorite_like.obj.article.comment_set.count}}</small>
+    </div>
+    <div class="col-md-1">
+        <small class="font-opacity">收藏 {{favorite_like.obj.article.favorite_set.all.count}}</small>
+    </div>
+</div>
+<br>

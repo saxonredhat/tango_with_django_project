@@ -1,0 +1,37 @@
+{% load blog_templatetags %}
+<div class="row">
+    <div class="col-md-10">
+        <div class="row {% if comment.is_new %}bg-danger{% else %}bg-gray-light{% endif %} box-shadow box-shadow-entry" style="border-radius:15px;padding:8px;margin-top:10px;" >
+            <div class="col-md-12" style="padding-top:8px;">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% url 'user_zone' comment.comment.user.id %}" class="white">
+                        {{comment.comment.user.username}}
+                        </a>
+                        {% if comment.comment.article %}
+                        &nbsp;&nbsp;&nbsp;&nbsp;<strong></strong>
+                            对你的文章
+                            <a class="yellow" href="{% url 'article_detail' comment.comment.article.id %}">
+                            《{{comment.comment.article.title}}》
+                            </a>
+                            <span class="glyphicon glyphicon-pencil"></span>评论了：{{comment.comment.content|truncatechars:15}}
+                        {% else %}
+                        &nbsp;&nbsp;&nbsp;&nbsp;<strong>
+                            对你的评论
+                            <a class="yellow" href="#">
+                                {{comment.comment.comt.content|truncatechars:10}}
+                            </a>
+                            <span class="glyphicon glyphicon-pencil"></span>回复了：</strong>
+                            {{comment.comment.content|truncatechars:15}}
+                        {% endif %}
+
+                    </div>
+                </div>
+                <div class="row" >
+                    <div class="col-md-8 font-opacity">{{ comment.comment.published_date|date:"Y-m-d H:i:s" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

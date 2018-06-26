@@ -35,6 +35,7 @@
             <div class="row text text-right" style="padding-right:14%;padding-top:2%;">
                 {% is_follow get_user request.user as follow %}
                 {% if get_user != request.user %}
+
                     {% if follow %}
                         <button class="btn btn-danger follow_or_unfollow" name="follow_or_unfollow" user_id="{{get_user.id}}">
                             <span class="glyphicon glyphicon-ok" name="follow_icon"></span>
@@ -46,13 +47,21 @@
                             <span name="follow_word">关注</span>
                         </button>
                     {% endif %}
+                    <div style="margin-top:10px;">
+                        <a href="{% url 'user_notifications' %}?page_type=message&content_type=user&user_id={{get_user.id}}">
+                            <span class="box-radius-5-green font-20-size"><span class="glyphicon glyphicon-send"></span> 私信</span>
+                        </a>
+                    </div>
                 {% endif %}
 
             </div>
         </div>
         <div class="col-md-8" style="padding-left:30px;">
             <div class="row">
-              <h3><span>{{get_user.username}}</span></h3>
+                <div class="col-md-2">
+                        <span class="font-20-size">{{get_user.username}}</span>
+                </div>
+
             </div>
             <div class="row" style="">
                 <div class="col-md-2">

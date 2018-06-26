@@ -1,0 +1,13 @@
+{% with favorites_likes as paginator %}
+<!--显示收藏的文章列表-->
+    {% for favorite_like in paginator %}
+        {% include "blog/user_favorite_like_entry.html" %}
+    {% empty %}
+        没有收藏
+    {% endfor %}
+<br>
+<!--显示分页-->
+    {% if paginator.paginator.num_pages > 1 %}
+        {% include 'blog/paginator.html' %}
+    {% endif %}
+{% endwith %}

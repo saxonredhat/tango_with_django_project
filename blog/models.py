@@ -89,6 +89,7 @@ class Comment(models.Model):
     user = models.ForeignKey(User)
     comt = models.ForeignKey("self",null=True)
     likes = models.IntegerField(default=0)
+    is_read = models.BooleanField(default=False)
     published_date = models.DateTimeField(default=datetime.now)
 
     class Meta:
@@ -125,18 +126,21 @@ class Like(models.Model):
     like_article = models.ForeignKey(Article, null=True)
     like_comment = models.ForeignKey(Comment, null=True)
     like_user = models.ForeignKey(User, null=True, related_name='likes')
+    is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Favorite(models.Model):
     user = models.ForeignKey(User, null=True)
     article = models.ForeignKey(Article, null=True)
+    is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Follow(models.Model):
     follower = models.ForeignKey(User, related_name='followers')
     followee = models.ForeignKey(User, related_name='followees')
+    is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 

@@ -1,0 +1,16 @@
+{% with send_user_list as paginator %}
+<!--显示私信列表-->
+    {% for send_user in paginator %}
+        {% with send_user as my_user %}
+            {% include 'blog/user_senduser.html' %}
+        {% endwith %}
+        <br>
+    {% empty %}
+      没有私信
+    {% endfor %}
+<br>
+<!--显示分页-->
+    {% if paginator.paginator.num_pages > 1 %}
+        {% include 'blog/paginator.html' %}
+    {% endif %}
+{% endwith %}

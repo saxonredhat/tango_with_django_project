@@ -21,6 +21,7 @@ from easy_thumbnails.files import get_thumbnailer
 from markdown import markdown
 from django.utils import timezone
 from django.db.models import Q
+import time
 import mytools
 import base64
 import re
@@ -151,7 +152,7 @@ def article_add_comment(request, article_id):
             #获取评论的内容
             if request.method == 'POST':
                 content = request.POST.get('content')
-                comment = Comment(content=content,user=request.user,article=article,published_date =datetime.now(tz=timezone.utc))
+                comment = Comment(content=content,user=request.user,article=article,published_date =datetime.now())
                 comment.save()
                 comment_layer=article.comment_set.all().count()
                 print comment_layer
@@ -170,7 +171,7 @@ def comment_user(request,comment_id,user_id):
         user = User.objects.get(id=user_id)
         comment_user=request.POST.get('comment_user')
         article_id=request.GET.get('article_id')
-        published_date=datetime.now(tz=timezone.utc)
+        published_date=datetime.now()
         c=Comment(comt=comment,user=user,published_date=published_date,content=comment_user)
         c.save()
         return HttpResponseRedirect(reverse('article_detail',kwargs={'article_id':article_id}))
@@ -188,7 +189,7 @@ def comment_user_first(request,comment_id,article_id):
                 comment = Comment.objects.get(id=comment_id)
                 article = Article.objects.get(id=article_id)
                 comment_user_content = request.POST.get('comment_user_content')
-                published_date = datetime.now(tz=timezone.utc)
+                published_date = datetime.now()
                 comment_user_new = Comment(comt=comment, user=user, published_date=published_date,
                                            content=comment_user_content)
                 comment_user_new.save()
@@ -213,7 +214,7 @@ def comment_user_second(request, comment_id, article_id):
                 article = Article.objects.get(id=article_id)
                 comment_user_content = request.POST.get('comment_user_content')
                 article_id = request.GET.get('article_id')
-                published_date = datetime.now(tz=timezone.utc)
+                published_date = datetime.now()
                 comment_user_new = Comment(comt=comment, user=user, published_date=published_date,
                                            content=comment_user_content)
                 comment_user_new.save()
@@ -488,32 +489,153 @@ def user_favorites(request,user_id):
 
 @login_required
 def user_notifications(request,):
-    context_dict={}
+    context_dict = {}
+    try:
+        user = User.objects.get(id=request.user.id)
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
     page_type=request.GET.get('page_type','follow')
     page_type_list=['follow','favorite_like','message','comment']
+
+    # 获取用户关注数
+    follow_count = sum([1 for f in user.followees.all() if f.is_read == 0])
+    # 获取未读的收藏数量
+    favorite_count = Favorite.objects.filter(article__in=user.article_set.all(), is_read=0).count()
+    # 获取未读的点赞数量
+    like_count = Like.objects.filter(
+        Q(like_article__in=user.article_set.all(), is_read=0) | Q(like_comment__in=user.comment_set.all(),
+                                                                  is_read=0)).filter(~Q(user_id=user.id)).count()
+    # 获取文章的评论数
+    article_comment_count=Comment.objects.filter(article__in=user.article_set.all(), is_read=0).filter(~Q(user=user)).count()
+
+    # 获取用户评论的回复数
+    comment_replies_counts=Comment.objects.filter(comt__in=user.comment_set.all(),is_read=0).filter(~Q(user=user)).count()
+
+    context_dict['follow_count'] = follow_count
+    context_dict['favorites_likes_count'] = favorite_count + like_count
+    context_dict['comments_count'] = article_comment_count + comment_replies_counts
+
     if page_type not in page_type_list:
-        page_type='follow'
+        page_type = 'follow'
+    if page_type == 'follow':
+        user_followers = []
+        for follow in user.followees.all().order_by('is_read').order_by('-created_at'):
+            is_new=False
+            if follow.is_read == 0:
+                is_new=True
+            user_followers.append({'user': follow.follower, 'is_new': is_new})
+            follow.is_read = 1
+            follow.save()
+        paginator = Paginator(user_followers, 10)
+        page = request.GET.get('page', 1)
+        try:
+            user_followers_list = paginator.page(page)
+        except PageNotAnInteger:
+            user_followers_list = paginator.page(1)
+        except EmptyPage:
+            user_followers_list = paginator.page(paginator.num_pages)
+        user_followers_list.page_type = 'follow'
+        context_dict['user_followers'] = user_followers_list
+
+    if page_type == 'favorite_like':
+        favorites = []
+        likes = []
+        favorites_likes = []
+        #获取未读的收藏数量
+        favorite_count = Favorite.objects.filter(article__in=user.article_set.all(),is_read=0).count()
+        #获取未读的点赞数量
+        like_count = Like.objects.filter(
+            Q(like_article__in=user.article_set.all(), is_read=0) | Q(like_comment__in=user.comment_set.all(), is_read=0)).filter(~Q(user_id = user.id)).count()
+        for favorite in Favorite.objects.filter(article__in=user.article_set.all()):
+            is_new = False
+            if favorite.is_read == 0:
+                is_new = True
+            favorites.append({'type':'favorite','obj': favorite, 'is_new': is_new})
+            favorite.is_read = 1
+            favorite.save()
+        for like in Like.objects.filter(
+            Q(like_article__in=user.article_set.all())|Q(like_comment__in=user.comment_set.all())).filter(~Q(user_id = user.id)):
+            is_new = False
+            if like.is_read == 0:
+                is_new = True
+            likes.append({'type':'like','obj': like, 'is_new': is_new})
+            like.is_read = 1
+            like.save()
+        favorites_likes.extend(favorites)
+        favorites_likes.extend(likes)
+        favorites_likes = sorted(favorites_likes, key=lambda x: x['obj'].created_at, reverse=True)
+        paginator = Paginator(favorites_likes, 10)
+        page = request.GET.get('page', 1)
+        try:
+            favorites_likes_list = paginator.page(page)
+        except PageNotAnInteger:
+            favorites_likes_list = paginator.page(1)
+        except EmptyPage:
+            favorites_likes_list = paginator.page(paginator.num_pages)
+        favorites_likes_list.page_type = 'favorite_like'
+        context_dict['favorites_likes'] = favorites_likes_list
     if page_type == 'message':
-        content_type_list = ['list','user']
+        content_type_list = ['list', 'user']
         content_type = request.GET.get('content_type', 'list')
         if content_type not in content_type_list:
             content_type = 'list'
         if content_type == 'list':
+            user_messages = Message.objects.filter(receive_user=user)
+            send_user_list = set()
+            for user_message in user_messages:
+                send_user_list.add(user_message.send_user)
+            send_user_list = list(send_user_list)
+            paginator = Paginator(send_user_list, 10)
+            page = request.GET.get('page', 1)
             try:
-                user = User.objects.get(id=request.user.id)
-                if user:
-                    user_messages = Message.objects.filter(receive_user=user)
-                    send_user_list = set()
-                    for user_message in user_messages:
-                        send_user_list.add(user_message.send_user)
-                    send_user_list = list(send_user_list)
-                    return render(request, 'blog/user_notifications.html', {'send_user_list': send_user_list})
+                send_user_list = paginator.page(page)
+            except PageNotAnInteger:
+                send_user_list = paginator.page(1)
+            except EmptyPage:
+                send_user_list = paginator.page(paginator.num_pages)
+            send_user_list.page_type = 'message'
+            context_dict['send_user_list'] = send_user_list
+        if content_type == 'user':
+            user_id = request.GET.get('user_id', '')
+            if not user_id:
+                return HttpResponse('403')
+            try:
+                talk_user = User.objects.get(id=user_id)
+                # 查询当前用户收到指定用户的信息，和发送给指定用户的信息
+                user_messages = Message.objects.filter(
+                    Q(send_user=talk_user, receive_user=user) | Q(send_user=user, receive_user=talk_user)).order_by('-created_at')[:30]
+                # 排序
+                user_messages = sorted(user_messages, key=lambda x: x.created_at, reverse=False)
+                context_dict['user_messages'] = user_messages
+                context_dict['talk_user'] = talk_user
+                context_dict['enter_method'] = 'get'
             except Exception, e:
                 print Exception, ":", e
                 return HttpResponse('403')
-        context_dict['content_type']=content_type
+        context_dict['content_type'] = content_type
+    if page_type == 'comment':
+        comments=[]
+        #文章的评论和评论的回复数
+        for comment in Comment.objects.filter(Q(article__in=user.article_set.all())|Q(comt__in=user.comment_set.all())).filter(~Q(user=user)).order_by('is_read').order_by('-published_date'):
+            is_new = False
+            if comment.is_read == 0:
+                is_new = True
+            comments.append({'comment': comment, 'is_new': is_new})
+            comment.is_read = 1
+            comment.save()
+        paginator = Paginator(comments, 5)
+        page = request.GET.get('page', 1)
+        try:
+            comments_list = paginator.page(page)
+        except PageNotAnInteger:
+            comments_list = paginator.page(1)
+        except EmptyPage:
+            comments_list = paginator.page(paginator.num_pages)
+        comments_list.page_type = 'comment'
+        context_dict['comments'] = comments_list
     context_dict['page_type'] = page_type
-    return render(request, 'blog/user_notifications.html',context_dict)
+    return render(request, 'blog/user_notifications.html', context_dict)
 
 
 def user_messages_list(request):
@@ -521,7 +643,7 @@ def user_messages_list(request):
         user = User.objects.get(id=request.user.id)
         if user:
             user_messages = Message.objects.filter(receive_user=user)
-            send_user_list=set()
+            send_user_list = set()
             for user_message in user_messages:
                 send_user_list.add(user_message.send_user)
             send_user_list = list(send_user_list)
@@ -541,7 +663,7 @@ def user_message(request, user_id):
                 user_messages = Message.objects.filter(Q(send_user=otheruser, receive_user=myuser) | Q(send_user=myuser, receive_user=otheruser)).order_by('-created_at')[:30]
                 #排序
                 user_messages=sorted(user_messages,key=lambda x:x.created_at,reverse=False)
-                return render(request, 'blog/user_message.html', {'user_messages' : user_messages ,'talk_user':otheruser})
+                return render(request, 'blog/user_message.html', {'user_messages' : user_messages,'talk_user':otheruser,'enter_method':'ajax'})
             except Exception, e:
                 print Exception, ":", e
                 return HttpResponse('403')
@@ -555,12 +677,37 @@ def user_get_message(request, user_id):
         myuser = User.objects.get(id=request.user.id)
         if myuser:
             try:
-                otheruser=User.objects.get(id=user_id)
-                #查询当前用户收到指定用户的信息，和发送给指定用户的信息
-                user_messages = Message.objects.filter(Q(send_user=otheruser, receive_user=myuser) | Q(send_user=myuser, receive_user=otheruser)).order_by('-created_at')[:30]
-                #排序
-                user_messages=sorted(user_messages,key=lambda x:x.created_at,reverse=False)
-                return render(request, 'blog/user_get_message.html', {'user_messages' : user_messages ,'talk_user':otheruser})
+                context_dict={}
+                otheruser = User.objects.get(id=user_id)
+                time_stamp=request.GET.get('timestamp','')
+                has_message=False
+                if time_stamp:
+                    get_messages=Message.objects.filter(Q(send_user=otheruser, receive_user=myuser) | Q(send_user=myuser,receive_user=otheruser)).order_by('-created_at')
+                    if get_messages:
+                        has_message = True
+                        last_time_stamp=time.mktime(get_messages[0].created_at.timetuple())
+                    else:
+                        last_time_stamp=0
+                    if int(float(time_stamp))<int(float(last_time_stamp)):
+                        context_dict['time_stamp']=int(last_time_stamp)
+                    else:
+                        return HttpResponse('')
+                else:
+                    get_messages=Message.objects.filter(Q(send_user=otheruser, receive_user=myuser) | Q(send_user=myuser,receive_user=otheruser)).order_by('-created_at')
+                    if get_messages:
+                        has_message = True
+                        last_time_stamp = time.mktime(get_messages[0].created_at.timetuple())
+                    else:
+                        last_time_stamp = 0
+                    context_dict['time_stamp'] = int(float(last_time_stamp))
+                if has_message:
+                    # 查询当前用户收到指定用户的信息，和发送给指定用户的信息
+                    user_messages = Message.objects.filter(Q(send_user=otheruser, receive_user=myuser) | Q(send_user=myuser, receive_user=otheruser)).order_by('-created_at')[:30]
+                    #排序
+                    user_messages=sorted(user_messages,key=lambda x:x.created_at,reverse=False)
+                    context_dict['user_messages']=user_messages
+                context_dict['talk_user']=otheruser
+                return render(request, 'blog/user_get_message.html', context_dict)
             except Exception, e:
                 print Exception, ":", e
                 return HttpResponse('403')
@@ -809,7 +956,7 @@ def user_zone(request,user_id):
         try:
             #如果当前用户访问过该页面，则更新访问时间
             visit_history = VisitHistory.objects.get(interviewee=get_user,visitor=request.user)
-            visit_history.accessed_at = datetime.now(tz=timezone.utc)
+            visit_history.accessed_at = datetime.now()
             visit_history.save()
         except Exception, e:
             print Exception, ":", e
