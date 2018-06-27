@@ -624,7 +624,7 @@ def user_notifications(request,):
             comments.append({'comment': comment, 'is_new': is_new})
             comment.is_read = 1
             comment.save()
-        paginator = Paginator(comments, 5)
+        paginator = Paginator(comments, 10)
         page = request.GET.get('page', 1)
         try:
             comments_list = paginator.page(page)

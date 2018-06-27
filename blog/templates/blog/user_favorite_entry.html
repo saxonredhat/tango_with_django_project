@@ -1,23 +1,23 @@
 {% load blog_templatetags %}
 <div class="row">
     <div class="col-md-10">
-        <div class="row {% if favorite_like.is_new %}bg-danger{% else %}bg-gray-light{% endif %} box-shadow box-shadow-entry" style="border-radius:15px;padding:8px;margin-top:10px;" >
+        <div class="row {% if favorite_like.is_new %}bg-info{% else %}bg-gray-light{% endif %} box-shadow box-shadow-entry" style="border-radius:15px;padding:8px;margin-top:10px;" >
             <div class="col-md-12" style="padding-top:8px;">
 
                 <div class="row">
                     <div class="col-md-12">
-                        <a href="{% url 'user_zone' favorite_like.obj.user.id %}" class="white">
+                        <a href="{% url 'user_zone' favorite_like.obj.user.id %}" class="{% if favorite_like.is_new %}black{% else %}white{% endif %}">
                         {{favorite_like.obj.user.username}}
                         </a>
                         &nbsp;&nbsp;&nbsp;&nbsp;<strong><span class="glyphicon glyphicon-star-empty"></span>收藏</strong>
                                 你的文章
-                        <a class="yellow" href="{% url 'article_detail' favorite_like.obj.article.id %}">
+                        <a class="{% if favorite_like.is_new %}red{% else %}yellow{% endif %}" href="{% url 'article_detail' favorite_like.obj.article.id %}">
                         《{{favorite_like.obj.article.title}}》
                         </a>
                     </div>
                 </div>
                 <div class="row" >
-                    <div class="col-md-8 font-opacity">{{ favorite_like.obj.created_at|date:"Y-m-d H:i:s" }}</div>
+                    <div class="col-md-8">{{ favorite_like.obj.created_at|date:"Y-m-d H:i:s" }}</div>
                 </div>
             </div>
         </div>
