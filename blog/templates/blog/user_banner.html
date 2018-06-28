@@ -12,7 +12,7 @@
                             </div>
                         {% else %}
                             <div class="row">
-                                <span class="glyphicon glyphicon-user" style="font-size:29px;"></span>
+                                <span class="glyphicons glyphicons-user" style="font-size:29px;"></span>
                             </div>
                         {% endif %}
                         </a>
@@ -40,12 +40,19 @@
                     <!--获取当前用户是否关注该用户-->
                     {% is_follow my_user request.user as follow %}
                     {% if my_user != request.user %}
-                        {% if follow %}
+                        {% if follow == 1 %}
                             <button class="btn btn-danger follow_or_unfollow" name="follow_or_unfollow" user_id="{{my_user.id}}">
                                 <span class="glyphicon glyphicon-ok" name="follow_icon"></span>
                                 <span name="follow_word">已关注</span>
                             </button>
-                        {% else %}
+                        {% endif %}
+                        {% if follow == 2 %}
+                            <button class="btn btn-primary follow_or_unfollow" name="follow_or_unfollow" user_id="{{my_user.id}}">
+                                <span class="glyphicon glyphicon-transfer" name="follow_icon"></span>
+                                <span name="follow_word">互关注</span>
+                            </button>
+                        {% endif %}
+                        {% if follow == 0 %}
                             <button class="btn btn-success follow_or_unfollow" name="follow_or_unfollow" user_id="{{my_user.id}}">
                                 <span class="glyphicon glyphicon-plus" name="follow_icon"></span>
                                 <span name="follow_word">关注</span>

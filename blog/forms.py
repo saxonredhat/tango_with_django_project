@@ -4,6 +4,7 @@ from blog.models import *
 from django.contrib.auth.models import User, Group , Permission ,ContentType
 from django.utils.translation import ugettext, ugettext_lazy as _
 from captcha.fields import CaptchaField
+import re
 import mytools
 import sys
 reload(sys)
@@ -13,23 +14,44 @@ sys.setdefaultencoding("utf-8")
 class ArticleForm(forms.ModelForm):
     error_messages = {
         'tags_too_many': _("标签数量不能超过5个."),
+        'category_value_error': _("选择一个有效的分类选项."),
     }
     title = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '文章标题'}))
     type = forms.CharField(widget=forms.Select(choices=((1, '原创'), (2, '翻译'), (3, '转载'),)))
-    tags = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '各个标签使用;分隔,最多5个标签'}))
+    tags = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '各个标签使用;或者,分隔,最多5个标签'}))
 
     class Meta:
         model = Article
-        fields = ('title', 'type', 'content', 'category')
+        fields = ('title', 'type', 'content', 'category','custom_category')
+
+    def __init__(self, user, *args, **kwargs):
+        super(ArticleForm, self).__init__(*args, **kwargs)
+        self.fields['custom_category'].queryset = CustomCategory.objects.filter(user=user)
 
     def clean_tags(self):
-        tag_list = self.cleaned_data.get('tags').split(';')
+        tag_list = re.split('[,;]',self.cleaned_data.get('tags'))
         if len(tag_list) > 5:
             raise forms.ValidationError(
                 self.error_messages['tags_too_many'],
                 code='tags_too_many',
             )
         return self.cleaned_data.get('tags')
+
+    def clean_category(self):
+        try:
+            if not self.cleaned_data.get('category'):
+                raise forms.ValidationError(
+                    self.error_messages['category_value_error'],
+                    code='category_value_error',
+                )
+            category = self.cleaned_data.get('category')
+            category_obj=Category.objects.get(id=category.id)
+            return category_obj
+        except:
+            raise forms.ValidationError(
+                self.error_messages['category_value_error'],
+                code='category_value_error',
+            )
 
 
 class UserInfoForm(forms.ModelForm):

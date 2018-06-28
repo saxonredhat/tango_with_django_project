@@ -8,6 +8,10 @@
 <!--显示分页-->
 {% with comments as paginator %}
     {% if paginator.paginator.num_pages > 1 %}
-        {% include 'blog/paginator.html' %}
+        <div class="row">
+            <div class="col-md-10">
+                {% include 'blog/paginator.html' %}
+            </div>
+        </div>
     {% endif %}
 {% endwith %}

@@ -26,7 +26,7 @@
                 <div class="col-md-10" style="padding:0px;">
                         <h4>
                             <a href="{% url 'article_detail' article.id %}">
-                                <strong class="text text-{% article_color article.id %}">[ {% article_type article.id %} ] <span class="article-title">{{article.title}}</span></strong>
+                                <strong class="text text-{% article_color article.id %}"><span class="box-radius-5-reversed border-1 bg-self-{% article_color article.id %}"> {% article_type article.id %}</span> <span class="article-title">{{article.title}}</span></strong>
                             </a>
                         </h4>
                 </div>
@@ -44,7 +44,7 @@
                     <span class="glyphicon glyphicon-time font-opacity"></span>
                     <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
                     &nbsp;&nbsp;
-                    <span class="glyphicon glyphicon-tag"></span>
+                    <span class="glyphicon glyphicon-tags"></span>&nbsp;&nbsp;
                     {% for tag in article.tags.all %}
                         <a href="{% url 'articles_list' %}?tag={{tag}}"><button class="btn btn-success">{{ tag }}</button></a>
                     {% endfor %}
@@ -66,8 +66,7 @@
                 {% is_like_article article request.user as liked_article %}
                 {% if liked_article %}
                     <span class="glyphicon glyphicon-thumbs-up show_hand gold-color font-20-size"
-                          name="like_hand">
-                    </span>
+                          name="like_hand"></span>
                     <span class="like_article_count gold-color">{{article.like_set.all.count}}</span>
                 {% else %}
                     <span class="glyphicon glyphicon-thumbs-up show_hand font-20-size"
@@ -84,22 +83,20 @@
                             {% is_favorite_article article request.user as favorited_article %}
                             {% if favorited_article %}
                                 <span class="favorite_or_unfavorite gold-color show_hand font-20-size" article_id="{{article.id}}">
-                                    <span class="glyphicon glyphicon-star"></span>
-                                    <span class="">收藏</span>
+                                    <span class="glyphicons glyphicons-star">收藏</span>
                                 </span>
 
                             {% else %}
                                 <span class="favorite_or_unfavorite show_hand font-20-size" article_id="{{article.id}}">
-                                    <span class="glyphicon glyphicon-star-empty"></span>
-                                    <span >收藏</span>
+                                    <span class="glyphicons glyphicons-star-empty">收藏</span>
                                 </span>
                             {% endif %}
                         {% endif %}
                 </div>
                 <div class="col-md-3 text text-right">
                     <span class="like_article" article_id="{{ article.id }}">
-                        <span class="glyphicon glyphicon-share show_hand font-20-size" name="like_hand"></span>
-                        <span class="show_hand font-20-size">分享</span>
+                        <span class="glyphicons glyphicons-share-alt show_hand font-20-size" name="like_hand">分享</span>
+                        <span class="show_hand font-20-size"></span>
                     </span>
                 </div>
             </div>
@@ -131,8 +128,8 @@
                     条评论
                 </div>
                 <div class="col-md-3 text text-right">
-                    <span class="show_hand hover-font" id="time_asc" onclick="comment_list({{article.id}},'asc')">按时间正序</span>&nbsp;&nbsp; | &nbsp;&nbsp;
-                    <span class="show_hand hover-font" id="time_desc" onclick="comment_list({{article.id}},'desc')">按时间倒序</span>
+                    <span class="show_hand hover-font" id="time_asc" onclick="comment_list({{article.id}},'asc')"><span class="glyphicons glyphicons-sort-by-attributes">按时间正序 </span></span>
+                    <span class="show_hand hover-font" id="time_desc" onclick="comment_list({{article.id}},'desc')"><span class="glyphicons glyphicons-sort-by-attributes-alt">按时间倒序</span></span>
                 </div>
             </div>
             <br>

@@ -5,7 +5,7 @@
             <div class="col-md-10" style="padding:0px;">
                 <h4>
                     <a href="{% url 'article_detail' article.id %}">
-                        <strong class="text text-{% article_color article.id %}">[ {% article_type article.id %} ] <span class="article-title">{{article.title}}</span></strong>
+                        <strong class="text text-{% article_color article.id %}"><span class="box-radius-5-reversed border-1 bg-self-{% article_color article.id %}">{% article_type article.id %}</span>  <span class="article-title">{{article.title}}</span></strong>
                     </a>
                 </h4>
             </div>
@@ -26,10 +26,11 @@
         <span class="glyphicon glyphicon-time font-opacity"></span>
         <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
         &nbsp;&nbsp;
-        <span class="glyphicon glyphicon-tag"></span>
+        <span class="glyphicons glyphicons-tags"></span>
         {% for tag in article.tags.all %}
             <a href="?tag={{tag}}{% if paginator.page_type %}&page_type={{paginator.page_type}}{% endif %}">
-                <button class="btn btn-success">{{ tag }}</button></a>
+                <button class="btn btn-success">{{ tag }}</button>
+            </a>
         {% endfor %}
     </div>
 </div>
@@ -40,13 +41,13 @@
     </a>
 </div>
 <div class="row" style="padding:5px;">
-    <div class="col-md-1">
+    <div class="col-md-2">
         <small class="font-opacity">阅读 {{article.views}}</small>
     </div>
-    <div class="col-md-1">
+    <div class="col-md-2">
         <small class="font-opacity">评论 {{article.comment_set.count}}</small>
     </div>
-    <div class="col-md-1">
+    <div class="col-md-2">
         <small class="font-opacity">收藏 {{article.favorite_set.all.count}}</small>
     </div>
 </div>

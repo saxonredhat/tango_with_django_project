@@ -7,6 +7,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from image_cropping import ImageRatioField
 from django.contrib.auth.models import User
 from datetime import datetime
+from django.db.models import Q
 # Create your models here.
 import sys
 reload(sys)
@@ -37,6 +38,17 @@ class Category(models.Model):
             ('view_category',   'View category'),
         )
 
+class CustomCategory(models.Model):
+    name = models.CharField(max_length=50)
+    user = models.ManyToManyField(User)
+
+    class Meta:
+        db_table = 'blog_CustomCategory'
+        verbose_name_plural = 'CustomCategory'
+
+    def __unicode__(self):
+        return self.name
+
 
 class Author(models.Model):
     name = models.CharField(max_length=50)
@@ -60,6 +72,10 @@ class Tag(models.Model):
         return self.name
 
 
+class ArticleManager(models.Manager):
+    def get_queryset(self):
+        return super(ArticleManager,self).get_queryset().filter(~Q(is_deleted=1))
+
 class Article(models.Model):
     title = models.CharField('文章标题', max_length=50)
     #content = RichTextUploadingField('文章内容', config_name='default_ckeditor')
@@ -68,13 +84,16 @@ class Article(models.Model):
     abstract = models.CharField('文章摘要', max_length=500, null=True , blank=True)
     author = models.ForeignKey(User)
     category = models.ForeignKey(Category)
+    custom_category = models.ForeignKey(CustomCategory)
     views = models.IntegerField(default=0)
     pulished_date = models.DateTimeField('发布时间',default=datetime.now)
     is_top = models.BooleanField('置顶',  default=0)
     is_public = models.BooleanField('公开', default=1 )
     is_forbbiden_comment = models.BooleanField('禁止评论',  default=0)
+    is_deleted = models.BooleanField('删除',  default=0) # 0：不删除 1：删除
     tags = models.ManyToManyField(Tag)
 
+    objects = ArticleManager()
     class Meta:
         db_table = 'blog_Article'
         verbose_name_plural = 'articles'

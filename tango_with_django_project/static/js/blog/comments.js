@@ -274,16 +274,30 @@ $(document).ready(function(){
                 if(response == '403'){
                     window.location.replace('/blog/login/');
                 }
+                console.log(response);
                 if(response == 'follow'){
                     $(parent_this).removeClass('btn-success');
+                    $(parent_this).removeClass('btn-primary');
                     $(parent_this).addClass('btn-danger');
                     $(parent_this).children("span[name='follow_icon']").removeClass('glyphicon-plus');
+                    $(parent_this).children("span[name='follow_icon']").removeClass('glyphicon-transfer');
                     $(parent_this).children("span[name='follow_icon']").addClass('glyphicon-ok');
                     $(parent_this).children("span[name='follow_word']").text('已关注');
                 }
+                if(response == 'each_follow'){
+                    $(parent_this).removeClass('btn-success');
+                    $(parent_this).removeClass('btn-danger');
+                    $(parent_this).addClass('btn-primary');
+                    $(parent_this).children("span[name='follow_icon']").removeClass('glyphicon-plus');
+                    $(parent_this).children("span[name='follow_icon']").removeClass('glyphicon-ok');
+                    $(parent_this).children("span[name='follow_icon']").addClass('glyphicon-transfer');
+                    $(parent_this).children("span[name='follow_word']").text('互关注');
+                }
                 if(response == 'unfollow'){
                     $(parent_this).removeClass('btn-danger');
+                    $(parent_this).removeClass('btn-primary');
                     $(parent_this).addClass('btn-success');
+                    $(parent_this).children("span[name='follow_icon']").removeClass('glyphicon-transfer');
                     $(parent_this).children("span[name='follow_icon']").removeClass('glyphicon-ok');
                     $(parent_this).children("span[name='follow_icon']").addClass('glyphicon-plus');
                     $(parent_this).children("span[name='follow_word']").text('关注');
@@ -312,13 +326,13 @@ $(document).ready(function(){
                 }
                 if(response == 'favorite'){
                     $(parent_this).addClass('gold-color');
-                    $(parent_this).children(":first-child").removeClass('glyphicon-star-empty');
-                    $(parent_this).children(":first-child").addClass('glyphicon-star');
+                    $(parent_this).children(":first-child").removeClass('glyphicons-star-empty');
+                    $(parent_this).children(":first-child").addClass('glyphicons-star');
                 }
                 if(response == 'unfavorite'){
                     $(parent_this).removeClass('gold-color');
-                    $(parent_this).children(":first-child").removeClass('glyphicon-star');
-                    $(parent_this).children(":first-child").addClass('glyphicon-star-empty');
+                    $(parent_this).children(":first-child").removeClass('glyphicons-star');
+                    $(parent_this).children(":first-child").addClass('glyphicons-star-empty');
                 }
               });
         });
@@ -413,11 +427,11 @@ $(document).ready(function(){
 
 
         //显示用户的全名,通过on关键字动态添加元素绑定事件(暂时没有使用)
-        $("body").on("mouseenter", ".follower_name", function(event) {
+        $("body").on("mouseenter", ".cut_name", function(event) {
             $(this).children(".cut_name_dot").hide();
             $(this).children(".get_name_tail").show();
         });
-        $("body").on("mouseleave", ".follower_name", function(event) {
+        $("body").on("mouseleave", ".cut_name", function(event) {
             $(this).children(".cut_name_dot").show();
             $(this).children(".get_name_tail").hide();
         });

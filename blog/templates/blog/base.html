@@ -24,6 +24,9 @@
         <!--<link rel="stylesheet" href="{% static 'css/highlight/atom-one-dark.css' %}">-->
         <link rel="stylesheet" href="{% static 'css/highlight/zenburn.css' %}">
 
+        <!--增加的icon图片-->
+        <link rel="stylesheet" href="{% static 'css/glyphicons_extras.css' %}">
+
         <style>
             pre {
                 border-radius:10px;
@@ -87,6 +90,9 @@
             .font-25-size{
                 font-size:25px;
             }
+            .font-bold{
+                color:black;
+            }
             .hover-font{
                 opacity: 0.7;
             }
@@ -106,6 +112,9 @@
             }
             .border-1{
                 border:1px solid;
+            }
+            .border-1-cc{
+                border:1px solid #cccccc;
             }
             .border-radius-3{
                 border-radius:3px;
@@ -143,13 +152,32 @@
                 border-radius:3px;
                 color:#5cb85c;
                 padding-left:4px;
-                padding-right:4px;
-                padding-top:2px;
-                padding-bottom:2px;
+                padding-right:8px;
+                padding-top:4px;
+                padding-bottom:8px;
             }
             .box-radius-5{
                 border-radius:5px;
                 padding:5px;
+            }
+            .bg-self-success{
+                background-color:#397339;
+                color:#ffffff;
+            }
+            .bg-self-warning{
+                background-color:#8C6B39;
+                color:#ffffff;
+            }
+            .bg-self-danger{
+                background-color:#AD4242;
+                color:#ffffff;
+            }
+            .box-radius-5-reversed{
+                border-radius:5px;
+                padding-top:3px;
+                padding-bottom:3px;
+                padding-left:5px;
+                padding-right:5px;
             }
             .box-radius-5-gray{
                 border-radius:5px;
@@ -161,6 +189,9 @@
             }
             a.gray{
                 color:#777777;
+            }
+            a.gray-5{
+                color:#555555;
             }
             a.gray:hover{
                 color:#333333;
@@ -204,8 +235,15 @@
                 display:inline;
             }
             .bg-gray{
-               background-color:yellow;
+               background-color:#A0A0A0;
                color:#ffffff;
+            }
+            .bg-gray-55{
+               background-color:#555555;
+               color:#ffffff;
+            }
+            .bg-gray-f0{
+                background-color:#f0f0f0;
             }
             .bg-gray-light{
                background-color:#17A2B8;
@@ -213,6 +251,14 @@
             }
             .bg-new{
                 background-color:#17A2B8;
+            }
+            .bg-red{
+                background-color:red;
+                color:#ffffff;
+            }
+            .bg-green{
+                background-color:#A0E75A;
+                color:#ffffff;
             }
             .bg-chat-white{
                 background-color:#FFFFFF;
@@ -274,6 +320,21 @@
             .margin-bottom-20{
                 margin-bottom:20px;
             }
+            .outer {
+              width: 1px;
+              height: 100%;
+              margin: auto;
+              position: relative;
+              overflow: hidden;
+            }
+            .inner {
+              position: absolute;
+              width:100%;
+              height: 40%;
+              background: grey;
+              top: 30%;
+              box-shadow: 0px 0px 30px 20px grey;
+            }
             .emojione{
                 font-size: inherit;
                 height: 2ex;
@@ -287,6 +348,7 @@
                 max-width: 100%;
                 top: 0;
             }
+
         </style>
     {% endblock %}
     {% block script %}
@@ -324,9 +386,7 @@
                 <span class="icon-bar"></span>
               </button>
               <a class="navbar-brand" href="{% url 'index' %}">
-              <span class="glyphicon glyphicon-home">
-              </span>
-                  主页
+              <span class="glyphicon glyphicon-home"></span> 主页
               </a>
             </div>
 
@@ -334,20 +394,18 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
               <ul class="nav navbar-nav">
                 <li><a href="{% url 'articles_list' %}">
-                    <span class="glyphicon glyphicon-book"></span>
-                    文章</a></li>
+                    <span class="glyphicon glyphicon-list-alt"></span> <span>文章</span></a></li>
 
                   <li>
-                  <form class="navbar-form">
+                  <form class="navbar-form" action="{% url 'user_search' %}" method="get">
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Search" />
-                            <span class="input-group-addon">
-                                <i class="glyphicon glyphicon-search"></i>
+                            <input type="text" class="form-control" id="q" name="q" placeholder="搜索用户、文章" />
+                            <span class="input-group-btn">
+                                <button class="btn" type="submit"><span class="glyphicon glyphicon-search"></span></button>
                             </span>
                         </div>
                     </div>
-
                   </form>
                   </li>
               </ul>
@@ -367,50 +425,71 @@
 
 
                   <li><a href="{% url 'user_zone' user.id %}">
-                      <span class="glyphicon glyphicon-user"></span>
-                      个人中心</a></li>
+                      <span class="glyphicon glyphicon-leaf"></span> 我的博客
+                      </a></li>
                   <li><a href="{% url 'user_notifications' %}">
-                    <span class="glyphicon glyphicon-bell"></span>
-                    消息<span class="badge">{% get_user_messages_count user %}</span></a></li>
+                    <span class="glyphicon glyphicon-bell"></span> 消息
+                    <span class="badge">{% get_user_messages_count user %}</span></a></li>
+
                   <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <span class="glyphicon glyphicon-book"></span>
-                            文章管理
+                            <span class="glyphicon glyphicon-book"></span> 文章管理
+
                         <span class="caret"></span></a>
                         <ul class="dropdown-menu">
+                            <li><a href="{% url 'article_custom_categories_list' %}">
+                                <span class="glyphicons glyphicons-list-alt">文章分类</span>
+                                </a></li>
                             <li><a href="{% url 'article_add' %}">
-                                <span class="glyphicon glyphicon-pencil"></span>
-                                发布文章</a></li>
+                                <span class="glyphicons glyphicons-pen">写文章</span>
+                                </a></li>
                             <li><a href="{% url 'article_update_list' %}">
-                                <span class="glyphicon glyphicon-pencil"></span>
-                                编辑文章</a></li>
+                                <span class="glyphicons glyphicons-edit">编辑文章</span>
+                                </a></li>
                             <li><a href="{% url 'article_delete_list' %}">
-                                <span class="glyphicon glyphicon-trash"></span>
-                                删除文章</a></li>
+                                <span class="glyphicons glyphicons-bin">删除文章</span>
+                                </a></li>
                         </ul>
-                      </li>
+                  </li>
+                  <li class="dropdown">
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                            <span class="glyphicon glyphicon-user"></span> 帐号设置
+
+                        <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">
+                                <span class="glyphicons glyphicons-keys">修改密码</span>
+                                </a></li>
+                            <li><a href="#">
+                                <span class="glyphicons glyphicons-envelope">修改邮箱</span>
+                                </a></li>
+                            <li><a href="{% url 'user_info' %}">
+                                <span class="glyphicons glyphicons-vcard">修改资料</span>
+                                </a></li>
+                        </ul>
+                  </li>
                   {% if user.is_superuser %}
                       <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            <span class="glyphicon glyphicon-wrench"></span>
-                            系统管理
+                            <span class="glyphicon glyphicon-cog"></span> 系统管理
+
                         <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="{% url 'user_manage' %}">
-                                <span class="glyphicon glyphicon-user"></span>
+                                <span class="glyphicons glyphicons-user"></span>
                                 用户管理</a></li>
                             <li><a href="{% url 'group_manage' %}">
-                                <span class="glyphicon glyphicon-user"></span>
+                                <span class="glyphicons glyphicons-group"></span>
                                 角色管理</a></li>
                             <li><a href="{% url 'perm_manage' %}">
-                                <span class="glyphicon glyphicon-lock"></span>
+                                <span class="glyphicons glyphicons-lock"></span>
                                 权限管理</a></li>
                         </ul>
                       </li>
                   {% endif %}
                   <li><a href="{% url 'user_logout' %}">
-                  <span class="glyphicon glyphicon-log-out"></span>
-                      退出
+                  <span class="glyphicon glyphicon-log-out"></span> 退出
+
                   </a></li>
 
                 {% endif %}

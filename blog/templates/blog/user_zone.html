@@ -36,12 +36,19 @@
                 {% is_follow get_user request.user as follow %}
                 {% if get_user != request.user %}
 
-                    {% if follow %}
+                    {% if follow == 1 %}
                         <button class="btn btn-danger follow_or_unfollow" name="follow_or_unfollow" user_id="{{get_user.id}}">
                             <span class="glyphicon glyphicon-ok" name="follow_icon"></span>
                             <span name="follow_word">已关注</span>
                         </button>
-                    {% else %}
+                    {% endif %}
+                    {% if follow == 2 %}
+                        <button class="btn btn-primary follow_or_unfollow" name="follow_or_unfollow" user_id="{{get_user.id}}">
+                            <span class="glyphicon glyphicon-transfer" name="follow_icon"></span>
+                            <span name="follow_word">互关注</span>
+                        </button>
+                    {% endif %}
+                    {% if follow == 0 %}
                         <button class="btn btn-success follow_or_unfollow" name="follow_or_unfollow" user_id="{{get_user.id}}">
                             <span class="glyphicon glyphicon-plus" name="follow_icon"></span>
                             <span name="follow_word">关注</span>
@@ -49,7 +56,7 @@
                     {% endif %}
                     <div style="margin-top:10px;">
                         <a href="{% url 'user_notifications' %}?page_type=message&content_type=user&user_id={{get_user.id}}">
-                            <span class="box-radius-5-green font-20-size"><span class="glyphicon glyphicon-send"></span> 私信</span>
+                            <span class="box-radius-5-green"><span class="glyphicons glyphicons-conversation">私信</span> </span>
                         </a>
                     </div>
                 {% endif %}
@@ -66,8 +73,7 @@
             <div class="row" style="">
                 <div class="col-md-2">
                     <div class="row">
-                        <span class="glyphicon glyphicon-file"></span>
-                        <span >文章</span>
+                        <span class="glyphicons glyphicons-article">文章</span>
                     </div>
                     <div class="row ">
 
@@ -76,8 +82,7 @@
                 </div>
                 <div class="col-md-2">
                     <div class="row">
-                        <span class="glyphicon glyphicon-pencil"></span>
-                        <span >评论</span>
+                        <span class="glyphicons glyphicons-comments">评论</span>
                     </div>
                     <div class="row">
                         <span>{% user_get_comment_count get_user %}</span>
@@ -85,8 +90,7 @@
                 </div>
                 <div class="col-md-2">
                     <div class="row">
-                        <span class="glyphicon glyphicon-thumbs-up"></span>
-                        <span >点赞</span>
+                        <span class="glyphicons glyphicons-thumbs-up">点赞</span>
                     </div>
                     <div class="row">
                         <span>{% user_get_like_count get_user %}</span>
@@ -151,12 +155,12 @@
                         {% for follower in get_user.followers.all %}
                             {% if forloop.last %}
                                 <a href="{% url 'user_zone' follower.followee.id %}"
-                                   name="follower_name" class="follower_name" user_id="{{follower.followee.id}}">
+                                   name="follower_name" class="cut_name" user_id="{{follower.followee.id}}">
                                     <span class="cut_name">{{follower.followee.username|cut_name}}</span><span class="cut_name_dot">{{follower.followee.username|cut_name_dot}}</span><span class="get_name_tail" hidden>{{follower.followee.username|get_name_tail}}</span>
                                 </a>
                             {% else %}
                                 <a href="{% url 'user_zone' follower.followee.id %}"
-                                   class="follower_name" user_id="{{follower.followee.id}}">
+                                   class="cut_name" user_id="{{follower.followee.id}}">
                                     <span class="cut_name">{{follower.followee.username|cut_name}}</span><span class="cut_name_dot">{{follower.followee.username|cut_name_dot}}</span><span class="get_name_tail" hidden>{{follower.followee.username|get_name_tail}}</span>
                                 </a> |
                             {% endif %}
@@ -179,8 +183,8 @@
                         {% for article in articles_hot|slice:":8" %}
                                <div class="row" style="padding-left:10px;padding-top:10px;padding-bottom:5px;">
                                    <a class="show hand" href="{% url 'article_detail' article.id %}">
-                                       <span class="glyphicon glyphicon-file"></span>
-                                       {{ article.title}}</a>
+                                       <span class="glyphicons glyphicons-article">{{ article.title}}</span>
+                                       </a>
                                </div>
                         {% empty %}
                         没有文章

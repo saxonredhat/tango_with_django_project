@@ -1,0 +1,37 @@
+<div class="row">
+    <div class="col-md-10">
+        <div class="row bg-gray-f0 box-radius-5">
+            <div class="row">
+                <div class="col-md-2" style="margin-top:20px;">
+                    <div class="col-md-11 col-md-offset-1">
+                        相关用户
+                    </div>
+                </div>
+                <div class="col-md-2 col-md-offset-8" style="margin-top:20px;">
+                    {% if  users_limit|length >= 8 %}
+                        <a href="?page_type=user{% if q %}&q={{q}}{% endif %}">
+                        查看全部>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        <div class="row">
+        {% for my_user in users_limit %}
+            <!--包含用户user_banner的模板-->
+            <div class="col-md-3">
+            {% include 'blog/user_block.html' %}
+            </div>
+            {% if forloop.counter|divisibleby:4 %}
+                {% if not forloop.last %}
+                <br><br>
+                <hr noshade="noshade" style="background:gray;height: 1px;border:none;">
+                <hr noshade="noshade" style="background:#FFFFFF;height: 1px;border:none;">
+                {% endif %}
+            {% endif %}
+        {% empty %}
+            未搜索到相关用户
+        {% endfor %}
+        </div>
+        </div>
+    </div>
+</div>

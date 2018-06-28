@@ -158,6 +158,11 @@ def user_get_like_count(user):
     return counts
 
 
+@register.simple_tag
+def article_counts_of_category(category_id):
+    article_count=Article.objects.filter(category_id=category_id).count()
+    return article_count
+
 #获取用户消息数
 @register.simple_tag
 def get_user_messages_count(user):
@@ -178,7 +183,10 @@ def get_user_messages_count(user):
     comment_replies_counts = Comment.objects.filter(comt__in=user.comment_set.all(), is_read=0).filter(
         ~Q(user=user)).count()
 
-    counts = follow_count+favorite_count+like_count+article_comment_count+comment_replies_counts
+    # 获取私信的数量
+    messages_count = Message.objects.filter(receive_user=user, is_read=0).count()
+
+    counts = follow_count+favorite_count+like_count+article_comment_count+comment_replies_counts+messages_count
     if counts > 0:
         return counts
     return ''
@@ -189,13 +197,29 @@ def get_user_messages_count(user):
 @register.assignment_tag
 def is_follow(followee,follower):
     try:
-        follow=Follow.objects.get(followee=followee,follower=follower)
+        follow = Follow.objects.get(followee=followee,follower=follower)
         if follow:
-            return True
-        return False
+            try:
+                followed = Follow.objects.get(followee=follower,follower=followee)
+                if followed:
+                    return 2
+            except Exception, e:
+                print Exception, e
+                return 1
+        return 0
     except Exception, e:
         print Exception, e
-        return False
+        return 0
+
+
+#获取评论所在的文章id
+@register.assignment_tag
+def get_article_of_comment(comment_id):
+    comment = Comment.objects.get(id=comment_id)
+    if not comment.article_id:
+        article_id=get_article_of_comment(comment.comt.id)
+        return article_id
+    return comment.article_id
 
 
 #获取用户的对象
@@ -211,7 +235,7 @@ def get_user(user_id):
 
 #判断用户是否对文章点赞，返回boolean结果
 @register.assignment_tag
-def is_like_article(article,user):
+def is_like_article(article, user):
     try:
         like = Like.objects.filter(like_article=article, user_id=user.id)
         if like:

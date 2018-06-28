@@ -1,0 +1,43 @@
+{% load blog_templatetags %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="row" style="border-radius:15px;padding:8px;margin-top:10px;" >
+            <div class="col-md-4 text text-right">
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% url 'user_zone' my_user.id %}">
+                        {% if my_user.user_info.picture %}
+                            <div class="row">
+                                <img class="img-circle" height="40" width="40" src="{{ my_user.user_info.picture.url }}">
+                            </div>
+                        {% else %}
+                            <div class="row">
+                                <span class="glyphicons glyphicons-user" style="font-size:29px;"></span>
+                            </div>
+                        {% endif %}
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-md-8" style="border:0px solid;padding-top:8px;">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% url 'user_zone' my_user.id %}" class="black cut_name">
+                        <span class="cut_name">{{my_user.username|cut_name}}</span><span class="cut_name_dot">{{my_user.username|cut_name_dot}}</span><span class="get_name_tail" hidden>{{my_user.username|get_name_tail}}</span>
+
+                        </a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% url 'user_zone' my_user.id %}" class="black">
+                        文章 {{my_user.article_set.all.count}}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

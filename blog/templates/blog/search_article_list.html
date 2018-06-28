@@ -1,0 +1,17 @@
+<br>
+<div class="article_list">
+{% for article in articles %}
+        <!--包含用户search_article_entry的模板-->
+        {% include 'blog/search_article_entry.html' %}
+{% empty %}
+未搜索到相关文章
+{% endfor %}
+</div>
+
+<br>
+<!--显示分页-->
+{% with articles as paginator %}
+    {% if paginator.paginator.num_pages > 1 %}
+        {% include 'blog/paginator.html' %}
+    {% endif %}
+{% endwith %}

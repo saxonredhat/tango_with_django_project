@@ -1,0 +1,33 @@
+{% load blog_templatetags %}
+<div class="row">
+    <div class="col-md-10 box-radius-8 border-1-cc">
+        <div class="row">
+            <!--
+            <div class="col-md-12">
+                综合排序 · 热门文章 · 最新发布 · 最新评论   |时间不限
+                <hr>
+            </div>
+            -->
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="search_category" search_url="?page_type=article{% if q %}&q={{q}}{% endif %}">
+                    <strong>文章类别:</strong>
+                    {% for category in categories %}
+                        <label class="checkbox-inline">
+                        {% if category in selected_category_list %}
+                            <input type="checkbox" class="category" name="category" value="{{category.id}}" checked="checked">{{category.name}}
+                        {% else %}
+                            <input type="checkbox" class="category" name="category" value="{{category.id}}">{{category.name}}
+                        {% endif %}
+                            <!--获取对应类别文章数量-->
+                            ({% article_counts_of_category category.id %})
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

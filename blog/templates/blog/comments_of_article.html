@@ -1,6 +1,6 @@
 <!--用户对文章的评论模板-->
 {% load blog_templatetags %}
-<div class="article_comment">
+<div class="article_comment" id="comment_id_{{comment.id}}">
     <div class="row">
         <div class="col-md-10">
             <div class="row">
@@ -10,7 +10,7 @@
                     {% if comment.user.user_info.picture  %}
                         <img class="img-circle" height="35" width="35" src="{{ comment.user.user_info.picture.url }}">
                     {% else %}
-                        <span class="glyphicon glyphicon-user" style="font-size:33px"></span>
+                        <span class="glyphicons glyphicons-user" style="font-size:35px"></span>
                     {% endif %}
                     </a>
                 </div>

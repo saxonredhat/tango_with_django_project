@@ -57,8 +57,8 @@
                                 </div>
                             </div>
                             <div class="col-md-11">
-                                        {{ form.title.errors }}
-                                        {% render_field form.title class="form-control" %}
+                                {% render_field form.title class="form-control" %}
+                                {{ form.title.errors }}
                             </div>
                     </div>
                 </div>
@@ -67,28 +67,44 @@
                 <div class="col-md-6">
 
                         <div class="form-group">
-                            <div class="col-md-12">
-                                {{ form.content.errors }}
-                                 <label for="{{ form.content.id_for_label }}">文章内容 (支持markdown)</label>
-                                {% render_field form.content class="form-control" data-provide="markdown" rows="30" %}
+                            <div class="row">
+                                <div class="col-md-12">
+                                     <label for="{{ form.content.id_for_label }}">文章内容 (支持markdown)</label>
+                                    {% render_field form.content class="form-control" data-provide="markdown" rows="30" %}
+                                    {{ form.content.errors }}
+                                </div>
                             </div>
 
                         </div>
                         <div class="form-group">
-                            <div class="col-md-6" style="width:50%;">
-                            {{ form.category.errors }}
-                            <label for="{{ form.category.id_for_label }}">文章分类</label>
-                            {% render_field form.category class="form-control" %}
-                            </div>
-                            <div class="col-md-6" style="width:50%;">
-                                <label for="{{ form.tags.id_for_label }}">标签</label>
-                                {% render_field form.tags class="form-control" %}
-                                {{ form.tags.errors }}
+                            <div class="row">
+                                <div class="col-md-6" style="width:50%;">
+
+                                <label for="{{ form.category.id_for_label }}">文章分类</label>
+                                {% render_field form.category class="form-control" %}
+                                {{ form.category.errors }}
+                                </div>
+                                <div class="col-md-6" style="width:50%;">
+                                    <label for="{{ form.custom_category.id_for_label }}">个人分类</label>
+                                    {% render_field form.custom_category class="form-control" %}
+                                    {{ form.tags.errors }}
+                                </div>
                             </div>
                         </div>
                         <div class="form-group">
-                            <div class="col-md-5" >
-                               <input type="submit" class="btn btn-success" value="发表">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label for="{{ form.tags.id_for_label }}">标签</label>
+                                    {% render_field form.tags class="form-control" %}
+                                    {{ form.tags.errors }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-5" >
+                                   <input type="submit" class="btn btn-success" value="发表">
+                                </div>
                             </div>
                         </div>
 

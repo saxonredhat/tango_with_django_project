@@ -343,6 +343,9 @@ def user_follow(request,user_id):
             else:
                 follow = Follow(followee=followee_user,follower=request.user)
                 follow.save()
+                followed = Follow.objects.filter(followee=request.user,follower=followee_user)
+                if followed:
+                    return HttpResponse('each_follow')
                 return HttpResponse('follow')
     except Exception, e:
         print Exception, ":", e
@@ -512,6 +515,10 @@ def user_notifications(request,):
     # 获取用户评论的回复数
     comment_replies_counts=Comment.objects.filter(comt__in=user.comment_set.all(),is_read=0).filter(~Q(user=user)).count()
 
+    # 获取私信数量
+    messages_count = Message.objects.filter(receive_user=user, is_read=0).count()
+
+    context_dict['messages_count'] = messages_count
     context_dict['follow_count'] = follow_count
     context_dict['favorites_likes_count'] = favorite_count + like_count
     context_dict['comments_count'] = article_comment_count + comment_replies_counts
@@ -581,21 +588,31 @@ def user_notifications(request,):
         if content_type not in content_type_list:
             content_type = 'list'
         if content_type == 'list':
-            user_messages = Message.objects.filter(receive_user=user)
+            messages_user_list=[]
             send_user_list = set()
+            user_messages = Message.objects.filter(receive_user=user)
             for user_message in user_messages:
                 send_user_list.add(user_message.send_user)
             send_user_list = list(send_user_list)
-            paginator = Paginator(send_user_list, 10)
+            for get_user in send_user_list:
+                is_new=False
+                new_messages_count=Message.objects.filter(send_user=get_user, receive_user=user,is_read=0).count()
+                last_message=Message.objects.filter(send_user=get_user, receive_user=user).order_by('-created_at')[0]
+                if new_messages_count > 0:
+                    is_new=True
+                messages_user_list.append({'send_user':get_user, 'is_new':is_new,'last_message':last_message, 'new_messages_count':new_messages_count})
+            #按排序未读，发送时间排序
+            messages_user_list=sorted(messages_user_list,key=lambda x:(x['last_message'].created_at),reverse=True)
+            paginator = Paginator(messages_user_list, 8)
             page = request.GET.get('page', 1)
             try:
-                send_user_list = paginator.page(page)
+                messages_user_list = paginator.page(page)
             except PageNotAnInteger:
-                send_user_list = paginator.page(1)
+                messages_user_list = paginator.page(1)
             except EmptyPage:
-                send_user_list = paginator.page(paginator.num_pages)
-            send_user_list.page_type = 'message'
-            context_dict['send_user_list'] = send_user_list
+                messages_user_list = paginator.page(paginator.num_pages)
+            messages_user_list.page_type = 'message'
+            context_dict['messages_user_list'] = messages_user_list
         if content_type == 'user':
             user_id = request.GET.get('user_id', '')
             if not user_id:
@@ -603,13 +620,29 @@ def user_notifications(request,):
             try:
                 talk_user = User.objects.get(id=user_id)
                 # 查询当前用户收到指定用户的信息，和发送给指定用户的信息
-                user_messages = Message.objects.filter(
-                    Q(send_user=talk_user, receive_user=user) | Q(send_user=user, receive_user=talk_user)).order_by('-created_at')[:30]
+                user_new_messages_count=Message.objects.filter(
+                    Q(send_user=talk_user, receive_user=user) | Q(send_user=user, receive_user=talk_user)).filter(~Q(is_read=0)).count()
+                if user_new_messages_count > 30:
+                    user_frist_new_message = Message.objects.filter(
+                    Q(send_user=talk_user, receive_user=user) | Q(send_user=user, receive_user=talk_user)).filter(~Q(is_read=0)).order_by('created_at')[0]
+                    user_messages = Message.objects.filter(created_at__gte=user_frist_new_message.created_at)
+                else:
+                    user_messages = Message.objects.filter(
+                        Q(send_user=talk_user, receive_user=user) | Q(send_user=user, receive_user=talk_user)).order_by('-created_at')[:30]
+
+                # 把消息设置为已读
+                for message in Message.objects.filter(Q(send_user=talk_user, receive_user=user) | Q(send_user=user, receive_user=talk_user)):
+                    message.is_read=1
+                    message.save()
                 # 排序
                 user_messages = sorted(user_messages, key=lambda x: x.created_at, reverse=False)
+                # 获取私信数量
+                messages_count = Message.objects.filter(receive_user=user, is_read=0).count()
+                context_dict['messages_count'] = messages_count
                 context_dict['user_messages'] = user_messages
                 context_dict['talk_user'] = talk_user
                 context_dict['enter_method'] = 'get'
+
             except Exception, e:
                 print Exception, ":", e
                 return HttpResponse('403')
@@ -636,6 +669,72 @@ def user_notifications(request,):
         context_dict['comments'] = comments_list
     context_dict['page_type'] = page_type
     return render(request, 'blog/user_notifications.html', context_dict)
+
+#用户搜索
+def user_search(request):
+    context_dict={}
+    page_type = request.GET.get('page_type','article')
+    q = request.GET.get('q' , '')
+    page_type_list = ['article' , 'user']
+    if page_type not in page_type_list:
+        page_type = 'article'
+    if page_type == 'article':
+        users_list_limit = []
+        articles_list = []
+        categories = []
+        tags = []
+        query_list = User.objects.filter(username__contains=q,is_active=1)
+        if query_list:
+            users_list_limit = query_list[:8]
+        search_category = request.GET.get('search_category', '')
+        if search_category:
+            search_category_list = filter(None, search_category.split('_'))
+            query_list_2 = Article.objects.filter(Q(title__contains=q) | Q(content__contains=q)).filter(category_id__in=search_category_list)
+            selected_category_list=Category.objects.filter(id__in=search_category_list)
+            context_dict['selected_category_list']=selected_category_list
+        else:
+            query_list_2 = Article.objects.filter(Q(title__contains=q) | Q(content__contains=q))
+        if query_list_2:
+            articles_list = query_list_2[:]
+        search_category=request.GET.get('search_category','')
+        #categories = list(set([article.category for article in articles_list]))
+        categories = Category.objects.all()
+        for article in articles_list:
+            tags.extend(article.tags.all())
+        tags = list(set(tags))
+        paginator = Paginator(articles_list, 3)
+        page = request.GET.get('page', 1)
+        try:
+            articles_list = paginator.page(page)
+        except PageNotAnInteger:
+            articles_list = paginator.page(1)
+        except EmptyPage:
+            articles_list = paginator.page(paginator.num_pages)
+        articles_list.page_type = 'article'
+        context_dict['articles'] = articles_list
+        context_dict['users_limit'] = users_list_limit
+        context_dict['categories'] = categories
+        context_dict['tags'] = tags
+    if page_type == 'user':
+        users_list = []
+        query_list = User.objects.filter(username__contains=q,is_active=1)
+        if query_list:
+            users_list = query_list[:]
+
+        paginator = Paginator(users_list, 10)
+        page = request.GET.get('page', 1)
+        try:
+            users_list = paginator.page(page)
+        except PageNotAnInteger:
+            users_list = paginator.page(1)
+        except EmptyPage:
+            users_list = paginator.page(paginator.num_pages)
+        users_list.page_type = 'user'
+        context_dict['users'] = users_list
+    context_dict['page_type'] = page_type
+    context_dict['q'] = q
+    return render(request, 'blog/user_search.html', context_dict)
+
 
 
 def user_messages_list(request):
@@ -701,6 +800,10 @@ def user_get_message(request, user_id):
                         last_time_stamp = 0
                     context_dict['time_stamp'] = int(float(last_time_stamp))
                 if has_message:
+                    # 把接收到的消息全部设置为已读
+                    for message in Message.objects.filter(send_user=otheruser, receive_user=myuser,is_read=0):
+                        message.is_read=1
+                        message.save()
                     # 查询当前用户收到指定用户的信息，和发送给指定用户的信息
                     user_messages = Message.objects.filter(Q(send_user=otheruser, receive_user=myuser) | Q(send_user=myuser, receive_user=otheruser)).order_by('-created_at')[:30]
                     #排序
@@ -741,15 +844,81 @@ def user_un_follower(request,user_id):
 
 
 @login_required
+def article_custom_categories_list(request):
+    context_dict={}
+    user=request.user
+    custom_categories=CustomCategory.objects.filter(user=user,).filter(~Q(name='全部'))
+    context_dict['custom_categories']=custom_categories
+    return render(request,'blog/article_custom_categories_list.html',context_dict)
+
+
+def article_custom_categories_add(request):
+    # 对ajax请求不使用装饰器login_required
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            # 获取添加个人分类的数据
+            if request.method == 'GET':
+                custom_categories = request.GET.get('custom_categories')
+                print custom_categories
+                print list(set(filter(None,re.split('[;,]',custom_categories))))
+                for category_name in list(set(filter(None,re.split('[;,]',custom_categories)))):
+                    try:
+                        custom_category = CustomCategory.objects.get(name=category_name)
+                    except Exception, e:
+                        print Exception, ":", e
+                        custom_category = CustomCategory(name=category_name)
+                        custom_category.save()
+                    custom_category.user.add(user)
+                return HttpResponse('ok')
+            return HttpResponse('403')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
+def article_custom_categories_delete(request,category_name):
+    # 对ajax请求不使用装饰器login_required
+    try:
+        user = User.objects.get(id=request.user.id)
+        if user:
+            #判断用户是否有自定义标签
+            custom_category = CustomCategory.objects.get(name=category_name)
+            print user.customcategory_set.all()
+            if custom_category in user.customcategory_set.all():
+                #获取自定义类名
+                print "enter"
+                # 删除用户的自定义标签
+                custom_category.user.remove(user)
+                #获取匹配的文章，修改外键
+                comment_category=CustomCategory.objects.get(name='全部')
+                for article in Article.objects.filter(author=user,custom_category=custom_category):
+                    article.custom_category=comment_category
+                    article.save()
+                return HttpResponse('ok')
+            return HttpResponse('403')
+    except Exception, e:
+        print Exception, ":", e
+        return HttpResponse('403')
+
+
+
+@login_required
 def article_add(request):
-    form = ArticleForm()
+    user=request.user
+    # 添加自定义类"全部"
+    comment_category = CustomCategory.objects.get(name='全部')
+    if comment_category not in user.customcategory_set.all():
+        comment_category.user.add(user)
+    form = ArticleForm(user)
     if request.method == 'POST':
-        form = ArticleForm(request.POST)
+        form = ArticleForm(user,request.POST)
         if form.is_valid():
             article = form.save(commit=False)
             article.author = request.user
             article.save()
-            for t in form.cleaned_data.get('tags').split(';'):
+
+            for t in list(set(filter(None,re.split('[,;]',form.cleaned_data.get('tags'))))):
                 try:
                     tag=Tag.objects.get(name=t)
                 except Exception, e:
@@ -772,6 +941,10 @@ def article_update_list(request):
 #@permission_required('blog.update_article')
 def article_update(request,article_id):
     current_user=request.user
+    #添加自定义类"全部"
+    comment_category = CustomCategory.objects.get(name='全部')
+    if comment_category not in current_user.customcategory_set.all():
+        comment_category.user.add(current_user)
     try:
         article = Article.objects.get(id=article_id)
         if article.author != current_user:
@@ -781,19 +954,21 @@ def article_update(request,article_id):
         messages.error(request, '请求的对象错误.')
         return HttpResponseRedirect(reverse('article_update_list'))
     if request.method == 'POST':
-        form = ArticleForm(request.POST)
+        form = ArticleForm(current_user,request.POST)
         if form.is_valid():
             article.title=form.cleaned_data.get('title')
             article.type = form.cleaned_data.get('type')
             article.content = form.cleaned_data.get('content')
             article.category = form.cleaned_data.get('category')
+            article.custom_category = form.cleaned_data.get('custom_category')
+
             #删除之前的tags
             for tag in article.tags.all():
                 try:
                     article.tags.remove(tag)
                 except:
                     pass
-            for t in form.cleaned_data.get('tags').split(';'):
+            for t in list(set(filter(None,re.split('[,;]',form.cleaned_data.get('tags'))))):
                 try:
                     tag=Tag.objects.get(name=t)
                 except Exception, e:
@@ -808,12 +983,13 @@ def article_update(request,article_id):
         type = article.type
         content = article.content
         category = article.category
+        custom_category = article.custom_category
         tag_list = [ t.name for t in article.tags.all()]
         tags=';'.join(tag_list)
         article_dict={'title':title, 'type':type,
-                      'content':content, 'category':category,
-                      'tags':tags}
-        form = ArticleForm(article_dict)
+                      'content':content, 'category':category.id,
+                      'tags':tags,'custom_category':custom_category}
+        form = ArticleForm(current_user,article_dict)
     return render(request, 'blog/article_update.html', {'form': form})
 
 
@@ -833,7 +1009,9 @@ def article_delete(request, article_id):
         article = Article.objects.get(id=article_id)
         title = article.title
         if article.author == current_user:
-            Article.objects.get(id=article_id).delete()
+            article=Article.objects.get(id=article_id)
+            article.is_deleted=1
+            article.save()
         else:
             messages.error(request, '无权删除其他用户的文章.')
             return HttpResponseRedirect(reverse('article_delete_list'))

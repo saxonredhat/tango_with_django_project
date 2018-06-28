@@ -20,7 +20,7 @@
                             {% endif %}
                             {% if favorite_like.obj.like_comment %}
                                 你的评论
-                                <a class="{% if favorite_like.is_new %}red{% else %}yellow{% endif %}" href="{% url 'article_detail' favorite_like.obj.like_comment.article.id %}">
+                                <a class="{% if favorite_like.is_new %}red{% else %}yellow{% endif %}" href="{% url 'article_detail' favorite_like.obj.like_comment.article.id %}#comment_id_{{favorite_like.obj.like_comment.id}}">
                                     “{{favorite_like.obj.like_comment.content}}”
                                 </a>
                             {% endif %}

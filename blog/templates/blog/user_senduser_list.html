@@ -1,7 +1,7 @@
-{% with send_user_list as paginator %}
+{% with messages_user_list as paginator %}
 <!--显示私信列表-->
-    {% for send_user in paginator %}
-        {% with send_user as my_user %}
+    {% for messages_user in paginator %}
+        {% with messages_user.send_user as my_user %}
             {% include 'blog/user_senduser.html' %}
         {% endwith %}
         <br>

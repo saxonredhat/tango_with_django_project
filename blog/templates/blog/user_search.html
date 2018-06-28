@@ -1,0 +1,70 @@
+{% extends 'blog/base.html' %}
+{% load staticfiles %}
+{% block script %}
+    {{ block.super }}
+    <script src="{% static 'js/blog/comments.js' %}"></script>
+{% endblock %}
+{% block body %}
+<div class="container box-radius-5">
+    <div class="row">
+        <div class="col-md-1 col-md-offset-2 box-radius-5">
+            <a href="?page_type=article{% if q %}&q={{q}}{% endif %}" class="gray">
+                <div class="row">
+                    <div class="margin-bottom-20 box-radius-5">
+                        <span class="font-15-size {% if page_type == 'article' %}font-bold{% endif %}">
+                            <span class="glyphicons glyphicons-article {% if page_type == 'article' %}bg-gray-55{% else %}bg-gray{% endif %} "></span>
+                            <span>文章
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </a>
+            <a href="?page_type=user{% if q %}&q={{q}}{% endif %}" class="gray">
+                <div class="row">
+                    <div class="margin-bottom-20 box-radius-5">
+                        <span class="font-15-size {% if page_type == 'user' %}font-bold{% endif %}">
+                            <span class="glyphicons glyphicons-user {% if page_type == 'user' %}bg-gray-55{% else %}bg-gray{% endif %}"></span>
+                            <span>用户
+                            </span>
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-8 col-md-offset-0">
+            <!--右边的显示框-->
+            <div class="row">
+                <div class="col-md-11 col-md-offset-1 right-windows">
+                    {% if page_type == 'article' %}
+                        {% if users_limit %}
+                            {% include 'blog/search_user_list_limit.html' %}
+                            <br>
+                        {% endif %}
+
+                        {% include 'blog/search_filter_banner.html' %}
+                        {% include 'blog/search_article_list.html' %}
+                    {% endif %}
+                    {% if page_type == 'user' %}
+                        {% include 'blog/search_user_list.html' %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function(){
+            //点赞用户,通过on关键字动态添加元素绑定事件(暂时没有使用)
+        $("body").on("click", ".category", function(event) {
+            var search_url=$(".search_category").attr("search_url");
+            var search_category_id_list="";
+            $(".search_category .category:checked").each(function(){
+                search_category_id_list=search_category_id_list+$(this).val()+'_';
+            });
+            search_url=search_url+'&search_category='+search_category_id_list
+            console.log(search_url);
+            window.location.replace(search_url);
+        });
+    });
+</script>
+{% endblock %}

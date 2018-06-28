@@ -11,8 +11,8 @@
             <a href="?page_type=follow" class="gray">
                 <div class="row">
                     <div class="margin-bottom-20 box-radius-5">
-                        <span class="font-20-size">
-                            <span class="glyphicon glyphicon-eye-open"></span>
+                        <span class="font-15-size {% if page_type == 'follow' %}font-bold{% endif %}">
+                            <span class="glyphicons glyphicons-eye-open {% if page_type == 'follow' %}bg-gray-55{% else %}bg-gray{% endif %}"></span>
                             <span>关注
                                 {% if follow_count %}
                                     {% if follow_count > 0 %}
@@ -27,8 +27,8 @@
             <a href="?page_type=favorite_like" class="gray">
                 <div class="row">
                     <div class="margin-bottom-20 box-radius-5">
-                        <span class="font-20-size">
-                            <span class="glyphicon glyphicon-thumbs-up"></span>
+                        <span class="font-15-size {% if page_type == 'favorite_like' %}font-bold{% endif %}">
+                            <span class="glyphicons glyphicons-thumbs-up {% if page_type == 'favorite_like' %}bg-gray-55{% else %}bg-gray{% endif %}"></span>
                             <span>收藏和赞
                                 {% if favorites_likes_count %}
                                     {% if favorites_likes_count > 0 %}
@@ -44,10 +44,14 @@
                 <div class="row">
                     <div class="margin-bottom-20 box-radius-5">
                         <span class="user_messages">
-                            <span class="font-20-size show_hand">
-                                <span class="glyphicon glyphicon-send"></span>
+                            <span class="font-15-size show_hand  {% if page_type == 'message' %}font-bold{% endif %}">
+                                <span class="glyphicons glyphicons-conversation {% if page_type == 'message' %}bg-gray-55{% else %}bg-gray{% endif %}"></span>
                                 <span>私信
-
+                                    {% if messages_count %}
+                                        {% if messages_count > 0 %}
+                                            <span class="badge">{{messages_count}}</span>
+                                        {% endif %}
+                                    {% endif %}
                                 </span>
                             </span>
                         </span>
@@ -57,8 +61,8 @@
             <a href="?page_type=comment" class="gray">
                 <div class="row">
                     <div class="margin-bottom-20 box-radius-5">
-                        <span class="font-20-size">
-                            <span class="glyphicon glyphicon-comment"></span>
+                        <span class="font-15-size  {% if page_type == 'comment' %}font-bold{% endif %}">
+                            <span class="glyphicons glyphicons-comments  {% if page_type == 'comment' %}bg-gray-55{% else %}bg-gray{% endif %}"></span>
                             <span>评论
                                 {% if comments_count %}
                                     {% if comments_count > 0 %}
@@ -188,7 +192,7 @@
             }
         }
 
-        $("body").on("click", ".user_message_entry", function(event) {
+        $("body").on("click", ".xuser_message_entry", function(event) {
             //获取form的action参数值
             var user_id = $(this).attr("user_id");
             var post_url = '/blog/user_message/'+user_id;
