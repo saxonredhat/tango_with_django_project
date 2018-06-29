@@ -7,7 +7,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <a href="{% url 'user_zone' comment.comment.user.id %}" class="{% if comment.is_new %}black{% else %}white{% endif %}">
-                        {{comment.comment.user.username}}
+                            {% get_nickname comment.comment.user.id %}
                         </a>
                         {% if comment.comment.article %}
                         &nbsp;&nbsp;&nbsp;&nbsp;<strong></strong>

@@ -25,7 +25,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <a href="{% url 'user_zone' follow.user.id %}" class="{% if follow.is_new %}black{% else %}white{% endif %}">
-                        {{follow.user.username}}
+                            {% get_nickname follow.user.id %}
                         </a>
                         &nbsp;&nbsp;&nbsp;&nbsp;<strong>关注了你</strong>
                     </div>

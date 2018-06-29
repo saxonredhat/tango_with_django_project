@@ -26,7 +26,7 @@
                     <div class="row" style="border:0px solid;">
                         <div class="col-md-2">
                             <a href="{% url 'user_zone' my_user.id %}" class="white">
-                            {{my_user.username}}
+                                {% get_nickname my_user.id %}
                             </a>
 
                         </div>

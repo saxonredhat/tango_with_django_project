@@ -58,7 +58,9 @@
                             </div>
                             <div class="col-md-11">
                                 {% render_field form.title class="form-control" %}
-                                {{ form.title.errors }}
+                                {% for error in form.title.errors %}
+                                    <div class="red"><strong>{{error}}</strong></div>
+                                {% endfor %}
                             </div>
                     </div>
                 </div>
@@ -71,7 +73,9 @@
                                 <div class="col-md-12">
                                      <label for="{{ form.content.id_for_label }}">文章内容 (支持markdown)</label>
                                     {% render_field form.content class="form-control" data-provide="markdown" rows="30" %}
-                                    {{ form.content.errors }}
+                                    {% for error in form.content.errors %}
+                                        <div class="red"><strong>{{error}}</strong></div>
+                                    {% endfor %}
                                 </div>
                             </div>
 
@@ -79,15 +83,18 @@
                         <div class="form-group">
                             <div class="row">
                                 <div class="col-md-6" style="width:50%;">
-
-                                <label for="{{ form.category.id_for_label }}">文章分类</label>
-                                {% render_field form.category class="form-control" %}
-                                {{ form.category.errors }}
+                                    <label for="{{ form.category.id_for_label }}">文章分类</label>
+                                    {% render_field form.category class="form-control" %}
+                                    {% for error in form.category.errors %}
+                                        <div class="red"><strong>{{error}}</strong></div>
+                                    {% endfor %}
                                 </div>
                                 <div class="col-md-6" style="width:50%;">
                                     <label for="{{ form.custom_category.id_for_label }}">个人分类</label>
                                     {% render_field form.custom_category class="form-control" %}
-                                    {{ form.tags.errors }}
+                                    {% for error in form.custom_category.errors %}
+                                        <div class="red"><strong>{{error}}</strong></div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
@@ -96,14 +103,16 @@
                                 <div class="col-md-12">
                                     <label for="{{ form.tags.id_for_label }}">标签</label>
                                     {% render_field form.tags class="form-control" %}
-                                    {{ form.tags.errors }}
+                                    {% for error in form.tags.errors %}
+                                        <div class="red"><strong>{{error}}</strong></div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-5" >
-                                   <input type="submit" class="btn btn-success" value="发表">
+                                <div class="col-md-12" >
+                                   <input type="submit" class="btn btn-success form-control" value="发表">
                                 </div>
                             </div>
                         </div>

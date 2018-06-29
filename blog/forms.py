@@ -4,6 +4,7 @@ from blog.models import *
 from django.contrib.auth.models import User, Group , Permission ,ContentType
 from django.utils.translation import ugettext, ugettext_lazy as _
 from captcha.fields import CaptchaField
+from django.contrib.auth.hashers import check_password
 import re
 import mytools
 import sys
@@ -13,16 +14,26 @@ sys.setdefaultencoding("utf-8")
 
 class ArticleForm(forms.ModelForm):
     error_messages = {
-        'tags_too_many': _("标签数量不能超过5个."),
-        'category_value_error': _("选择一个有效的分类选项."),
+        'tags_too_many': _("请注意标签数量不能超过5个"),
+        'category_value_error': _("请选择一个有效的文章分类"),
+        'custom_category_value_error': _("请选择一个有效的个人分类"),
     }
-    title = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '文章标题'}))
+    title = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '文章标题'}),error_messages = {'required': "请注意文章标题不能为空"})
     type = forms.CharField(widget=forms.Select(choices=((1, '原创'), (2, '翻译'), (3, '转载'),)))
-    tags = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '各个标签使用;或者,分隔,最多5个标签'}))
+    tags = forms.CharField(widget=forms.TextInput(attrs={'placeholder': '各个标签使用;或者,分隔,最多5个标签'}),error_messages = {'required': "请注意至少需要一个标签"})
+    content = forms.CharField(widget=forms.Textarea(attrs={'placeholder': '请填写文章内容'}),error_messages = {'required': "请注意文章内容不能为空"})
 
     class Meta:
         model = Article
         fields = ('title', 'type', 'content', 'category','custom_category')
+        error_messages = {
+            'category': {
+                'required': '请选择文章分类',
+            },
+            'custom_category': {
+                'required': '请选择个人分类',
+            },
+        }
 
     def __init__(self, user, *args, **kwargs):
         super(ArticleForm, self).__init__(*args, **kwargs)
@@ -53,13 +64,30 @@ class ArticleForm(forms.ModelForm):
                 code='category_value_error',
             )
 
+    def clean_custom_category(self):
+        try:
+            if not self.cleaned_data.get('custom_category'):
+                raise forms.ValidationError(
+                    self.error_messages['custom_category_value_error'],
+                    code='custom_category_value_error',
+                )
+            print self.cleaned_data.get('custom_category')
+            custom_category = self.cleaned_data.get('custom_category')
+            custom_category_obj=CustomCategory.objects.get(id=custom_category.id)
+            return custom_category_obj
+        except:
+            raise forms.ValidationError(
+                self.error_messages['custom_category_value_error'],
+                code='custom_category_value_error',
+            )
+
 
 class UserInfoForm(forms.ModelForm):
     picture = forms.ImageField(label=_('头像'), required=False, error_messages={'无效': _("仅图片文件")},
                      widget=forms.FileInput)
     class Meta:
         model = UserInfo
-        fields = ('website', 'picture')
+        fields = ('nickname','website', 'picture')
 
 
 class UserBaseForm(forms.Form):
@@ -111,22 +139,34 @@ class UserAddForm(forms.ModelForm):
         return user
 
 
-class UserRegisterForm(forms.ModelForm):
+class ChangePasswordForm(forms.ModelForm):
     error_messages = {
-        'password_mismatch': _("两次输入的密码不匹配."),
-        'password_length_short': _("密码长度不足8位."),
+        'old_password_error': _("旧密码不正确"),
+        'password_mismatch': _("两次输入的密码不匹配"),
+        'password_length_short': _("密码长度不足8位"),
     }
-    username = forms.CharField(label=_("用户名"))
-    password1 = forms.CharField(label=_("密码"),
-                                widget=forms.PasswordInput)
-    password2 = forms.CharField(label=_("再次输入密码"),
-                                widget=forms.PasswordInput)
-    captcha = CaptchaField(label='验证码', required=True)
-    email = forms.EmailField(label=_("邮箱"))
-
+    old_password = forms.CharField(label=_("旧密码"),
+                                widget=forms.PasswordInput,error_messages = {'required': "旧密码不能为空"})
+    password1 = forms.CharField(label=_("新密码"),
+                                widget=forms.PasswordInput,error_messages = {'required': "新密码不能为空"})
+    password2 = forms.CharField(label=_("再次确认密码"),
+                                widget=forms.PasswordInput,error_messages = {'required': "确认密码不能为空"})
     class Meta:
         model = User
-        fields = ('username', 'password1', 'password2', 'email')
+        fields = ('old_password', 'password1', 'password2')
+
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(ChangePasswordForm, self).__init__(*args, **kwargs)
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data.get("old_password", None)
+        if not self.user.check_password(old_password):
+            raise forms.ValidationError(
+                self.error_messages['old_password_error'],
+                code='old_password_error',
+            )
+        return old_password
 
     def clean_password1(self):
         password1 = self.cleaned_data.get("password1")
@@ -146,6 +186,46 @@ class UserRegisterForm(forms.ModelForm):
                 code='password_mismatch',
             )
         return password2
+
+
+class NewEmailForm(forms.Form):
+    new_email = forms.EmailField(label=_("新邮箱"))
+
+
+class UserRegisterForm(forms.ModelForm):
+    error_messages = {
+        #'password_mismatch': _("两次输入的密码不匹配."),
+        'password_length_short': _("密码长度不足8位."),
+    }
+    username = forms.CharField(label=_("用户名"))
+    password1 = forms.CharField(label=_("密码"),widget=forms.PasswordInput)
+    #password2 = forms.CharField(label=_("再次输入密码"),
+    #                            widget=forms.PasswordInput)
+    captcha = CaptchaField(label='验证码', required=True)
+    email = forms.EmailField(label=_("邮箱"))
+
+    class Meta:
+        model = User
+        fields = ('username', 'password1', 'email')
+
+    def clean_password1(self):
+        password1 = self.cleaned_data.get("password1")
+        if len(password1) < 8:
+            raise forms.ValidationError(
+                self.error_messages['password_length_short'],
+                code='password_length_short',
+            )
+        return password1
+
+    # def clean_password2(self):
+    #     password1 = self.cleaned_data.get("password1")
+    #     password2 = self.cleaned_data.get("password2")
+    #     if password1 and password2 and password1 != password2:
+    #         raise forms.ValidationError(
+    #             self.error_messages['password_mismatch'],
+    #             code='password_mismatch',
+    #         )
+    #     return password2
 
     # def save(self, commit=True):
     #     user = super(UserRegisterForm, self).save(commit=False)
@@ -229,5 +309,22 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ('content',)
 
+
+class ForgetPasswordForm(forms.Form):
+    errors_messages = {
+        'username_not_exist': _("您输入的用户名不存在"),
+    }
+    username = forms.CharField(label=_("用户名"))
+    error_css_class = "error"
+
+    def clean_username(self):
+        username = self.cleaned_data.get("username")
+        get_user = User.objects.filter(username=username)
+        if not get_user:
+            raise forms.ValidationError(
+                self.errors_messages['username_not_exist'],
+                code='username_not_exist',
+            )
+        return username
 
 

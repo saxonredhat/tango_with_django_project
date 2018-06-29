@@ -89,6 +89,28 @@ def replies_of_comment(comment_id):
 
 
 @register.simple_tag
+def get_nickname(user_id):
+    try:
+        user=User.objects.get(id=user_id)
+        user_info=UserInfo.objects.get(user=user)
+        if not user_info.nickname:
+            return user.username
+        return user_info.nickname
+    except:
+        return user.username
+
+
+@register.simple_tag
+def user_nickname(user_id):
+    try:
+        user=User.objects.get(id=user_id)
+        user_info=UserInfo.objects.get(user=user)
+        return user_info.nickname
+    except:
+        return ''
+
+
+@register.simple_tag
 def last_message(send_user, receive_user):
     try:
         message = Message.objects.filter(send_user=send_user,receive_user=receive_user).order_by('-created_at')[0]

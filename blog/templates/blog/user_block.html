@@ -25,8 +25,8 @@
                 <div class="row">
                     <div class="col-md-12">
                         <a href="{% url 'user_zone' my_user.id %}" class="black cut_name">
-                        <span class="cut_name">{{my_user.username|cut_name}}</span><span class="cut_name_dot">{{my_user.username|cut_name_dot}}</span><span class="get_name_tail" hidden>{{my_user.username|get_name_tail}}</span>
-
+                            {% get_nickname my_user.id as nickname %}
+                        <span class="cut_name">{{ nickname |cut_name }}</span><span class="cut_name_dot">{{nickname|cut_name_dot}}</span><span class="get_name_tail" hidden>{{nickname|get_name_tail}}</span>
                         </a>
                     </div>
                 </div>

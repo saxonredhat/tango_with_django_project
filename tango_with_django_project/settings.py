@@ -228,14 +228,23 @@ CAPTCHA_OUTPUT_FORMAT=u'%(text_field)s %(image)s %(hidden_field)s '
 #CAPTCHA_FIELD_TEMPLATE=''
 
 
-# 邮箱配置
+# 网易邮箱配置
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.163.com'
+# EMAIL_HOST_USER = 'sys_blog@163.com'
+# DEFAULT_FROM_EMAIL = 'sys_blog@163.com'
+# EMAIL_HOST_PASSWORD = 'codemax123'
+# EMAIL_PORT = 25
+# EMAIL_USE_TLS = False
+#QQ邮箱配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.163.com'
-EMAIL_HOST_USER = 'sys_blog@163.com'
-DEFAULT_FROM_EMAIL = 'sys_blog@163.com'
-EMAIL_HOST_PASSWORD = 'codemax123'
+EMAIL_HOST = 'smtp.qq.com'
+EMAIL_HOST_USER = 'sheyinsong@qq.com'
+DEFAULT_FROM_EMAIL = 'sheyinsong@qq.com'
+EMAIL_HOST_PASSWORD = 'vgvymfxafkofbifa'
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False
+
 
 
 # If True, users can register

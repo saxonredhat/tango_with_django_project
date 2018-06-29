@@ -1,5 +1,6 @@
 {% extends 'blog/base.html' %}
 {% load staticfiles %}
+{% load blog_templatetags %}
 {% load bootstrap3 %}
 {% block body %}
     <div class="container">
@@ -27,6 +28,7 @@
                 <tr>
                     <th>id</th>
                     <th>用户名</th>
+                    <th>昵称</th>
                     <th>用户邮箱</th>
                     <th>拥有该角色</th>
                     <th>包含角色</th>
@@ -39,6 +41,9 @@
                     </td>
                     <td>
                         {{user.username}}
+                    </td>
+                    <td>
+                        {% user_nickname user.id %}
                     </td>
                     <td>
                         {{ user.email}}

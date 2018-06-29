@@ -21,10 +21,10 @@
                             否，则直接打印用户名
                         -->
                         <a href="{% url 'user_zone' comment.user.id %}">
-                        {% if article.author.username == comment.user.username %}
-                            <span class="text text-danger" ><strong><span class="gold-color box-radius-3">作者</span></strong></span> {{comment.user.username}}
+                        {% if article.author.id == comment.user.id %}
+                            <span class="text text-danger" ><strong><span class="gold-color box-radius-3">作者</span></strong></span> {% get_nickname comment.user.id %}
                         {% else %}
-                            <span class="hover-bigger">{{comment.user.username}}</span>
+                            <span class="hover-bigger">{% get_nickname comment.user.id %}</span>
                         {% endif %}
                         </a>
                     </div>
@@ -99,8 +99,8 @@
                     <textarea class="form-control" name="comment_user_content" maxlength="100" minlength="1" rows="6" required></textarea>
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-success">回复</button>&nbsp;&nbsp;
-                    <span class="show_hand" onclick="hidden_form(this)">取消</span>
+                    <button class="btn btn-success form-control">回复</button>&nbsp;&nbsp;
+                    <button class="btn btn-danger form-control" onclick="hidden_form(this)">取消</button>
                 </div>
             </form>
             <!--打印该条用户评论的回复明细-->

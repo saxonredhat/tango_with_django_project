@@ -1,6 +1,6 @@
 {% extends 'blog/base.html' %}
 {% load staticfiles %}
-
+{% load blog_templatetags %}
 {% block body %}
     <div class="container">
         <div class="row " style="height:12vh;">
@@ -39,6 +39,9 @@
                         用户名
                     </th>
                     <th>
+                        昵称
+                    </th>
+                    <th>
                         邮箱
                     </th>
                     <th>
@@ -58,6 +61,9 @@
                     </td>
                     <td>
                         {{myuser.username}}
+                    </td>
+                    <td>
+                        {% user_nickname myuser.id %}
                     </td>
                     <td>
                         {{myuser.email}}

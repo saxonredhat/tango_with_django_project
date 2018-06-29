@@ -9,7 +9,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <a href="{% url 'user_zone' user.id %}" class="{% if favorite_like.is_new %}black{% else %}white{% endif %}">
-                        {{user.username}}
+                            {% get_nickname user.id %}
                         </a>
                         &nbsp;&nbsp;&nbsp;&nbsp;<strong><span class="glyphicon glyphicon-thumbs-up"></span>点赞 </strong>
                             {% if favorite_like.obj.like_article %}

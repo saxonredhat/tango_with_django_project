@@ -8,7 +8,9 @@
                     <h3 class="form-title">添加用户</h3>
                     {% csrf_token %}
                     {% bootstrap_form group_form %}
-                    <input class="btn btn-success" type="submit" value="添加">
+                    <div class="form-group">
+                        <input class="btn btn-success form-control" type="submit" value="添加">
+                    </div>
             </form>
         </div>
     </div>

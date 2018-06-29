@@ -221,6 +221,9 @@
             .gold-color{
                 color:#ee9f49;
             }
+            .red{
+                color:red;
+            }
             @font-face {
                 font-family: 'Light';
                 src: url('{% static 'fonts/Light.ttf' %}');
@@ -420,7 +423,7 @@
                       注册</a></li>
                 {% else %}
                   <li class="text text-left"><a href="{% url 'user_info' %}">
-                      欢迎,<span class="gold-color">{{user.username}}</span>!</a>
+                      欢迎,<span class="gold-color">{% get_nickname user.id %}</span>!</a>
                   </li>
 
 
@@ -457,10 +460,10 @@
 
                         <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#">
+                            <li><a href="{% url 'user_change_password' %}">
                                 <span class="glyphicons glyphicons-keys">修改密码</span>
                                 </a></li>
-                            <li><a href="#">
+                            <li><a href="{% url 'user_send_old_email' %}">
                                 <span class="glyphicons glyphicons-envelope">修改邮箱</span>
                                 </a></li>
                             <li><a href="{% url 'user_info' %}">

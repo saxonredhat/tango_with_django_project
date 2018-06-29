@@ -16,6 +16,7 @@ sys.setdefaultencoding("utf-8")
 
 class UserInfo(models.Model):
     user = models.OneToOneField(User,related_name='user_info')
+    nickname = models.CharField(max_length=50,default='', blank=True, null=True)
     website = models.URLField(blank=True,null=True)
     picture = models.ImageField(upload_to='profile_images', blank=True, null=True)
 

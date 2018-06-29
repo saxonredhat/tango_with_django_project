@@ -7,11 +7,11 @@
                 {% else %}
                     <span class="glyphicon glyphicon-user"></span>
                 {% endif %}
-                <a class="show_hand"><span class="text text-primary"><strong>[作者]{{article.author.username}}:</strong></span></a>
+                <a class="show_hand"><span class="text text-primary"><strong>[作者]{% get_nickname article.author.id %}:</strong></span></a>
                 {% if comment_user.user == comment_user.comt.user %}
                     <a class="show_hand"></a>
                 {% else %}
-                    <a class="show_hand">@{{comment_user.comt.user.username}}</a>
+                    <a class="show_hand">@{% get_nickname comment_user.comt.user.id %}</a>
                 {% endif %}
             {% else %}
                 {% if comment_user.user.user_info.picture %}
@@ -19,14 +19,14 @@
                 {% else %}
                     <span class="glyphicon glyphicon-user"></span>
                 {% endif %}
-                    <a class="show_hand">{{comment_user.user.username}}:</a>
+                    <a class="show_hand">{% get_nickname comment_user.user.id %}:</a>
                 {% if article.author == comment_user.comt.user %}
-                    <a class="show_hand"><span class="text text-primary"><strong>@[作者]{{comment_user.comt.user.username}}</strong></span></a>
+                    <a class="show_hand"><span class="text text-primary"><strong>@[作者]{% get_nickname comment_user.comt.user.id %}</strong></span></a>
                 {% else %}
                     {% if comment_user.user == comment_user.comt.user %}
                         <a class="show_hand"></a>
                     {% else %}
-                        <a class="show_hand">@{{comment_user.comt.user.username}}</a>
+                        <a class="show_hand">@{% get_nickname comment_user.comt.user.id %}</a>
                     {% endif %}
                 {% endif %}
             {% endif %}

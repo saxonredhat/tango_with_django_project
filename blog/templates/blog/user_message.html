@@ -8,6 +8,11 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/emojionearea.min.css' %}">
 <script type="text/javascript" src="{% static 'js/emojionearea.min.js' %}"></script>
 <div class="row">
+    <div class="col-md-12">
+        <strong>正在和<span class="gold-color">{% get_nickname talk_user.id %}</span>聊天</strong>
+    </div>
+</div>
+<div class="row">
     <div id="right-windows-demo" enter_method="{{enter_method}}"  class="col-md-12 right-windows-demo box-radius-5-gray bg-chat-gray" user_id="{{ talk_user.id }}" style="overflow-y: auto;height:400px;">
         {% for user_message in user_messages %}
             {% include 'blog/user_message_entry.html' %}
@@ -21,9 +26,9 @@
             <textarea name="message_content" id="user_message_textarea" class="form-control" rows="6"></textarea>
         </div>
     </div>
-    <div class="row">
+    <div class="row form-group">
         <div class="right-windows-button text text-right">
-            <button class="btn btn-success" type="submit">发送</button>
+            <button class="btn btn-success form-control" type="submit">发送</button>
         </div>
     </div>
 </form>

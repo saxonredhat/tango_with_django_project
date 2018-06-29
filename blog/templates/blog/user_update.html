@@ -1,5 +1,6 @@
 {% extends 'blog/base.html' %}
 {% load staticfiles %}
+{% load blog_templatetags %}
 {% load bootstrap3 %}
 {% block body %}
     <div class="container">
@@ -8,7 +9,7 @@
                         <span class="glyphicon glyphicon-user"></span>
                         用户管理
                         <span class="glyphicon glyphicon-menu-right"></span>
-                            {{username}}
+                            {% user_nickname get_user.id %}
                         <span class="glyphicon glyphicon-menu-right"></span>
                         编辑
             </h5>

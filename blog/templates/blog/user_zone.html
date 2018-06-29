@@ -66,7 +66,7 @@
         <div class="col-md-8" style="padding-left:30px;">
             <div class="row">
                 <div class="col-md-2">
-                        <span class="font-20-size">{{get_user.username}}</span>
+                        <span class="font-20-size">{% get_nickname get_user.id %}</span>
                 </div>
 
             </div>
@@ -156,12 +156,14 @@
                             {% if forloop.last %}
                                 <a href="{% url 'user_zone' follower.followee.id %}"
                                    name="follower_name" class="cut_name" user_id="{{follower.followee.id}}">
-                                    <span class="cut_name">{{follower.followee.username|cut_name}}</span><span class="cut_name_dot">{{follower.followee.username|cut_name_dot}}</span><span class="get_name_tail" hidden>{{follower.followee.username|get_name_tail}}</span>
+                                    {% get_nickname follower.followee.id as nickname %}
+                                    <span class="cut_name">{{nickname|cut_name}}</span><span class="cut_name_dot">{{nickname|cut_name_dot}}</span><span class="get_name_tail" hidden>{{nickname|get_name_tail}}</span>
                                 </a>
                             {% else %}
                                 <a href="{% url 'user_zone' follower.followee.id %}"
                                    class="cut_name" user_id="{{follower.followee.id}}">
-                                    <span class="cut_name">{{follower.followee.username|cut_name}}</span><span class="cut_name_dot">{{follower.followee.username|cut_name_dot}}</span><span class="get_name_tail" hidden>{{follower.followee.username|get_name_tail}}</span>
+                                    {% get_nickname follower.followee.id as nickname %}
+                                    <span class="cut_name">{{nickname|cut_name}}</span><span class="cut_name_dot">{{nickname|cut_name_dot}}</span><span class="get_name_tail" hidden>{{nickname|get_name_tail}}</span>
                                 </a> |
                             {% endif %}
                         {% empty %}
@@ -208,7 +210,7 @@
                             </div>
                         {% endif %}
                         <div class="row text text-center" style="padding-top:19%">
-                            {{visit_history.visitor.username}}
+                            {% get_nickname visit_history.visitor.id %}
                         </div>
                     </a>
                     </div>

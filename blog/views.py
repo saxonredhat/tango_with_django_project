@@ -21,6 +21,8 @@ from easy_thumbnails.files import get_thumbnailer
 from markdown import markdown
 from django.utils import timezone
 from django.db.models import Q
+from django.conf import settings
+import string,random
 import time
 import mytools
 import base64
@@ -29,9 +31,9 @@ import sys
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
-login_required = partial(login_required, login_url='/blog/login')
+login_required = partial(login_required, login_url='/blog/login/')
 permission_required = partial(permission_required, raise_exception=True)
-user_passes_test=partial(user_passes_test, login_url='/blog/login')
+user_passes_test=partial(user_passes_test, login_url='/blog/login/')
 
 
 class Token:
@@ -72,6 +74,128 @@ def testajax(request):
 
 def testdiv(reqeust):
     return  render(reqeust,'blog/testdiv.html')
+
+def make_password(minlength=12,maxlength=18):
+    length=random.randint(minlength,maxlength)
+    letters=string.ascii_letters+string.digits
+    return ''.join([random.choice(letters) for _ in range(length)])
+
+
+def user_forget_password(request):
+    context_dict = {}
+    forget_password_form = ForgetPasswordForm()
+    if request.method == 'POST':
+        forget_password_form = ForgetPasswordForm(request.POST)
+        if forget_password_form.is_valid():
+            username = forget_password_form.cleaned_data['username']
+            get_user = User.objects.get(username=username)
+            email = get_user.email
+            #生成随机密码
+            random_password = make_password()
+            # 重置密码
+            get_user.set_password(random_password)
+            get_user.save()
+            #发送邮件
+            text = "\n".join([u'{0},您重置的密码为:'.format(username),random_password, u'请访问该链接登录:',
+                              '/'.join(['http://codemax.vicp.io:8888', 'blog/login'])])
+            print text
+            send_mail(u'用户重置密码', text, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+            message = '恭喜,密码重置成功!请注意查收邮件'+email
+            context_dict['message']=message
+            return render(request,'blog/user_sendmail_success.html',context_dict)
+    context_dict['forget_password_form'] = forget_password_form
+    return render(request,'blog/user_forget_password.html', context_dict)
+
+
+@login_required
+def user_change_password(request):
+    context_dict = {}
+    change_password_form = ChangePasswordForm(request.user)
+    if request.method == 'POST':
+        change_password_form = ChangePasswordForm(request.user,request.POST)
+        if change_password_form.is_valid():
+            try:
+                my_user=request.user
+                my_user.set_password(change_password_form.cleaned_data['password1'])
+                my_user.save()
+                #注销
+                logout(request)
+                return HttpResponseRedirect(reverse('user_login'))
+            except Exception,e:
+                print Exception,e
+                context_dict['message']="保存新密码错误"
+    context_dict['change_password_form'] = change_password_form
+    return render(request, 'blog/user_change_password.html', context_dict)
+
+
+@login_required
+def user_send_old_email(request):
+    if request.method == 'POST':
+        my_user=User.objects.get(id=request.user.id)
+        old_email=my_user.email
+        token = token_confirm.generate_validate_token(old_email)
+        text = "\n".join([u'{0},您收到这封这封电子邮件是因为您 (也可能是某人冒充您的名义) 申请修改邮箱。'.format(my_user.username),
+                          u'假如这不是您本人所申请, 请不用理会这封电子邮件, 但是如果您持续收到这类的信件骚扰, ',
+                          u'请您尽快联络管理员。', u'要修改新的邮箱地址, 请使用以下链接:',
+                          '/'.join(['http://codemax.vicp.io:8888', 'blog/user_verify_old_email', token])])
+        send_mail(u'申请修改邮箱', text, settings.DEFAULT_FROM_EMAIL, [old_email], fail_silently=False)
+        message = '校验邮件已经发送到你的邮箱:'+old_email
+        return render(request,'blog/user_sendmail_success.html',{'message':message})
+    return render(request,'blog/user_send_old_email.html')
+
+
+@login_required
+def user_verify_old_email(request,token):
+    try:
+        old_email = token_confirm.confirm_validate_token(token)
+    except:
+        old_email = token_confirm.remove_validate_token(token)
+        return render(request, 'message.html', {'message': u'对不起，验证链接已经过期，请重新发送邮件'})
+    try:
+        old_email = User.objects.get(id=request.user.id,email=old_email)
+    except User.DoesNotExist:
+        return render(request, 'message.html', {'message': u"对不起，您所验证邮箱不存在"})
+    new_email_form = NewEmailForm()
+    return render(request, 'blog/user_new_email.html', {'new_email_form':new_email_form})
+    #渲染新的表单
+
+
+@login_required
+def user_send_new_email(request):
+    if request.method == 'POST':
+        new_email_form = NewEmailForm(request.POST)
+        if new_email_form.is_valid():
+            my_user=request.user
+            new_email=new_email_form.cleaned_data['new_email']
+            token = token_confirm.generate_validate_token(new_email)
+            text = "\n".join([u'{0},您收到这封这封电子邮件是因为您 (也可能是某人冒充您的名义) 申请绑定新邮箱。'.format(my_user.username),
+                          u'假如这不是您本人所申请, 请不用理会这封电子邮件, 但是如果您持续收到这类的信件骚扰, ',
+                          u'请您尽快联络管理员。', u'绑定新的邮箱地址, 请使用以下链接:',
+                          '/'.join(['http://codemax.vicp.io:8888', 'blog/user_verify_new_email', token])])
+            send_mail(u'申请修改邮箱', text, settings.DEFAULT_FROM_EMAIL, [new_email], fail_silently=False)
+            message = '校验邮件已经发送到你的新邮箱:'+new_email
+            return render(request,'blog/user_sendmail_success.html',{'message':message})
+        return render(request, 'blog/message.html', {'message': u"对不起，请求的数据异常"})
+    return render(request, 'blog/message.html', {'message': u"对不起，请求的方法不支持"})
+
+
+@login_required
+def user_verify_new_email(request,token):
+    try:
+        new_email = token_confirm.confirm_validate_token(token)
+    except:
+        new_email = token_confirm.remove_validate_token(token)
+        return render(request, 'message.html', {'message': u'对不起，验证链接已经过期，请重新发送邮件'})
+    try:
+        my_user=request.user
+        my_user.email=new_email
+        my_user.save()
+    except:
+        return render(request, 'message.html', {'message': u'对不起，邮箱绑定失败'})
+    message = '恭喜，你的账号已经绑定到新邮箱:' + new_email
+    return render(request, 'blog/user_sendmail_success.html', {'message': message})
+    #渲染新的表单
+
 
 def articles_list(request):
     articles = Article.objects.all().order_by('-pulished_date')
@@ -988,7 +1112,7 @@ def article_update(request,article_id):
         tags=';'.join(tag_list)
         article_dict={'title':title, 'type':type,
                       'content':content, 'category':category.id,
-                      'tags':tags,'custom_category':custom_category}
+                      'tags':tags,'custom_category':custom_category.id}
         form = ArticleForm(current_user,article_dict)
     return render(request, 'blog/article_update.html', {'form': form})
 
@@ -1064,7 +1188,7 @@ def user_register(request):
             token = token_confirm.generate_validate_token(username)
             text = "\n".join([u'{0},欢迎加入我的博客'.format(username), u'请访问该链接，完成用户验证:',
                                  '/'.join(['http://codemax.vicp.io:8888', 'blog/activate', token])])
-            send_mail(u'注册用户验证信息', text, 'sys_blog@163.com', [email], fail_silently=False)
+            send_mail(u'注册用户验证信息', text, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
             message='恭喜,注册成功!请注意查收邮件激活账号.'
             return render(request,'blog/message.html',{'message':message})
     return render(request, 'blog/user_register.html', {'user_register_form': user_register_form})
@@ -1075,7 +1199,7 @@ def user_info(request):
     try:
         user = request.user
     except:
-        return HttpResponse('用户id'+str(user_id)+'不存在')
+        return HttpResponse('用户id不存在')
     if request.method == 'POST':
         try:
             #user_form = UserBaseForm(request.POST)
@@ -1088,17 +1212,19 @@ def user_info(request):
                 #user.save()
                 try:
                     user_info = UserInfo.objects.get(user=user)
+                    user_info.website = user_info_form.cleaned_data.get('website', '')
+                    user_info.user = user
+                    user_info.nickname = user_info_form.cleaned_data.get('nickname', '')
                 except:
                     user_info = user_info_form.save(commit=False)
-                user_info.website=user_info_form.cleaned_data.get('website','')
-                user_info.user = user
-                print request.FILES
-                print 'ok'
+
                 if 'picture' in request.FILES:
                     user_info.picture = request.FILES['picture']
                 user_info.save()
+                messages.success(request, '保存成功')
         except Exception,e:
             print Exception,e
+            messages.error(request, '保存失败')
 
         return HttpResponseRedirect(reverse('user_info'))
     else:
@@ -1109,7 +1235,8 @@ def user_info(request):
             user_info=UserInfo.objects.get(user=user)
             website = user_info.website
             picture = user_info.picture
-            user_info_dict = {'website': website,'picture':picture}
+            nickname = user_info.nickname
+            user_info_dict = {'website': website,'picture':picture,'nickname':nickname}
         except:
             user_info_dict={}
         user_form=UserBaseForm(user_dict)
@@ -1323,7 +1450,7 @@ def user_update(request, user_id):
         except:
             messages.error(request, '访问用户编辑页面异常.')
             return HttpResponseRedirect(reverse('index'))
-    return render(request, 'blog/user_update.html', {'user_form': user_form,'username': user.username})
+    return render(request, 'blog/user_update.html', {'user_form': user_form,'get_user': user})
 
 
 @login_required

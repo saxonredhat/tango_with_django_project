@@ -31,19 +31,19 @@
             {% if article.author == comment_user.user %}
 
                     <span class="text text-primary">
-                        <strong><a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}"><span class="gold-color box-radius-3">作者</span> {{comment_user.user.username}}:</a></strong>
+                        <strong><a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}"><span class="gold-color box-radius-3">作者</span> {% get_nickname comment_user.user.id %}:</a></strong>
                     </span>
 
                 {% if comment_user.user != comment_user.comt.user %}
-                    <a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@{{comment_user.comt.user.username}}</a>
+                    <a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@{% get_nickname comment_user.comt.user.id %}</a>
                 {% endif %}
             {% else %}
-                <a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}">{{comment_user.user.username}}:</a>
+                <a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}">{% get_nickname comment_user.user.id %}:</a>
                 {% if article.author == comment_user.comt.user %}
-            <span class="text text-primary"><strong><a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@<span class="gold-color box-radius-3">作者</span> {{comment_user.comt.user.username}}</a></strong></span>
+            <span class="text text-primary"><strong><a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@<span class="gold-color box-radius-3">作者</span> {% get_nickname comment_user.comt.user.id %}</a></strong></span>
                 {% else %}
                     {% if comment_user.user != comment_user.comt.user %}
-                        <a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@{{comment_user.comt.user.username}}</a>
+                        <a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@{% get_nickname comment_user.comt.user.id %}</a>
                     {% endif %}
                 {% endif %}
             {% endif %}
@@ -84,8 +84,8 @@
                 <textarea class="form-control" name="comment_user_content" rows="6" maxlength="100" minlength="1" required></textarea>
             </div>
             <div class="form-group">
-                <button class="btn btn-success">回复</button>&nbsp;&nbsp;
-                <span class="show_hand" onclick="hidden_form(this)">取消</span>
+                <button class="btn btn-success form-control">回复</button>&nbsp;&nbsp;
+                <button class="btn btn-danger form-control" onclick="hidden_form(this)">取消</button>
             </div>
         </form>
     </div>

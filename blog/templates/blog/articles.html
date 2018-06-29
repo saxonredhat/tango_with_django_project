@@ -20,7 +20,7 @@
             {% else %}
                 <span class="glyphicon glyphicon-user"></span>
             {% endif %}
-            {{article.author}}
+            {% get_nickname article.author.id %}
         </a>
         &nbsp;&nbsp;
         <span class="glyphicon glyphicon-time font-opacity"></span>
