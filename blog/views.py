@@ -45,7 +45,7 @@ class Token:
         serializer = utsr(self.security_key)
         return serializer.dumps(username, self.salt)
 
-    def confirm_validate_token(self, token, expiration=3600):
+    def confirm_validate_token(self, token, expiration=600):
         serializer = utsr(self.security_key)
         return serializer.loads(token, salt=self.salt, max_age=expiration)
 
@@ -90,21 +90,51 @@ def user_forget_password(request):
             username = forget_password_form.cleaned_data['username']
             get_user = User.objects.get(username=username)
             email = get_user.email
+            token = token_confirm.generate_validate_token(username)
             #生成随机密码
-            random_password = make_password()
+            #random_password = make_password()
             # 重置密码
-            get_user.set_password(random_password)
-            get_user.save()
+            #get_user.set_password(random_password)
+            #get_user.save()
             #发送邮件
-            text = "\n".join([u'{0},您重置的密码为:'.format(username),random_password, u'请访问该链接登录:',
-                              '/'.join(['http://codemax.vicp.io:8888', 'blog/login'])])
-            print text
-            send_mail(u'用户重置密码', text, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
-            message = '恭喜,密码重置成功!请注意查收邮件'+email
+            text = "\n".join([u'{0},请点击该链接重置密码:'.format(username),
+                              '/'.join(['http://codemax.vicp.io:8888', 'blog/user_reset_password',token])])
+            send_mail(u'重置用户密码', text, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+            message = '重置密码链接已发送到您的邮箱:'+email+',请注意查收邮件!'
             context_dict['message']=message
-            return render(request,'blog/user_sendmail_success.html',context_dict)
+            return render(request,'blog/user_sendmail_success.html', context_dict)
     context_dict['forget_password_form'] = forget_password_form
     return render(request,'blog/user_forget_password.html', context_dict)
+
+
+def user_reset_password(request,token):
+    context_dict={}
+    try:
+        username = token_confirm.confirm_validate_token(token)
+    except:
+        username = token_confirm.remove_validate_token(token)
+        return render(request, 'blog/message.html', {'message': u'对不起，验证链接已经过期，请重新发送邮件'})
+    try:
+        my_user = User.objects.get(username=username)
+    except User.DoesNotExist:
+        return render(request, 'blog/message.html', {'message': u"对不起，您所验证邮箱不存在"})
+    if request.method == 'POST':
+        reset_password_form = ResetPasswordForm(request.POST)
+        if reset_password_form.is_valid():
+            password1=reset_password_form.cleaned_data['password1']
+            my_user.set_password(password1)
+            my_user.save()
+            return HttpResponseRedirect(reverse('user_login'))
+        else:
+            token_two = token_confirm.generate_validate_token(username)
+            context_dict['token'] = token_two
+    else:
+
+        token_two = token_confirm.generate_validate_token(username)
+        reset_password_form = ResetPasswordForm()
+        context_dict['token']=token_two
+        context_dict['reset_password_form']=reset_password_form
+    return render(request, 'blog/user_reset_passsword.html', context_dict)
 
 
 @login_required
@@ -807,7 +837,8 @@ def user_search(request):
         articles_list = []
         categories = []
         tags = []
-        query_list = User.objects.filter(username__contains=q,is_active=1)
+        user_info_list = [user_info.user.id for user_info in UserInfo.objects.filter(nickname__contains=q)]
+        query_list = User.objects.filter(Q(username__contains=q,is_active=1)|Q(id__in=user_info_list,is_active=1))
         if query_list:
             users_list_limit = query_list[:8]
         search_category = request.GET.get('search_category', '')
@@ -841,7 +872,10 @@ def user_search(request):
         context_dict['tags'] = tags
     if page_type == 'user':
         users_list = []
-        query_list = User.objects.filter(username__contains=q,is_active=1)
+        user_info_list = [user_info.user.id for user_info in UserInfo.objects.filter(nickname__contains=q)]
+        query_list = User.objects.filter(Q(username__contains=q,is_active=1)|Q(id__in=user_info_list,is_active=1))
+        #去重
+        query_list=list(set(query_list))
         if query_list:
             users_list = query_list[:]
 

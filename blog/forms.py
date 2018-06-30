@@ -192,6 +192,35 @@ class NewEmailForm(forms.Form):
     new_email = forms.EmailField(label=_("新邮箱"))
 
 
+class ResetPasswordForm(forms.Form):
+    error_messages = {
+        'password_mismatch': _("两次输入的密码不匹配"),
+        'password_length_short': _("密码长度不足8位"),
+    }
+    password1 = forms.CharField(label=_("新密码"),
+                                widget=forms.PasswordInput, error_messages={'required': "新密码不能为空"})
+    password2 = forms.CharField(label=_("再次确认密码"),
+                                widget=forms.PasswordInput, error_messages={'required': "确认密码不能为空"})
+
+    def clean_password1(self):
+        password1 = self.cleaned_data.get("password1")
+        if len(password1) < 8:
+            raise forms.ValidationError(
+                self.error_messages['password_length_short'],
+                code='password_length_short',
+            )
+        return password1
+
+    def clean_password2(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError(
+                self.error_messages['password_mismatch'],
+                code='password_mismatch',
+            )
+        return password2
+
 class UserRegisterForm(forms.ModelForm):
     error_messages = {
         #'password_mismatch': _("两次输入的密码不匹配."),

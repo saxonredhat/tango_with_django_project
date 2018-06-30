@@ -112,7 +112,7 @@
                                 {% csrf_token %}
                                 {{ comment_form.title.errors }}
                                 {% render_field comment_form.content class="form-control" rows="8" required=ture  maxlength="500" minlength="1" %}
-                                <button class="btn btn-primary form-control">评论</button>
+                                <button class="btn btn-primary">评论</button>
                         </div>
                     </form>
                 </div>

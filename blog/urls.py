@@ -56,6 +56,7 @@ urlpatterns = [
     url(r'^user_send_new_email/$', views.user_send_new_email, name='user_send_new_email'),
     url(r'^user_verify_old_email/(?P<token>\w+.[-_\w]*\w+.[-_\w]*\w+)/$', views.user_verify_old_email,name='user_verify_old_email'),
     url(r'^user_verify_new_email/(?P<token>\w+.[-_\w]*\w+.[-_\w]*\w+)/$', views.user_verify_new_email,name='user_verify_new_email'),
+    url(r'^user_reset_password/(?P<token>\w+.[-_\w]*\w+.[-_\w]*\w+)/$', views.user_reset_password,name='user_reset_password'),
     url(r'^group_manage/$', views.group_manage,name='group_manage'),
     url(r'^group_delete/(?P<group_id>\d+)$',views.group_delete,name='group_delete'),
     url(r'^group_update/(?P<group_id>\d+)$',views.group_update,name='group_update'),
