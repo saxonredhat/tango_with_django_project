@@ -1,14 +1,14 @@
 <!--用户对用户的评论进行递归的模板-->
 {% load blog_templatetags %}
-<div class="row user_comment" id="comment_id_{{comment_user.id}}">
+<div class="row user_comment m-l-xs m-r-xs" id="comment_id_{{comment_user.id}}">
     <div class="col-md-11 col-md-offset-1">
         <div style="font-size:16px;">
             {% if comment_user.user.user_info.picture %}
-                <a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}">
+                <a class="show_hand visible-md visible-lg" href="{% url 'blog:user_zone' comment_user.user.id %}">
                     <img class="img-circle" height="30" width="30" src="{{ comment_user.user.user_info.picture.url }}">
                 </a>
             {% else %}
-                <a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}">
+                <a class="show_hand visible-md visible-lg" href="{% url 'blog:user_zone' comment_user.user.id %}">
                     <span class="glyphicon glyphicon-user"></span>
                 </a>
             {% endif %}
@@ -31,19 +31,19 @@
             {% if article.author == comment_user.user %}
 
                     <span class="text text-primary">
-                        <strong><a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}"><span class="gold-color box-radius-3">作者</span> {% get_nickname comment_user.user.id %}:</a></strong>
+                        <strong><a class="show_hand" href="{% url 'blog:user_zone' comment_user.user.id %}"><span class="gold-color box-radius-3">作者</span> {% get_nickname comment_user.user.id %}:</a></strong>
                     </span>
 
                 {% if comment_user.user != comment_user.comt.user %}
-                    <a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@{% get_nickname comment_user.comt.user.id %}</a>
+                    <a class="show_hand" href="{% url 'blog:user_zone' comment_user.comt.user.id %}">@{% get_nickname comment_user.comt.user.id %}</a>
                 {% endif %}
             {% else %}
-                <a class="show_hand" href="{% url 'user_zone' comment_user.user.id %}">{% get_nickname comment_user.user.id %}:</a>
+                <a class="show_hand" href="{% url 'blog:user_zone' comment_user.user.id %}">{% get_nickname comment_user.user.id %}:</a>
                 {% if article.author == comment_user.comt.user %}
-            <span class="text text-primary"><strong><a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@<span class="gold-color box-radius-3">作者</span> {% get_nickname comment_user.comt.user.id %}</a></strong></span>
+            <span class="text text-primary"><strong><a class="show_hand" href="{% url 'blog:user_zone' comment_user.comt.user.id %}">@<span class="gold-color box-radius-3">作者</span> {% get_nickname comment_user.comt.user.id %}</a></strong></span>
                 {% else %}
                     {% if comment_user.user != comment_user.comt.user %}
-                        <a class="show_hand" href="{% url 'user_zone' comment_user.comt.user.id %}">@{% get_nickname comment_user.comt.user.id %}</a>
+                        <a class="show_hand" href="{% url 'blog:user_zone' comment_user.comt.user.id %}">@{% get_nickname comment_user.comt.user.id %}</a>
                     {% endif %}
                 {% endif %}
             {% endif %}
@@ -74,9 +74,9 @@
         <!--提供当前评论的回复框,默认是隐藏的，只有用户点击-->
         <form method="POST" action="
         {% if first_second == 'first' %}
-            {% url 'comment_user_first' comment_user.id article.id %}
+            {% url 'blog:comment_user_first' comment_user.id article.id %}
         {% else %}
-            {% url 'comment_user_first' comment_user.id article.id %}
+            {% url 'blog:comment_user_first' comment_user.id article.id %}
         {% endif %}
         " class="form user_comment_form" name="user_comment_form" style="display:none;">
              {% csrf_token %}

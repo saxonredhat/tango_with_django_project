@@ -5,16 +5,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+    <meta name='viewport' content='width=device-width; initial-scale=1.0;
+         maximum-scale=1.0; user-scalable=0;' />
+        <meta name='apple-mobile-web-app-capable' content='yes' />
     {% block title %}
     <title>Title</title>
     {% endblock %}
     {% block base_css %}
-        <link href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
         <script src="{% static 'js/jquery.min.js' %}"></script>
         <script src="{% static 'js/bootstrap.min.js' %}"></script>
         <!--emojione v2.1.1 使用bootstrap的cdn-->
-        <link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/emojione/2.1.1/assets/sprites/emojione.sprites.css">
-        <script type="text/javascript" src="http://cdn.bootcss.com/emojione/2.1.1/lib/js/emojione.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/emojione/2.1.1/assets/sprites/emojione.sprites.css">
+        <script type="text/javascript" src="https://cdn.bootcss.com/emojione/2.1.1/lib/js/emojione.min.js"></script>
 
         <!--emojionearea-->
         <link rel="stylesheet" type="text/css" href="{% static 'css/emojionearea.min.css' %}">
@@ -28,6 +33,9 @@
         <link rel="stylesheet" href="{% static 'css/glyphicons_extras.css' %}">
 
         <style>
+            span{
+                line-height:1.4;
+            }
             pre {
                 border-radius:10px;
             }
@@ -75,6 +83,7 @@
             .bg-blue:hover{
                 background-color:#d9edff;
             }
+
             .font-40-size{
                 font-size:40px;
             }
@@ -128,6 +137,13 @@
             .box-radius-2{
                 border-radius:2px;
                 padding:2px;
+            }
+            @media
+            .box-redius-xs{
+                border-radius:2px;
+            }
+            .box-redius-ms{
+                border-radius:2px;
             }
             .box-radius-3{
                 border:1px solid;
@@ -352,11 +368,161 @@
                 top: 0;
             }
 
+
+            #custom css
+            .box-radius-xs { border-radius:4px; }
+            .bg-tag-xs-green{
+                    background-color:#5CB85C;
+                    color:white;
+                    border-radius:2px;
+                    padding-left:4px;
+                    padding-right:4px;
+                    padding-top:2px;
+                    padding-bottom:2px;
+            }
+            .font-xs{
+                font-size:12px;
+            }
+
+            @media (min-width:768px){
+                .box-radius-sm { border-radius:4px; }
+                .bg-tag-sm-green{
+                    background-color:#5CB85C;
+                    color:white;
+                    border-radius:8px;
+                    padding-left:8px;
+                    padding-right:8px;
+                    padding-top:8px;
+                    padding-bottom:8px;
+                }
+                .font-sm{
+                    font-size:18px;
+                }
+            }
+            @media (min-width: 992px){
+                .box-radius-md { border-radius:6px; }
+                #定义tag样式
+                .bg-tag-md-green{
+                    background-color:#5CB85C;
+                    color:white;
+                    border-radius:4px;
+                    padding-left:6px;
+                    padding-right:6px;
+                    padding-top:4px;
+                    padding-bottom:4px;
+                }
+            }
+            @media (min-width: 1200px){
+                .box-radius-lg { border-radius:8px; }
+                #定义tag样式
+                .bg-tag-lg-green{
+                    background-color:#5CB85C;
+                    color:white;
+                    border-radius:4px;
+                    padding-left:6px;
+                    padding-right:6px;
+                    padding-top:4px;
+                    padding-bottom:4px;
+                }
+            }
+
+            /*Margin and Padding helpers*/
+            .p-l-0 { padding-left: 0; }
+            .p-all{
+                padding: .15em;
+            }
+            @media (max-width:767px){
+            /*xs*/
+            .p-xs { padding: .25em; }
+            .p-x-xs { padding: 0 .25em; }
+            .p-y-xs { padding: .25em 0 ; }
+            .p-t-xs { padding-top: .25em; }
+            .p-r-xs { padding-right: .25em; }
+            .p-b-xs { padding-bottom: .25em; }
+            .p-l-xs { padding-left: .25em; }
+            .m-xs { margin: .25em; }
+            .m-x-xs { margin: 0 .25em; }
+            .m-y-xs { margin: .25em 0 ; }
+            .m-r-xs { margin-right: .25em; }
+            .m-l-xs { margin-left: .25em; }
+            .m-t-xs { margin-top: .25em; }
+            .m-b-xs { margin-bottom: .25em; }
+            /*sm*/
+            }
+            @media (min-width:768px){
+            /*sm*/
+            .p-sm-small { padding: .3em; }
+            .p-sm { padding: .5em; }
+            .p-x-sm { padding: 0 .5em; }
+            .p-y-sm { padding: .5em 0 ; }
+            .p-t-sm { padding-top: .5em; }
+            .p-r-sm { padding-right: .5em; }
+            .p-b-sm { padding-bottom: .5em; }
+            .p-l-sm { padding-left: .5em; }
+            .m-sm { margin: .5em; }
+            .m-x-sm { margin: 0 .5em; }
+            .m-y-sm { margin: .5em 0 ; }
+            .m-t-sm { margin-top: .5em; }
+            .m-r-sm { margin-right: .5em; }
+            .m-b-sm { margin-bottom: .5em; }
+            .m-l-sm { margin-left: .5em; }
+            }
+
+            /*md*/
+            @media (min-width: 992px){
+            .p-md { padding: 1em; }
+            .p-x-md { padding: 0 1em; }
+            .p-y-md { padding: 1em 0; }
+            .p-t-md { padding-top: 1em; }
+            .p-r-md { padding-right: 1em; }
+            .p-b-md { padding-bottom: 1em; }
+            .p-l-md { padding-left: 1em; }
+            .m-md { margin: 1em; }
+            .m-x-md { margin: 0 1em; }
+            .m-y-md { margin: 1em 0 ; }
+            .m-t-md { margin-top: 1em; }
+            .m-r-md { margin-right: 1em; }
+            .m-b-md { margin-bottom: 1em; }
+            .m-l-md { margin-left: 1em; }
+            }
+
+            /*lg*/
+            @media (min-width: 1200px){
+            .p-lg { padding: 1.5em; }
+            .p-x-lg { padding: 0 1.5em; }
+            .p-y-lg { padding: 1.5em 0; }
+            .p-t-lg { padding-top: 1.5em; }
+            .p-r-lg { padding-right: 1.5em; }
+            .p-b-lg { padding-bottom: 1.5em; }
+            .p-l-lg { padding-left: 1.5em; }
+            .m-lg { margin: 1.5em; }
+            .m-x-lg { margin: 0 1.5em; }
+            .m-y-lg { margin: 1.5em 0; }
+            .m-t-lg { margin-top: 1.5em; }
+            .m-r-lg { margin-right: 1.5em; }
+            .m-b-lg { margin-bottom: 1.5em; }
+            .m-l-lg { margin-left: 1.5em; }
+            }
+            /*xl*/
+            .p-xl { padding: 3em; }
+            .p-x-xl { padding: 0 3em; }
+            .p-y-xl { padding: 3em 0 ; }
+            .p-t-xl { padding-top: 3em; }
+            .p-r-xl { padding-right: 3em; }
+            .p-b-xl { padding-bottom: 3em; }
+            .p-l-xl { padding-left: 3em; }
+            .m-xl { margin: 3em; }
+            .m-x-xl { margin: 0 3em; }
+            .m-y-xl { margin: 3em 0; }
+            .m-t-xl { margin-top: 3em; }
+            .m-r-xl { margin-right: 3em; }
+            .m-b-xl { margin-bottom: 3em; }
+            .m-l-xl { margin-left: 3em; }
         </style>
     {% endblock %}
     {% block script %}
         <script src="https://highlightjs.org/static/highlight.pack.js"></script>
-        <script src="http://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.3.0/highlightjs-line-numbers.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlightjs-line-numbers.js/2.3.0/highlightjs-line-numbers.min.js"></script>
         <!--<script>hljs.initHighlightingOnLoad();</script>-->
         <!--<script>hljs.initLineNumbersOnLoad();</script>-->
         <script>
@@ -388,7 +554,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
               </button>
-              <a class="navbar-brand" href="{% url 'index' %}">
+              <a class="navbar-brand" href="{% url 'blog:index' %}">
               <span class="glyphicon glyphicon-home"></span> 主页
               </a>
             </div>
@@ -396,11 +562,11 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
               <ul class="nav navbar-nav">
-                <li><a href="{% url 'articles_list' %}">
+                <li><a href="{% url 'blog:articles_list' %}">
                     <span class="glyphicon glyphicon-list-alt"></span> <span>文章</span></a></li>
 
                   <li>
-                  <form class="navbar-form" action="{% url 'user_search' %}" method="get">
+                  <form class="navbar-form" action="{% url 'blog:user_search' %}" method="get">
                     <div class="form-group">
                         <div class="input-group">
                             <input type="text" class="form-control" id="q" name="q" placeholder="搜索用户、文章" />
@@ -415,22 +581,22 @@
 
               <ul class="nav navbar-nav navbar-right">
                 {% if not user.is_authenticated %}
-                  <li><a href="{% url 'user_login' %}">
+                  <li><a href="{% url 'blog:user_login' %}">
                       <span class="glyphicon glyphicon-log-in"></span>
                       登录</a></li>
-                  <li><a href="{% url 'user_register' %}">
+                  <li><a href="{% url 'blog:user_register' %}">
                       <span class="glyphicon glyphicon-envelope"></span>
                       注册</a></li>
                 {% else %}
-                  <li class="text text-left"><a href="{% url 'user_info' %}">
+                  <li class="text text-left"><a href="{% url 'blog:user_info' %}">
                       欢迎,<span class="gold-color">{% get_nickname user.id %}</span>!</a>
                   </li>
 
 
-                  <li><a href="{% url 'user_zone' user.id %}">
+                  <li><a href="{% url 'blog:user_zone' user.id %}">
                       <span class="glyphicon glyphicon-leaf"></span> 我的博客
                       </a></li>
-                  <li><a href="{% url 'user_notifications' %}">
+                  <li><a href="{% url 'blog:user_notifications' %}">
                     <span class="glyphicon glyphicon-bell"></span> 消息
                     <span class="badge">{% get_user_messages_count user %}</span></a></li>
 
@@ -440,16 +606,16 @@
 
                         <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'article_custom_categories_list' %}">
+                            <li><a href="{% url 'blog:article_custom_categories_list' %}">
                                 <span class="glyphicons glyphicons-list-alt">文章分类</span>
                                 </a></li>
-                            <li><a href="{% url 'article_add' %}">
+                            <li><a href="{% url 'blog:article_add' %}">
                                 <span class="glyphicons glyphicons-pen">写文章</span>
                                 </a></li>
-                            <li><a href="{% url 'article_update_list' %}">
+                            <li><a href="{% url 'blog:article_update_list' %}">
                                 <span class="glyphicons glyphicons-edit">编辑文章</span>
                                 </a></li>
-                            <li><a href="{% url 'article_delete_list' %}">
+                            <li><a href="{% url 'blog:article_delete_list' %}">
                                 <span class="glyphicons glyphicons-bin">删除文章</span>
                                 </a></li>
                         </ul>
@@ -460,13 +626,13 @@
 
                         <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'user_change_password' %}">
+                            <li><a href="{% url 'blog:user_change_password' %}">
                                 <span class="glyphicons glyphicons-keys">修改密码</span>
                                 </a></li>
-                            <li><a href="{% url 'user_send_old_email' %}">
+                            <li><a href="{% url 'blog:user_send_old_email' %}">
                                 <span class="glyphicons glyphicons-envelope">修改邮箱</span>
                                 </a></li>
-                            <li><a href="{% url 'user_info' %}">
+                            <li><a href="{% url 'blog:user_info' %}">
                                 <span class="glyphicons glyphicons-vcard">修改资料</span>
                                 </a></li>
                         </ul>
@@ -478,19 +644,19 @@
 
                         <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="{% url 'user_manage' %}">
+                            <li><a href="{% url 'blog:user_manage' %}">
                                 <span class="glyphicons glyphicons-user"></span>
                                 用户管理</a></li>
-                            <li><a href="{% url 'group_manage' %}">
+                            <li><a href="{% url 'blog:group_manage' %}">
                                 <span class="glyphicons glyphicons-group"></span>
                                 角色管理</a></li>
-                            <li><a href="{% url 'perm_manage' %}">
+                            <li><a href="{% url 'blog:perm_manage' %}">
                                 <span class="glyphicons glyphicons-lock"></span>
                                 权限管理</a></li>
                         </ul>
                       </li>
                   {% endif %}
-                  <li><a href="{% url 'user_logout' %}">
+                  <li><a href="{% url 'blog:user_logout' %}">
                   <span class="glyphicon glyphicon-log-out"></span> 退出
 
                   </a></li>
@@ -531,13 +697,9 @@
     <br>
 
 
-            <footer class="footer">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-12 text text-center">
-                            <span class="hover-font">Copyright © 2005-2018 SYS_BLOG.COM 版权所有 粤ICP证xxxxxx号</span>
-                        </div>
-                    </div>
+            <footer class="footer visible-md visible-lg">
+                <div class="col-md-12 text text-center">
+                    <span class="hover-font">Copyright © 2005-2018 SYS_BLOG.COM 版权所有 粤ICP证xxxxxx号</span>
                 </div>
             </footer>
 

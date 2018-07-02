@@ -66,10 +66,10 @@
                     </td>
 
                     <td>
-                        <a href="{% url 'remove_user_from_group' user.id group.id %}">
+                        <a href="{% url 'blog:remove_user_from_group' user.id group.id %}">
                         <button class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 移除</button>
                         </a>
-                        <a href="{% url 'add_user_to_group' user.id group.id %}">
+                        <a href="{% url 'blog:add_user_to_group' user.id group.id %}">
                         <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> 添加</button>
                         </a>
                     </td>

@@ -10,8 +10,17 @@
 
 <br>
 <!--显示分页-->
-{% with articles as paginator %}
-    {% if paginator.paginator.num_pages > 1 %}
-        {% include 'blog/paginator.html' %}
-    {% endif %}
-{% endwith %}
+<div class="col-xs-offset-1 visible-xs">
+    {% with articles as paginator %}
+        {% if paginator.paginator.num_pages > 1 %}
+            {% include 'blog/paginator.html' %}
+        {% endif %}
+    {% endwith %}
+</div>
+<div class="visible-lg visible-md">
+    {% with articles as paginator %}
+        {% if paginator.paginator.num_pages > 1 %}
+            {% include 'blog/paginator.html' %}
+        {% endif %}
+    {% endwith %}
+</div>

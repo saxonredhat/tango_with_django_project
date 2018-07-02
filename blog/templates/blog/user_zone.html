@@ -6,7 +6,7 @@
 {% load thumbnail %}
 {% block script %}
     {{ block.super }}
-    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
     <script src="{% static 'js/bootstrap-markdown.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="{% static 'js/jquery.Jcrop.min.js' %}"></script>
@@ -24,15 +24,15 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-md-2">
-            <div class="row text text-right" style="padding-right:10%;">
+        <div class="col-md-1 col-md-offset-1 col-sm-12">
+            <div class="row text text-center">
                <img class="img-circle" style="border:1px solid;" height="97" width="97" src="
                {% if get_user.user_info.picture %}
 
                {{get_user.user_info.picture.url}}
                {% endif %}">
             </div>
-            <div class="row text text-right" style="padding-right:14%;padding-top:2%;">
+            <div class="row text text-center">
                 {% is_follow get_user request.user as follow %}
                 {% if get_user != request.user %}
 
@@ -55,7 +55,7 @@
                         </button>
                     {% endif %}
                     <div style="margin-top:10px;">
-                        <a href="{% url 'user_notifications' %}?page_type=message&content_type=user&user_id={{get_user.id}}">
+                        <a href="{% url 'blog:user_notifications' %}?page_type=message&content_type=user&user_id={{get_user.id}}">
                             <span class="box-radius-5-green"><span class="glyphicons glyphicons-conversation">私信</span> </span>
                         </a>
                     </div>
@@ -63,24 +63,23 @@
 
             </div>
         </div>
-        <div class="col-md-8" style="padding-left:30px;">
+        <div class="col-md-5 col-sm-12 text text-center">
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-md-4">
                         <span class="font-20-size">{% get_nickname get_user.id %}</span>
                 </div>
 
             </div>
-            <div class="row" style="">
-                <div class="col-md-2">
+            <div class="row text text-center">
+                <div class="col-md-2 col-sm-12">
                     <div class="row">
                         <span class="glyphicons glyphicons-article">文章</span>
                     </div>
-                    <div class="row ">
-
+                    <div class="row">
                         <span>{{get_user.article_set.count}}</span>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-sm-12">
                     <div class="row">
                         <span class="glyphicons glyphicons-comments">评论</span>
                     </div>
@@ -88,7 +87,7 @@
                         <span>{% user_get_comment_count get_user %}</span>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-2 col-sm-12">
                     <div class="row">
                         <span class="glyphicons glyphicons-thumbs-up">点赞</span>
                     </div>
@@ -99,14 +98,14 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-1 col-md-offset-2">
+    <div class="row text text-center">
+        <div class="col-md-1 col-md-offset-2 col-sm-12">
             <span class="text text-success"><em>原创 {% user_article_count get_user 1 %}</em></span>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-1 col-sm-12">
             <span class="text text-warning"><em>翻译 {% user_article_count get_user 2 %}</em></span>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-1 col-sm-12">
             <span class="text text-danger"><em>转载 {% user_article_count get_user 3 %}</em></span>
         </div>
     </div>
@@ -116,8 +115,8 @@
 <div class="container">
 
     <div class="row">
-        <div class="col-md-6 col-md-offset-1">
-            <div class="row">
+        <div class="col-md-6 col-md-offset-1 col-sm-12">
+            <div class="row text text-center">
                 <div class="col-md-2 show_hand hover-font"  name="show_articles" user_id="{{get_user.id}}">文章</div>
                 <div class="col-md-1"></div>
                 <div class="col-md-2 show_hand hover-font" name="show_followees" user_id="{{get_user.id}}">关注</div>
@@ -154,13 +153,13 @@
                        关注 :
                         {% for follower in get_user.followers.all %}
                             {% if forloop.last %}
-                                <a href="{% url 'user_zone' follower.followee.id %}"
+                                <a href="{% url 'blog:user_zone' follower.followee.id %}"
                                    name="follower_name" class="cut_name" user_id="{{follower.followee.id}}">
                                     {% get_nickname follower.followee.id as nickname %}
                                     <span class="cut_name">{{nickname|cut_name}}</span><span class="cut_name_dot">{{nickname|cut_name_dot}}</span><span class="get_name_tail" hidden>{{nickname|get_name_tail}}</span>
                                 </a>
                             {% else %}
-                                <a href="{% url 'user_zone' follower.followee.id %}"
+                                <a href="{% url 'blog:user_zone' follower.followee.id %}"
                                    class="cut_name" user_id="{{follower.followee.id}}">
                                     {% get_nickname follower.followee.id as nickname %}
                                     <span class="cut_name">{{nickname|cut_name}}</span><span class="cut_name_dot">{{nickname|cut_name_dot}}</span><span class="get_name_tail" hidden>{{nickname|get_name_tail}}</span>
@@ -180,11 +179,11 @@
             </div>
             <div class="row" style="border-left: 3px solid #4285f4;padding-left:5px;margin-top:25px;margin-bottom:8px;"> 热门文章</div>
             <div class="row" style="border: 1px solid #eeeeee;border-radius:10px;">
-                <div style="border: 0px solid #8c8b8b;">
-                    <div class="col-md-12">
+                <div>
+                    <div class="col-md-12 col-sm-4">
                         {% for article in articles_hot|slice:":8" %}
                                <div class="row" style="padding-left:10px;padding-top:10px;padding-bottom:5px;">
-                                   <a class="show hand" href="{% url 'article_detail' article.id %}">
+                                   <a class="show hand" href="{% url 'blog:article_detail' article.id %}">
                                        <span class="glyphicons glyphicons-article">{{ article.title}}</span>
                                        </a>
                                </div>
@@ -198,7 +197,7 @@
             <div class="row" style="border: 1px solid #eeeeee;border-radius:10px;">
                 {% for visit_history in get_user.interviewee.all|slice:":12" %}
                     <div class="col-md-2 " style="border: 0px solid #8c8b8b;">
-                    <a href="{% url 'user_zone' visit_history.visitor.id %}">
+                    <a href="{% url 'blog:user_zone' visit_history.visitor.id %}">
 
                         {% if visit_history.visitor.user_info.picture %}
                             <div class="row text text-center" style="padding-top:19%">

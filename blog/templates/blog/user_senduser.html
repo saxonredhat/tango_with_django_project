@@ -6,7 +6,7 @@
                 <div class="col-md-1" style="border:0px solid red;">
                     <div class="row" style="border:0px solid yellow;">
                         <div class="col-md-12" style="border:0px solid blue;">
-                            <a href="{% url 'user_zone' my_user.id %}">
+                            <a href="{% url 'blog:user_zone' my_user.id %}">
                             {% if my_user.user_info.picture %}
                                 <div class="row">
                                     <img class="img-circle" height="45" width="45" src="{{ my_user.user_info.picture.url }}">
@@ -25,7 +25,7 @@
 
                     <div class="row" style="border:0px solid;">
                         <div class="col-md-2">
-                            <a href="{% url 'user_zone' my_user.id %}" class="white">
+                            <a href="{% url 'blog:user_zone' my_user.id %}" class="white">
                                 {% get_nickname my_user.id %}
                             </a>
 

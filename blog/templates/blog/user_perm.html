@@ -70,11 +70,11 @@
                     </td>
                     <td>
                         {% ifuserperm myuser myperm.id %}
-                            <a href="{% url 'user_remove_perm' myuser.id myperm.id %}?page={{myperms.number}}">
+                            <a href="{% url 'blog:user_remove_perm' myuser.id myperm.id %}?page={{myperms.number}}">
                                 <button class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 撤销</button>
                             </a>
                         {% else %}
-                            <a href="{% url 'user_add_perm' myuser.id myperm.id %}?page={{myperms.number}}">
+                            <a href="{% url 'blog:user_add_perm' myuser.id myperm.id %}?page={{myperms.number}}">
                                 <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> 授权</button>
                             </a>
                         {% endifuserperm %}

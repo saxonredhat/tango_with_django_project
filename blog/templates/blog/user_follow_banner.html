@@ -5,7 +5,7 @@
             <div class="col-md-1 text text-right" style="border:0px solid red;">
                 <div class="row" style="border:0px solid yellow;">
                     <div class="col-md-12" style="border:0px solid blue;">
-                        <a href="{% url 'user_zone' follow.user.id %}">
+                        <a href="{% url 'blog:user_zone' follow.user.id %}">
                         {% if follow.user.user_info.picture %}
                             <div class="row">
                                 <img class="img-circle" height="40" width="40" src="{{ follow.user.user_info.picture.url }}">
@@ -24,7 +24,7 @@
 
                 <div class="row">
                     <div class="col-md-6">
-                        <a href="{% url 'user_zone' follow.user.id %}" class="{% if follow.is_new %}black{% else %}white{% endif %}">
+                        <a href="{% url 'blog:user_zone' follow.user.id %}" class="{% if follow.is_new %}black{% else %}white{% endif %}">
                             {% get_nickname follow.user.id %}
                         </a>
                         &nbsp;&nbsp;&nbsp;&nbsp;<strong>关注了你</strong>

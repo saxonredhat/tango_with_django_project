@@ -17,7 +17,7 @@
                 {% endfor %}
             {% endif %}
             <div class="col-md-1 col-md-offset-11">
-                <a href="{% url 'group_add' %}">
+                <a href="{% url 'blog:group_add' %}">
                     <button class="btn btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加角色</button>
                 </a>
             </div>
@@ -48,13 +48,13 @@
                         {{mygroup.name}}
                     </td>
                     <td>
-                        <a href="{% url 'group_delete' mygroup.id %}">
+                        <a href="{% url 'blog:group_delete' mygroup.id %}">
                         <button class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> 删除</button>
                         </a>
-                        <a href="{% url 'group_update' mygroup.id %}">
+                        <a href="{% url 'blog:group_update' mygroup.id %}">
                         <button class="btn btn-warning"><span class="glyphicon glyphicon-pencil"></span> 编辑</button>
                         </a>
-                        <a href="{% url 'group_perm' mygroup.id %}">
+                        <a href="{% url 'blog:group_perm' mygroup.id %}">
                         <button class="btn btn-success"><span class="glyphicon glyphicon-lock"></span> 权限</button>
                         </a>
                     </td>

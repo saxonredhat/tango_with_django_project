@@ -5,11 +5,11 @@
     <script src="{% static 'js/blog/comments.js' %}"></script>
 {% endblock %}
 {% block body %}
-<div class="container box-radius-5">
+<div class="container">
     <div class="row">
-        <div class="col-md-1 col-md-offset-2 box-radius-5">
+        <div class="col-md-1 col-md-offset-2">
             <a href="?page_type=article{% if q %}&q={{q}}{% endif %}" class="gray">
-                <div class="row">
+                <div class="row m-r-xs m-l-xs">
                     <div class="margin-bottom-20 box-radius-5">
                         <span class="font-15-size {% if page_type == 'article' %}font-bold{% endif %}">
                             <span class="glyphicons glyphicons-article {% if page_type == 'article' %}bg-gray-55{% else %}bg-gray{% endif %} "></span>
@@ -20,7 +20,7 @@
                 </div>
             </a>
             <a href="?page_type=user{% if q %}&q={{q}}{% endif %}" class="gray">
-                <div class="row">
+                <div class="row m-r-xs m-l-xs">
                     <div class="margin-bottom-20 box-radius-5">
                         <span class="font-15-size {% if page_type == 'user' %}font-bold{% endif %}">
                             <span class="glyphicons glyphicons-user {% if page_type == 'user' %}bg-gray-55{% else %}bg-gray{% endif %}"></span>

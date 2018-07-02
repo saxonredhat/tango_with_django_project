@@ -98,7 +98,7 @@ def user_forget_password(request):
             #get_user.save()
             #发送邮件
             text = "\n".join([u'{0},请点击该链接重置密码:'.format(username),
-                              '/'.join(['http://codemax.vicp.io:8888', 'blog/user_reset_password',token])])
+                              '/'.join([settings.DOMAIN, 'blog/user_reset_password',token])])
             send_mail(u'重置用户密码', text, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
             message = '重置密码链接已发送到您的邮箱:'+email+',请注意查收邮件!'
             context_dict['message']=message
@@ -124,7 +124,7 @@ def user_reset_password(request,token):
             password1=reset_password_form.cleaned_data['password1']
             my_user.set_password(password1)
             my_user.save()
-            return HttpResponseRedirect(reverse('user_login'))
+            return HttpResponseRedirect(reverse('blog:user_login'))
         else:
             token_two = token_confirm.generate_validate_token(username)
             context_dict['token'] = token_two
@@ -150,7 +150,7 @@ def user_change_password(request):
                 my_user.save()
                 #注销
                 logout(request)
-                return HttpResponseRedirect(reverse('user_login'))
+                return HttpResponseRedirect(reverse('blog:user_login'))
             except Exception,e:
                 print Exception,e
                 context_dict['message']="保存新密码错误"
@@ -167,7 +167,7 @@ def user_send_old_email(request):
         text = "\n".join([u'{0},您收到这封这封电子邮件是因为您 (也可能是某人冒充您的名义) 申请修改邮箱。'.format(my_user.username),
                           u'假如这不是您本人所申请, 请不用理会这封电子邮件, 但是如果您持续收到这类的信件骚扰, ',
                           u'请您尽快联络管理员。', u'要修改新的邮箱地址, 请使用以下链接:',
-                          '/'.join(['http://codemax.vicp.io:8888', 'blog/user_verify_old_email', token])])
+                          '/'.join([settings.DOMAIN, 'blog/user_verify_old_email', token])])
         send_mail(u'申请修改邮箱', text, settings.DEFAULT_FROM_EMAIL, [old_email], fail_silently=False)
         message = '校验邮件已经发送到你的邮箱:'+old_email
         return render(request,'blog/user_sendmail_success.html',{'message':message})
@@ -201,7 +201,7 @@ def user_send_new_email(request):
             text = "\n".join([u'{0},您收到这封这封电子邮件是因为您 (也可能是某人冒充您的名义) 申请绑定新邮箱。'.format(my_user.username),
                           u'假如这不是您本人所申请, 请不用理会这封电子邮件, 但是如果您持续收到这类的信件骚扰, ',
                           u'请您尽快联络管理员。', u'绑定新的邮箱地址, 请使用以下链接:',
-                          '/'.join(['http://codemax.vicp.io:8888', 'blog/user_verify_new_email', token])])
+                          '/'.join([settings.DOMAIN, 'blog/user_verify_new_email', token])])
             send_mail(u'申请修改邮箱', text, settings.DEFAULT_FROM_EMAIL, [new_email], fail_silently=False)
             message = '校验邮件已经发送到你的新邮箱:'+new_email
             return render(request,'blog/user_sendmail_success.html',{'message':message})
@@ -264,7 +264,7 @@ def article_detail(request, article_id):
             comment.article = article
             comment.published_date = datetime.now()
             comment.save()
-            return HttpResponseRedirect(reverse('article_detail',
+            return HttpResponseRedirect(reverse('blog:article_detail',
                                                 kwargs={'article_id':article_id}))
     try:
         article = Article.objects.get(id=article_id)
@@ -328,8 +328,8 @@ def comment_user(request,comment_id,user_id):
         published_date=datetime.now()
         c=Comment(comt=comment,user=user,published_date=published_date,content=comment_user)
         c.save()
-        return HttpResponseRedirect(reverse('article_detail',kwargs={'article_id':article_id}))
-    return HttpResponseRedirect(reverse('index'))
+        return HttpResponseRedirect(reverse('blog:article_detail',kwargs={'article_id':article_id}))
+    return HttpResponseRedirect(reverse('blog:index'))
 
 
 #@login_required
@@ -1084,7 +1084,7 @@ def article_add(request):
                     tag=Tag(name=t)
                     tag.save()
                 article.tags.add(tag)
-            return HttpResponseRedirect(reverse('index'))
+            return HttpResponseRedirect(reverse('blog:index'))
     return render(request, 'blog/article_add.html', {'form': form})
 
 
@@ -1107,10 +1107,10 @@ def article_update(request,article_id):
         article = Article.objects.get(id=article_id)
         if article.author != current_user:
             messages.error(request, '无权编辑其他用户的文章.')
-            return HttpResponseRedirect(reverse('article_update_list'))
+            return HttpResponseRedirect(reverse('blog:article_update_list'))
     except:
         messages.error(request, '请求的对象错误.')
-        return HttpResponseRedirect(reverse('article_update_list'))
+        return HttpResponseRedirect(reverse('blog:article_update_list'))
     if request.method == 'POST':
         form = ArticleForm(current_user,request.POST)
         if form.is_valid():
@@ -1135,7 +1135,7 @@ def article_update(request,article_id):
                     tag.save()
                 article.tags.add(tag)
             article.save()
-            return HttpResponseRedirect(reverse('article_update_list'))
+            return HttpResponseRedirect(reverse('blog:article_update_list'))
     else:
         title= article.title
         type = article.type
@@ -1172,11 +1172,11 @@ def article_delete(request, article_id):
             article.save()
         else:
             messages.error(request, '无权删除其他用户的文章.')
-            return HttpResponseRedirect(reverse('article_delete_list'))
+            return HttpResponseRedirect(reverse('blog:article_delete_list'))
         messages.success(request, '文章'+title+'删除成功.')
     except:
         messages.error(request, '文章删除失败.')
-    return HttpResponseRedirect(reverse('article_delete_list'))
+    return HttpResponseRedirect(reverse('blog:article_delete_list'))
 
 
 def user_login(request):
@@ -1187,6 +1187,7 @@ def user_login(request):
         username=request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
+        print user
         if user:
             if user.is_active:
                 login(request, user)
@@ -1200,7 +1201,7 @@ def user_login(request):
 @login_required
 def user_logout(request):
     logout(request)
-    return HttpResponseRedirect(reverse('index'))
+    return HttpResponseRedirect(reverse('blog:index'))
 
 
 def user_register(request):
@@ -1221,7 +1222,7 @@ def user_register(request):
             user_info.save()
             token = token_confirm.generate_validate_token(username)
             text = "\n".join([u'{0},欢迎加入我的博客'.format(username), u'请访问该链接，完成用户验证:',
-                                 '/'.join(['http://codemax.vicp.io:8888', 'blog/activate', token])])
+                                 '/'.join([settings.DOMAIN, 'blog/activate', token])])
             send_mail(u'注册用户验证信息', text, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
             message='恭喜,注册成功!请注意查收邮件激活账号.'
             return render(request,'blog/message.html',{'message':message})
@@ -1260,7 +1261,7 @@ def user_info(request):
             print Exception,e
             messages.error(request, '保存失败')
 
-        return HttpResponseRedirect(reverse('user_info'))
+        return HttpResponseRedirect(reverse('blog:user_info'))
     else:
         username=user.username
         email=user.email
@@ -1441,7 +1442,7 @@ def user_add(request):
         user_form = UserAddForm(request.POST)
         if user_form.is_valid():
             user_form.save(commit=True)
-            return HttpResponseRedirect(reverse('user_manage'))
+            return HttpResponseRedirect(reverse('blog:user_manage'))
     return render(request, 'blog/user_add.html', {'user_form': user_form})
 
 @login_required
@@ -1454,7 +1455,7 @@ def user_active(request,user_id):
         else:
             user.is_active = True
         user.save()
-        return HttpResponseRedirect(reverse('user_manage'))
+        return HttpResponseRedirect(reverse('blog:user_manage'))
     except:
         return HttpResponse('用户id不存在')
 
@@ -1467,7 +1468,7 @@ def user_update(request, user_id):
             user = User.objects.get(id=user_id)
         except:
             messages.error(request, '访问用户编辑页面异常.')
-            return HttpResponseRedirect(reverse('index'))
+            return HttpResponseRedirect(reverse('blog:index'))
         user_form = UserEditForm(request.POST)
         if user_form.is_valid():
             password=user_form.cleaned_data.get("password1")
@@ -1475,7 +1476,7 @@ def user_update(request, user_id):
                 user.set_password(password)
             user.email=user_form.cleaned_data.get("email")
             user.save()
-            return HttpResponseRedirect(reverse('user_manage'))
+            return HttpResponseRedirect(reverse('blog:user_manage'))
     else:
         try:
             user = User.objects.get(id=user_id)
@@ -1483,7 +1484,7 @@ def user_update(request, user_id):
             user_form = UserEditForm(user_info)
         except:
             messages.error(request, '访问用户编辑页面异常.')
-            return HttpResponseRedirect(reverse('index'))
+            return HttpResponseRedirect(reverse('blog:index'))
     return render(request, 'blog/user_update.html', {'user_form': user_form,'get_user': user})
 
 
@@ -1495,7 +1496,7 @@ def user_delete(request,user_id):
         messages.success(request, '用户删除成功.')
     except:
         messages.error(request, '用户删除失败.')
-    return HttpResponseRedirect(reverse('user_manage'))
+    return HttpResponseRedirect(reverse('blog:user_manage'))
 
 
 @login_required
@@ -1513,7 +1514,7 @@ def group_add(request):
         group_form = GroupForm(request.POST)
         if group_form.is_valid():
             group_form.save(commit=True)
-            return HttpResponseRedirect(reverse('group_manage'))
+            return HttpResponseRedirect(reverse('blog:group_manage'))
     return render(request, 'blog/group_add.html', {'group_form': group_form})
 
 
@@ -1525,7 +1526,7 @@ def group_update(request, group_id):
             user = Group.objects.get(id=group_id)
         except:
             messages.error(request, '访问用户编辑页面异常.')
-            return HttpResponseRedirect(reverse('index'))
+            return HttpResponseRedirect(reverse('blog:index'))
         user_form = UserEditForm(request.POST)
         if user_form.is_valid():
             password=user_form.cleaned_data.get("password1")
@@ -1533,7 +1534,7 @@ def group_update(request, group_id):
                 user.set_password(password)
             user.email=user_form.cleaned_data.get("email")
             user.save()
-            return HttpResponseRedirect(reverse('user_manage'))
+            return HttpResponseRedirect(reverse('blog:user_manage'))
     else:
         try:
             group = Group.objects.get(id=group_id)
@@ -1541,7 +1542,7 @@ def group_update(request, group_id):
             users=User.objects.all()
         except:
             messages.error(request, '访问用户编辑页面异常.')
-            return HttpResponseRedirect(reverse('index'))
+            return HttpResponseRedirect(reverse('blog:index'))
     return render(request, 'blog/group_update.html', {'group': group,'users': users,'user_for_group': user_for_group})
 
 
@@ -1553,7 +1554,7 @@ def group_delete(request, group_id):
         messages.success(request, '用户组删除成功.')
     except:
         messages.error(request, '用户组删除失败.')
-    return HttpResponseRedirect(reverse('group_manage'))
+    return HttpResponseRedirect(reverse('blog:group_manage'))
 
 
 @login_required
@@ -1568,7 +1569,7 @@ def remove_user_from_group(request,user_id,group_id):
             messages.success(request, '从用户组移除成功.')
     except:
         messages.error(request, '用户从组移除失败.')
-    return HttpResponseRedirect(reverse('group_update', kwargs={"group_id": group_id}))
+    return HttpResponseRedirect(reverse('blog:group_update', kwargs={"group_id": group_id}))
 
 
 @login_required
@@ -1582,7 +1583,7 @@ def add_user_to_group(request, user_id, group_id):
             messages.success(request, '添加到用户组成功.')
     except:
         messages.error(request, '用户添加到用户组失败.')
-    return HttpResponseRedirect(reverse('group_update', kwargs={"group_id": group_id}))
+    return HttpResponseRedirect(reverse('blog:group_update', kwargs={"group_id": group_id}))
 
 
 @login_required
@@ -1617,7 +1618,7 @@ def perm_add(request):
                 messages.success(request, '添加权限成功.')
             except:
                 messages.error(request, '添加权限失败.')
-            return HttpResponseRedirect(reverse('perm_manage'))
+            return HttpResponseRedirect(reverse('blog:perm_manage'))
     return render(request, 'blog/perm_add.html', {'permission_form': permission_form})
 
 
@@ -1658,7 +1659,7 @@ def user_remove_perm(request, user_id, perm_id):
     perm_code = perm.content_type.app_label + '.' + perm.codename
     remove_perm(perm_code,user)
     page = request.GET.get('page',1)
-    return HttpResponseRedirect(reverse('user_perm',kwargs={'user_id':user_id}) + "?page="+page)
+    return HttpResponseRedirect(reverse('blog:user_perm',kwargs={'user_id':user_id}) + "?page="+page)
 
 
 @login_required
@@ -1669,7 +1670,7 @@ def user_add_perm(request, user_id, perm_id):
     perm_code = perm.content_type.app_label + '.' + perm.codename
     assign_perm(perm_code, user)
     page = request.GET.get('page',1)
-    return HttpResponseRedirect(reverse('user_perm',kwargs={'user_id':user_id}) + "?page="+page)
+    return HttpResponseRedirect(reverse('blog:user_perm',kwargs={'user_id':user_id}) + "?page="+page)
 
 
 @login_required
@@ -1697,7 +1698,7 @@ def group_remove_perm(request, group_id, perm_id):
     perm_code = perm.content_type.app_label + '.' + perm.codename
     remove_perm(perm_code, group)
     page = request.GET.get('page', 1)
-    return HttpResponseRedirect(reverse('group_perm', kwargs={'group_id': group_id}) + "?page="+page)
+    return HttpResponseRedirect(reverse('blog:group_perm', kwargs={'group_id': group_id}) + "?page="+page)
 
 
 @login_required
@@ -1708,7 +1709,7 @@ def group_add_perm(request, group_id, perm_id):
     perm_code = perm.content_type.app_label + '.' + perm.codename
     assign_perm(perm_code, group)
     page = request.GET.get('page', 1)
-    return HttpResponseRedirect(reverse('group_perm', kwargs={'group_id': group_id}) + "?page="+page)
+    return HttpResponseRedirect(reverse('blog:group_perm', kwargs={'group_id': group_id}) + "?page="+page)
 
 
 def http_403(request):

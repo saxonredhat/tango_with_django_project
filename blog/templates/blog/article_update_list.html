@@ -95,7 +95,7 @@
                     </td>
                     <td>
                         {% if user != myuser %}
-                        <a href="{% url 'article_update' article.id %}">
+                        <a href="{% url 'blog:article_update' article.id %}">
                         <button class="btn btn-warning"><span class="glyphicon glyphicon-pencil"></span> 编辑</button>
                         </a>
                         {% endif %}

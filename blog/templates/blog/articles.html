@@ -1,22 +1,23 @@
 {% load blog_templatetags %}
-<div class="row">
+<div class="row m-xs ">
     <div class="col-md-10">
         <div class="row">
-            <div class="col-md-10" style="padding:0px;">
+            <div class="col-md-10" >
                 <h4>
-                    <a href="{% url 'article_detail' article.id %}">
-                        <strong class="text text-{% article_color article.id %}"><span class="box-radius-5-reversed border-1 bg-self-{% article_color article.id %}">{% article_type article.id %}</span>  <span class="article-title">{{article.title}}</span></strong>
+                    <a href="{% url 'blog:article_detail' article.id %}">
+                        <strong class="text text-{% article_color article.id %}"><span class="bg-self-{% article_color article.id %} p-t-xs p-sm-small p-x-xs font-sm font-xs box-radius-sm box-radius-xs">{% article_type article.id %}</span>  <span class="article-title font-sm font-xs">{{article.title}}</span></strong>
                     </a>
                 </h4>
             </div>
         </div>
     </div>
 </div>
-<div class="row" >
-    <div class="col-md-10" style="padding:0px;">
-        <a href="{% url 'user_zone' article.author.id %}">
+<div class="row m-xs font-sm font-xs" >
+    <div class="col-md-10">
+        <a href="{% url 'blog:user_zone' article.author.id %}">
             {% if article.author.user_info.picture %}
-                <img class="img-circle" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
+                <img class="img-circle visible-xs-inline" height="25" width="25" src="{{ article.author.user_info.picture.url }}">
+                <img class="img-circle visible-lg-inline" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
             {% else %}
                 <span class="glyphicon glyphicon-user"></span>
             {% endif %}
@@ -26,28 +27,42 @@
         <span class="glyphicon glyphicon-time font-opacity"></span>
         <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
         &nbsp;&nbsp;
+        <div class="visible-xs-inline visible-sm-inline"><br></div>
         <span class="glyphicons glyphicons-tags"></span>
         {% for tag in article.tags.all %}
             <a href="?tag={{tag}}{% if paginator.page_type %}&page_type={{paginator.page_type}}{% endif %}">
-                <button class="btn btn-success">{{ tag }}</button>
+                <span class="bg-tag-xs-green bg-tag-sm-green">{{ tag }}</span>
             </a>
         {% endfor %}
     </div>
 </div>
-<div class="row" style="margin-top:5px;">
-    <a href="{% url 'article_detail' article.id %}" class="black">
-        <div class="col-md-10 bg-gray-light box-shadow-entry article-abstract" style="border-radius:15px; padding:15px;">{{article.content|truncatechars:600}}
+<div class="row m-xs m-t-md">
+    <div class="col-md-12 col-sm-12">
+    <a href="{% url 'blog:article_detail' article.id %}" class="black">
+        <div class="col-md-10 bg-gray-light box-shadow-entry article-abstract p-lg p-xs m-xs box-radius-sm">{{article.content|truncatechars:600}}
         </div>
     </a>
+    </div>
 </div>
-<div class="row" style="padding:5px;">
-    <div class="col-md-2">
+<div class="row m-xs m-t-md" >
+    <div class="col-md-12 ">
+        <div class="row">
+            <div class="col-md-10 visible-xs-inline" >
+            <div class="visible-xs-inline col-md-6 m-xs p-xs">
+                <span class="font-opacity">阅读 {{article.views}} </span>
+                <span class="font-opacity m-xs">评论 {{article.comment_set.count}} </span>
+                <span class="font-opacity m-xs">收藏 {{article.favorite_set.all.count}} </span>
+            </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-1 visible-lg-inline">
         <small class="font-opacity">阅读 {{article.views}}</small>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-1 visible-lg-inline">
         <small class="font-opacity">评论 {{article.comment_set.count}}</small>
     </div>
-    <div class="col-md-2">
+    <div class="col-md-1 visible-lg-inline">
         <small class="font-opacity">收藏 {{article.favorite_set.all.count}}</small>
     </div>
 </div>

@@ -17,7 +17,7 @@
                 {% endfor %}
             {% endif %}
             <div class="col-md-1 col-md-offset-11">
-                <a href="{% url 'user_add' %}">
+                <a href="{% url 'blog:user_add' %}">
                     <button class="btn btn-success"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span>添加用户</button>
                 </a>
             </div>
@@ -69,7 +69,7 @@
                         {{myuser.email}}
                     </td>
                     <td>
-                        <a href="{% url 'user_active' myuser.id %}">
+                        <a href="{% url 'blog:user_active' myuser.id %}">
                         {% if myuser.is_active %}
                             <span class="glyphicon glyphicon-ok-sign text-success"></span>
                         {% else %}
@@ -87,14 +87,14 @@
 
                     <td>
                         {% if user != myuser %}
-                        <a href="{% url 'user_delete' myuser.id %}">
+                        <a href="{% url 'blog:user_delete' myuser.id %}">
                         <button class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> 删除</button>
                         </a>
                         {% endif %}
-                        <a href="{% url 'user_update' myuser.id %}">
+                        <a href="{% url 'blog:user_update' myuser.id %}">
                         <button class="btn btn-warning"><span class="glyphicon glyphicon-pencil"></span> 编辑</button>
                         </a>
-                        <a href="{% url 'user_perm' myuser.id %}">
+                        <a href="{% url 'blog:user_perm' myuser.id %}">
                         <button class="btn btn-success"><span class="glyphicon glyphicon-lock"></span> 权限</button>
                         </a>
                     </td>

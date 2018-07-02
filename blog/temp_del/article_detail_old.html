@@ -148,7 +148,7 @@
                     </div>
             </div>
             <div class="row">
-                <form action="{% url 'article_add_comment' article.id %}" method="POST" class="article_form" role="form">
+                <form action="{% url 'blog:article_add_comment' article.id %}" method="POST" class="article_form" role="form">
                     <div class="form-group">
                         <div class="col-md-8 col-md-offset-1">
                             {% csrf_token %}
@@ -210,7 +210,7 @@
                                     <small class="show_hand" id="{{ comment.id }}" onclick="delete_article_comment(this)">&nbsp;删除</small>
                                 {% endif %}
                                 <br><br>
-                                <form method="POST" action="{% url 'comment_user_first' comment.id user.id article.id %}" class="form article_comment_form" style="display:none;">
+                                <form method="POST" action="{% url 'blog:comment_user_first' comment.id user.id article.id %}" class="form article_comment_form" style="display:none;">
                                      {% csrf_token %}
                                     <div class="form-group">
                                         <textarea class="form-control" name="comment_user_first_content" rows="6" required></textarea>
@@ -269,7 +269,7 @@
                                                 <small class="show_hand" id="{{ comment_user.id }}" onclick="delete_user_comment(this)">&nbsp;删除</small>
                                             {% endif %}
                                             <br><br>
-                                            <form method="POST" action="{% url 'comment_user_second' comment_user.id user.id article.id %}?article_id={{article.id}}" class="form user_comment_form" style="display:none;">
+                                            <form method="POST" action="{% url 'blog:comment_user_second' comment_user.id user.id article.id %}?article_id={{article.id}}" class="form user_comment_form" style="display:none;">
                                                  {% csrf_token %}
                                                 <div class="form-group">
                                                     <textarea class="form-control" name="comment_user_second_content" rows="6" required></textarea>

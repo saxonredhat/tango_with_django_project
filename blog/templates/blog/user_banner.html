@@ -1,11 +1,11 @@
 {% load blog_templatetags %}
 <div class="row">
     <div class="col-md-10">
-        <div class="row bg-gray-light box-shadow box-shadow-entry" style="border-radius:15px;padding:8px;margin-top:10px;" >
-            <div class="col-md-1 text text-right" style="border:0px solid red;">
-                <div class="row" style="border:0px solid yellow;">
-                    <div class="col-md-12" style="border:0px solid blue;">
-                        <a href="{% url 'user_zone' my_user.id %}">
+        <div class="row bg-gray-light box-shadow box-shadow-entry m-xs p-md" style="" >
+            <div class="col-md-1 text text-right" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{% url 'blog:user_zone' my_user.id %}">
                         {% if my_user.user_info.picture %}
                             <div class="row">
                                 <img class="img-circle" height="40" width="40" src="{{ my_user.user_info.picture.url }}">
@@ -20,11 +20,11 @@
                 </div>
 
             </div>
-            <div class="col-md-8" style="border:0px solid;padding-top:8px;">
+            <div class="col-md-8">
 
                 <div class="row">
                     <div class="col-md-6">
-                        <a href="{% url 'user_zone' my_user.id %}" class="white">
+                        <a href="{% url 'blog:user_zone' my_user.id %}" class="white">
                             {% get_nickname my_user.id %}
                         </a>
                     </div>

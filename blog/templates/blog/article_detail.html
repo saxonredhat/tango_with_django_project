@@ -20,47 +20,51 @@
 {% block body %}
 {% if article %}
 <div class="container">
-    <div class="row">
-        <div class="col-md-12 col-md-offset-1">
+    <div class="row m-xs">
+        <div class="col-md-10 col-md-offset-1">
             <div class="row">
-                <div class="col-md-10" style="padding:0px;">
+                <div class="col-md-10 p-l-0">
                         <h4>
-                            <a href="{% url 'article_detail' article.id %}">
-                                <strong class="text text-{% article_color article.id %}"><span class="box-radius-5-reversed border-1 bg-self-{% article_color article.id %}"> {% article_type article.id %}</span> <span class="article-title">{{article.title}}</span></strong>
+                            <a href="{% url 'blog:article_detail' article.id %}">
+                                <strong class="text text-{% article_color article.id %}"><span class="border-1 bg-self-{% article_color article.id %} p-t-xs p-sm-small p-x-xs font-sm font-xs box-radius-sm box-radius-xs"> {% article_type article.id %}</span> <span class="article-title font-sm font-xs">{{article.title}}</span></strong>
                             </a>
                         </h4>
                 </div>
             </div>
-            <div class="row" >
-                <div class="col-md-10" style="padding:0px;">
+            <div class="row font-sm font-xs">
+                <div class="col-md-10 p-l-0">
                         {% if article.author.user_info.picture %}
-                            <a href="{% url 'user_zone' article.author.id %}"><img class="img-circle " height="35" width="35" src="{{ article.author.user_info.picture.url }}"></a>
+                            <a href="{% url 'blog:user_zone' article.author.id %}">
+                                <img class="img-circle visible-xs-inline" height="25" width="25" src="{{ article.author.user_info.picture.url }}">
+                                <img class="img-circle visible-lg-inline" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
+
+                            </a>
                         {% else %}
-                            <a href="{% url 'user_zone' article.author.id %}"><span class="glyphicon glyphicon-user"></span></a>
+                            <a href="{% url 'blog:user_zone' article.author.id %}"><span class="glyphicon glyphicon-user"></span></a>
                         {% endif %}
-                        <a href="{% url 'user_zone' article.author.id %}">{% get_nickname article.author.id %}</a>
+                        <a href="{% url 'blog:user_zone' article.author.id %}">{% get_nickname article.author.id %}</a>
 
                     &nbsp;&nbsp;
                     <span class="glyphicon glyphicon-time font-opacity"></span>
                     <span class="font-opacity">{{article.pulished_date|date:"Y-m-d H:i:s" }}</span>
                     &nbsp;&nbsp;
-                    <span class="glyphicon glyphicon-tags"></span>&nbsp;&nbsp;
+                    <div class="visible-xs-inline visible-sm-inline"><br></div>
+                    <span class="glyphicons glyphicons-tags"></span>&nbsp;&nbsp;
                     {% for tag in article.tags.all %}
-                        <a href="{% url 'articles_list' %}?tag={{tag}}"><button class="btn btn-success">{{ tag }}</button></a>
+                        <a href="{% url 'blog:articles_list' %}?tag={{tag}}"><span class="bg-tag-xs-green bg-tag-sm-green">{{ tag }}</span></a>
                     {% endfor %}
                 </div>
             </div>
             <br>
-            <div class="row" >
-                <div class="col-md-10 bg-gray-light box-shadow-lg" name="article_markdown_content"
-                     style="border-radius:15px; padding:15px;">{{article.content}}
+            <div class="row font-sm font-xs" >
+                <div class="col-md-10 bg-gray-light box-shadow-lg p-lg p-xs m-xs box-radius-sm" style="border:1px solid;" name="article_markdown_content">{{article.content}}
                 </div>
             </div>
         </div>
     </div>
     <br>
     <!--显示用户点赞区域-->
-    <div class="row">
+    <div class="row font-sm font-xs">
         <div class="col-md-6 col-md-offset-1">
             <span class="like_article" article_id="{{ article.id }}">
                 {% is_like_article article request.user as liked_article %}
@@ -76,38 +80,38 @@
 
             </span>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="row">
-                <div class="col-md-3 col-md-offset-6 text text-right">
+                <div class="col-md-4 col-md-offset-2 text text-right">
                         {% if article.author != request.user %}
                             {% is_favorite_article article request.user as favorited_article %}
                             {% if favorited_article %}
-                                <span class="favorite_or_unfavorite gold-color show_hand font-20-size" article_id="{{article.id}}">
-                                    <span class="glyphicons glyphicons-star">收藏</span>
+                                <span class="favorite_or_unfavorite gold-color show_hand " article_id="{{article.id}}">
+                                    <span class="glyphicons glyphicons-star font-sm font-xs">收藏</span>
                                 </span>
 
                             {% else %}
-                                <span class="favorite_or_unfavorite show_hand font-20-size" article_id="{{article.id}}">
-                                    <span class="glyphicons glyphicons-star-empty">收藏</span>
+                                <span class="favorite_or_unfavorite show_hand " article_id="{{article.id}}">
+                                    <span class="glyphicons glyphicons-star-empty font-sm font-xs">收藏</span>
                                 </span>
                             {% endif %}
                         {% endif %}
                 </div>
-                <div class="col-md-3 text text-right">
+                <div class="col-md-4 text text-right">
                     <span class="like_article" article_id="{{ article.id }}">
-                        <span class="glyphicons glyphicons-share-alt show_hand font-20-size" name="like_hand">分享</span>
-                        <span class="show_hand font-20-size"></span>
+                        <span class="glyphicons glyphicons-share-alt show_hand font-sm font-xs" name="like_hand">分享</span>
+                        <span class="show_hand font-sm font-xs"></span>
                     </span>
                 </div>
             </div>
         </div>
     </div>
     <br>
-    <div class="row">
-        <div class="col-md-10 col-md-offset-1" style="padding:0px;">
+    <div class="row m-xs">
+        <div class="col-md-10 col-md-offset-1 ">
             <div class="row">
-                <div class="col-md-12">
-                    <form action="{% url 'article_add_comment' article.id %}" method="POST" class="article_form " role="form">
+                <div class="col-md-10">
+                    <form action="{% url 'blog:article_add_comment' article.id %}" method="POST" class="article_form row" role="form">
                         <div class="form-group">
                                 {% csrf_token %}
                                 {{ comment_form.title.errors }}
@@ -120,10 +124,10 @@
         </div>
     </div>
     <br>
-    <div class="row">
+    <div class="row m-l-xs m-r-xs">
         <div class="col-md-10 col-md-offset-1" id="comment_all" style="padding:0px;">
             <div class="row" style="font-size:15px;">
-                <div class="col-md-9">
+                <div class="col-md-7">
                 <span id="comment_counts">{{comments.count}}</span>
                     条评论
                 </div>

@@ -95,7 +95,7 @@
                     </td>
                     <td>
                         {% if user != myuser %}
-                        <a href="{% url 'article_delete' article.id %}">
+                        <a href="{% url 'blog:article_delete' article.id %}">
                         <button class="btn btn-danger"><span class="glyphicon glyphicon-trash"></span> 删除</button>
                         </a>
                         {% endif %}

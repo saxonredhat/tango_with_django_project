@@ -5,7 +5,7 @@
             <div class="col-md-10" style="padding:0px;">
                 {% if article.type == 1 %}
                     <h4>
-                        <a href="{% url 'article_detail' article.id %}">
+                        <a href="{% url 'blog:article_detail' article.id %}">
                             <strong class="text text-success">[ 原创 ] {{article.title}}</strong>
                         </a>
                     </h4>
@@ -13,7 +13,7 @@
 
                 {% if article.type == 2 %}
                     <h4>
-                        <a href="{% url 'article_detail' article.id %}">
+                        <a href="{% url 'blog:article_detail' article.id %}">
                             <strong class="text text-warning">[ 翻译 ] {{article.title}}</strong>
                         </a>
                     </h4>
@@ -21,7 +21,7 @@
 
                 {% if article.type == 3 %}
                     <h4>
-                        <a href="{% url 'article_detail' article.id %}">
+                        <a href="{% url 'blog:article_detail' article.id %}">
                             <strong class="text text-danger">[ 转载 ] {{article.title}}</strong>
                         </a>
                     </h4>
@@ -32,7 +32,7 @@
 </div>
 <div class="row" >
     <div class="col-md-10" style="padding:0px;">
-        <a href="{% url 'user_zone' article.author.id %}">
+        <a href="{% url 'blog:user_zone' article.author.id %}">
             {% if article.author.user_info.picture %}
                 <img class="img-circle" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
             {% else %}

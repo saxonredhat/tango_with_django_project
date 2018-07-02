@@ -4,7 +4,7 @@
 {% load blog_templatetags %}
 {% block script %}
     {{ block.super }}
-    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.1.min.js"></script>
     <script src="{% static 'js/bootstrap-markdown.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 {% endblock %}
@@ -20,11 +20,22 @@
                 {% endfor %}
 
                 <!--显示分页-->
-                {% with articles as paginator %}
+                <div class="col-xs-offset-1 visible-xs">
+                    {% with articles as paginator %}
                     {% if paginator.paginator.num_pages > 1 %}
                         {% include "blog/paginator.html" %}
                     {% endif %}
-                {% endwith %}
+                    {% endwith %}
+                </div>
+                <div class="visible-lg visible-md">
+                    {% with articles as paginator %}
+                    {% if paginator.paginator.num_pages > 1 %}
+                        {% include "blog/paginator.html" %}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+
+
             </div>
         </div>
     </div>

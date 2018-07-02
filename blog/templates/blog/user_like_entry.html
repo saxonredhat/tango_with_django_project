@@ -8,19 +8,19 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <a href="{% url 'user_zone' user.id %}" class="{% if favorite_like.is_new %}black{% else %}white{% endif %}">
+                        <a href="{% url 'blog:user_zone' user.id %}" class="{% if favorite_like.is_new %}black{% else %}white{% endif %}">
                             {% get_nickname user.id %}
                         </a>
                         &nbsp;&nbsp;&nbsp;&nbsp;<strong><span class="glyphicon glyphicon-thumbs-up"></span>点赞 </strong>
                             {% if favorite_like.obj.like_article %}
                                 你的文章
-                                <a class="{% if favorite_like.is_new %}red{% else %}yellow{% endif %}" href="{% url 'article_detail' favorite_like.obj.like_article.id %}">
+                                <a class="{% if favorite_like.is_new %}red{% else %}yellow{% endif %}" href="{% url 'blog:article_detail' favorite_like.obj.like_article.id %}">
                                     《{{favorite_like.obj.like_article.title}}》
                                 </a>
                             {% endif %}
                             {% if favorite_like.obj.like_comment %}
                                 你的评论
-                                <a class="{% if favorite_like.is_new %}red{% else %}yellow{% endif %}" href="{% url 'article_detail' favorite_like.obj.like_comment.article.id %}#comment_id_{{favorite_like.obj.like_comment.id}}">
+                                <a class="{% if favorite_like.is_new %}red{% else %}yellow{% endif %}" href="{% url 'blog:article_detail' favorite_like.obj.like_comment.article.id %}#comment_id_{{favorite_like.obj.like_comment.id}}">
                                     “{{favorite_like.obj.like_comment.content}}”
                                 </a>
                             {% endif %}

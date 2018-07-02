@@ -1,12 +1,12 @@
 <!--用户对文章的评论模板-->
 {% load blog_templatetags %}
 <div class="article_comment" id="comment_id_{{comment.id}}">
-    <div class="row">
+    <div class="row m-l-xs m-r-xs">
         <div class="col-md-10">
             <div class="row">
-                <div class="col-md-2" style="width:70px;">
+                <div class="col-md-2 visible-md visible-lg" style="width:70px;">
                     <!--打印评论用户的头像,没有头像则使用默认头像-->
-                    <a href="{% url 'user_zone' comment.user.id %}">
+                    <a href="{% url 'blog:user_zone' comment.user.id %}">
                     {% if comment.user.user_info.picture  %}
                         <img class="img-circle" height="35" width="35" src="{{ comment.user.user_info.picture.url }}">
                     {% else %}
@@ -20,7 +20,7 @@
                             是，则在用户名前面加上[作者]
                             否，则直接打印用户名
                         -->
-                        <a href="{% url 'user_zone' comment.user.id %}">
+                        <a href="{% url 'blog:user_zone' comment.user.id %}">
                         {% if article.author.id == comment.user.id %}
                             <span class="text text-danger" ><strong><span class="gold-color box-radius-3">作者</span></strong></span> {% get_nickname comment.user.id %}
                         {% else %}
@@ -63,7 +63,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-12 comment_user_parent word-wrap">
+        <div class="col-md-10 comment_user_parent word-wrap">
             <p class="article_comment_content" style="font-size:16px;">{{ comment.content}}</p>
             <span class="hover-font">
                 <span class="like_comment" comment_id="{{ comment.id }}">
@@ -93,7 +93,7 @@
             {% endif %}
             <br><br>
             <!--提供当前评论的回复框,默认是隐藏的，只有用户点击-->
-            <form method="POST" action="{% url 'comment_user_first' comment.id article.id %}" name="article_comment_form" class="form article_comment_form" style="display:none;">
+            <form method="POST" action="{% url 'blog:comment_user_first' comment.id article.id %}" name="article_comment_form" class="form article_comment_form" style="display:none;">
                  {% csrf_token %}
                 <div class="form-group">
                     <textarea class="form-control" name="comment_user_content" maxlength="100" minlength="1" rows="6" required></textarea>

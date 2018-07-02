@@ -6,12 +6,12 @@
 
                 <div class="row">
                     <div class="col-md-12">
-                        <a href="{% url 'user_zone' favorite_like.obj.user.id %}" class="{% if favorite_like.is_new %}black{% else %}white{% endif %}">
+                        <a href="{% url 'blog:user_zone' favorite_like.obj.user.id %}" class="{% if favorite_like.is_new %}black{% else %}white{% endif %}">
                             {% get_nickname favorite_like.obj.user.id %}
                         </a>
                         &nbsp;&nbsp;&nbsp;&nbsp;<strong><span class="glyphicon glyphicon-star-empty"></span>收藏</strong>
                                 你的文章
-                        <a class="{% if favorite_like.is_new %}red{% else %}yellow{% endif %}" href="{% url 'article_detail' favorite_like.obj.article.id %}">
+                        <a class="{% if favorite_like.is_new %}red{% else %}yellow{% endif %}" href="{% url 'blog:article_detail' favorite_like.obj.article.id %}">
                         《{{favorite_like.obj.article.title}}》
                         </a>
                     </div>

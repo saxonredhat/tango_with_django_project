@@ -46,7 +46,7 @@
         <small class="show_hand" id="{{ comment_user.id }}" onclick="delete_user_comment(this)">&nbsp;删除</small>
     {% endif %}
     <br><br>
-    <form method="POST" action="{% url 'comment_user' comment_user.id user.id %}?article_id={{article.id}}" class="form" name='user_comment_form' style="display:none;">
+    <form method="POST" action="{% url 'blog:comment_user' comment_user.id user.id %}?article_id={{article.id}}" class="form" name='user_comment_form' style="display:none;">
          {% csrf_token %}
         <div class="form-group">
             <textarea class="form-control" name="comment_user" rows="6" required></textarea>

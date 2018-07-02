@@ -1,8 +1,8 @@
 {% load staticfiles %}
 {% load blog_templatetags %}
 {% load emoji_tags %}
-<link rel="stylesheet" type="text/css" href="http://cdn.bootcss.com/emojione/2.1.1/assets/sprites/emojione.sprites.css">
-<script type="text/javascript" src="http://cdn.bootcss.com/emojione/2.1.1/lib/js/emojione.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.bootcss.com/emojione/2.1.1/assets/sprites/emojione.sprites.css">
+<script type="text/javascript" src="https://cdn.bootcss.com/emojione/2.1.1/lib/js/emojione.min.js"></script>
 
 <!--emojionearea-->
 <link rel="stylesheet" type="text/css" href="{% static 'css/emojionearea.min.css' %}">
@@ -19,7 +19,7 @@
         {% endfor %}
     </div>
 </div>
-<form class="user_send_message" method="post" action="{% url 'user_send_message' talk_user.id %}">
+<form class="user_send_message" method="post" action="{% url 'blog:user_send_message' talk_user.id %}">
     {% csrf_token %}
     <div class="row form-group">
         <div class="right-windows-form">

@@ -67,11 +67,11 @@
                     </td>
                     <td>
                         {% ifgroupperm mygroup myperm.id %}
-                            <a href="{% url 'group_remove_perm' mygroup.id myperm.id %}?page={{myperms.number}}">
+                            <a href="{% url 'blog:group_remove_perm' mygroup.id myperm.id %}?page={{myperms.number}}">
                                 <button class="btn btn-danger"><span class="glyphicon glyphicon-remove"></span> 撤权</button>
                             </a>
                         {% else %}
-                            <a href="{% url 'group_add_perm' mygroup.id myperm.id %}?page={{myperms.number}}">
+                            <a href="{% url 'blog:group_add_perm' mygroup.id myperm.id %}?page={{myperms.number}}">
                                 <button class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> 授权</button>
                             </a>
                         {% endifgroupperm %}
