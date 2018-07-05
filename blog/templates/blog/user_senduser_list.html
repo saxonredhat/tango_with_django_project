@@ -2,9 +2,8 @@
 <!--显示私信列表-->
     {% for messages_user in paginator %}
         {% with messages_user.send_user as my_user %}
-            {% include 'blog/user_senduser.html' %}
+            {% include 'blog/user_senduser_banner.html' %}
         {% endwith %}
-        <br>
     {% empty %}
       没有私信
     {% endfor %}

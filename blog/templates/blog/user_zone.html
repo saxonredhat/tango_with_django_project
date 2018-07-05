@@ -115,18 +115,17 @@
 <div class="container">
 
     <div class="row">
-        <div class="col-md-6 col-md-offset-1 col-sm-12">
-            <div class="row text text-center">
-                <div class="col-md-2 show_hand hover-font"  name="show_articles" user_id="{{get_user.id}}">文章</div>
-                <div class="col-md-1"></div>
-                <div class="col-md-2 show_hand hover-font" name="show_followees" user_id="{{get_user.id}}">关注</div>
-                <div class="col-md-1"></div>
-                <div class="col-md-2 show_hand hover-font" name="show_followers" user_id="{{get_user.id}}">粉丝</div>
-                <div class="col-md-1"></div>
-                <div class="col-md-2 show_hand hover-font" name="show_favorites" user_id="{{get_user.id}}">收藏</div>
+        <div class="col-md-8 col-sm-12" >
+            <div class="row">
+                <div class="col-md-3 show_hand hover-font gold-color" name="show_articles" user_id="{{get_user.id}}"><strong>文章</strong></div>
+                <div class="col-md-3 show_hand hover-font gold-color" name="show_followees" user_id="{{get_user.id}}"><strong>关注</strong></div>
+                <div class="col-md-3 show_hand hover-font gold-color" name="show_followers" user_id="{{get_user.id}}"><strong>粉丝</strong></div>
+                <div class="col-md-3 show_hand hover-font gold-color" name="show_favorites" user_id="{{get_user.id}}"><strong>收藏</strong></div>
 
             </div>
-            <div class="row" name="user_info_show_zone">
+            <br>
+            <div class="row">
+                <div class="col-md-12" name="user_info_show_zone">
                 {% if page_content == 'articles' %}
                     {% include 'blog/user_articles.html' %}
                 {% endif %}
@@ -139,6 +138,7 @@
                 {% if page_content == 'favorites' %}
                     {% include 'blog/user_favorites.html' %}
                 {% endif %}
+                </div>
             </div>
 
         </div>
@@ -171,6 +171,9 @@
                     </div>
                     <div style="padding:10px;">
                        文章 : {{get_user.article_set.all.count}} 篇
+                    </div>
+                    <div style="padding:10px;">
+                        个人网站 : <a href="{{get_user.user_info.website}}">{{get_user.user_info.website}}</a>
                     </div>
                     <div style="padding:10px;">
                         注册时间 : {{get_user.date_joined|date:"Y-m-d"}}
@@ -227,6 +230,16 @@
             });
             $(".article-abstract").each(function(){
                 $(this).html(emojione.toImage($(this).html()));
+            });
+                $("body").on("click", ".custom_category", function(event) {
+                var search_url=$(".search_custom_category").attr("search_url");
+                var search_custom_category_id_list="";
+                $(".search_custom_category .custom_category:checked").each(function(){
+                    search_custom_category_id_list=search_custom_category_id_list+$(this).val()+'_';
+                });
+                search_url=search_url+'&search_custom_category='+search_custom_category_id_list;
+                console.log(search_url);
+                window.location.replace(search_url);
             });
         });
     </script>

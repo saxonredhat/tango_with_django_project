@@ -369,8 +369,6 @@
             }
 
 
-            #custom css
-            .box-radius-xs { border-radius:4px; }
             .bg-tag-xs-green{
                     background-color:#5CB85C;
                     color:white;
@@ -380,9 +378,16 @@
                     padding-top:2px;
                     padding-bottom:2px;
             }
-            .font-xs{
-                font-size:12px;
+            #custom css
+            @media only screen and (max-width: 768px) {
+                .box-radius-xs { border-radius:4px; }
+
+                .font-xs{
+                    font-size:12px;
+                }
+
             }
+
 
             @media (min-width:768px){
                 .box-radius-sm { border-radius:4px; }
@@ -392,11 +397,11 @@
                     border-radius:8px;
                     padding-left:8px;
                     padding-right:8px;
-                    padding-top:8px;
-                    padding-bottom:8px;
+                    padding-top:4px;
+                    padding-bottom:6px;
                 }
                 .font-sm{
-                    font-size:18px;
+                    font-size:14px;
                 }
             }
             @media (min-width: 992px){
@@ -598,7 +603,7 @@
                       </a></li>
                   <li><a href="{% url 'blog:user_notifications' %}">
                     <span class="glyphicon glyphicon-bell"></span> 消息
-                    <span class="badge">{% get_user_messages_count user %}</span></a></li>
+                    <span class="badge" id="notifaction_counts" user_id="{{user.id}}">{% get_user_messages_count user %}</span></a></li>
 
                   <li class="dropdown">
                         <a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -693,6 +698,33 @@
          });
      </script>
      -->
+    <script>
+        $(document).ready(function(){
+            function getMessagesCount(){
+                var user_id=$("#notifaction_counts").attr("user_id");
+                var post_url = '/blog/user_messages_count/'+$("#notifaction_counts").attr("user_id");
+                console.log(post_url);
+                //获取form的method参数值
+                var request_method = "get";
+                //ajax请求
+                $.ajax({
+                    url : post_url,
+                    type: request_method,
+                }).done(function(response){
+                    if(response == 'ERROR'){
+                        window.location.replace('/blog/login/');
+                    }
+                    if( response > 0 ){
+                        $("#notifaction_counts").text(response);
+                    }else{
+                        $("#notifaction_counts").text('');
+                    }
+
+                  });
+            }
+            setInterval(function(){getMessagesCount();}, 3000);
+        });
+    </script>
     {% block footer %}
     <br>
 

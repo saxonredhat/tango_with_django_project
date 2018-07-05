@@ -23,7 +23,15 @@
                             <input type="checkbox" class="category" name="category" value="{{category.id}}">{{category.name}}
                         {% endif %}
                             <!--获取对应类别文章数量-->
-                            ({% article_counts_of_category category.id %})
+                            {% if category.name in article_counts_of_category_list %}
+                                {% for key,value in article_counts_of_category_list.items %}
+                                    {% if key == category.name %}
+                                        ({{value}})
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                (0)
+                            {% endif %}
                         </label>
                     {% endfor %}
                 </div>

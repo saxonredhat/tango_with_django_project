@@ -41,7 +41,10 @@
                         标题
                     </th>
                     <th>
-                        类别
+                        文章类别
+                    </th>
+                    <th>
+                        个人分类
                     </th>
                     <th>
                         标签
@@ -84,6 +87,9 @@
                     </td>
                     <td>
                         {{article.category}}
+                    </td>
+                    <td>
+                        {{article.custom_category}}
                     </td>
                     <td>
                         {% for tag in article.tags.all %}

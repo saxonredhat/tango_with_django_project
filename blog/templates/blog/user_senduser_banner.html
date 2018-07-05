@@ -1,11 +1,11 @@
 {% load blog_templatetags %}
-<div class="row">
+<div class="row m-y-xs m-y-sm m-y-md">
     <div class="col-md-10">
         <a href="?page_type='message'&content_type='user'">
-            <div class="row {% if messages_user.is_new %}bg-red{% else %}bg-green{% endif %} box-shadow-entry show_hand box-shadow user_message_entry" user_id="{{my_user.id}}" style="border-radius:15px;padding:8px;" >
-                <div class="col-md-1" style="border:0px solid red;">
-                    <div class="row" style="border:0px solid yellow;">
-                        <div class="col-md-12" style="border:0px solid blue;">
+            <div class="row {% if messages_user.is_new %}bg-red{% else %}bg-green{% endif %} box-shadow-entry show_hand box-shadow user_message_entry box-radius-sm p-xs p-sm p-md" user_id="{{my_user.id}}" >
+                <div class="col-md-1">
+                    <div class="row">
+                        <div class="col-md-12">
                             <a href="{% url 'blog:user_zone' my_user.id %}">
                             {% if my_user.user_info.picture %}
                                 <div class="row">
@@ -21,38 +21,36 @@
                     </div>
 
                 </div>
-                <div class="col-md-11" style="border:0px solid;">
-
-                    <div class="row" style="border:0px solid;">
-                        <div class="col-md-2">
+                <div class="col-md-11">
+                    <div class="row">
+                        <div class="col-md-6">
                             <a href="{% url 'blog:user_zone' my_user.id %}" class="white">
                                 {% get_nickname my_user.id %}
                             </a>
 
                         </div>
-                        <div class="col-md-6 text text-left">
+                        <div class="col-md-3 text text-left">
                             {% if messages_user.is_new %}
-                            <a class="white" href="?page_type=message&content_type=user&user_id={{my_user.id}}">
-                                <span class="gold-color box-radius-3">New</span> 收到了 {{messages_user.new_messages_count}} 条 <span class="glyphicon glyphicon-send"></span> 私信
-                            </a>
-                            {% else %}
+                                <span class="gold-color box-radius-3">New</span> 收到了 {{messages_user.new_messages_count}} 条
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3 text text-right">
                             <a class="white" href="?page_type=message&content_type=user&user_id={{my_user.id}}">
                                 <span class="glyphicons glyphicons-conversation">私信</span>
                             </a>
-
-                            {% endif %}
-
-                        </div>
-                        <div class="col-md-4 text text-right">
-                            {% last_message my_user request.user as user_message %}
-                            {{user_message.created_at|date:"Y-m-d H:i:s"}}
                         </div>
                     </div>
+                    {% last_message my_user request.user as user_message %}
                     <div class="row" >
-                        <div class="col-md-12" style="padding-top:5px;">
-                            <a class="white" href="?page_type=message&content_type=user&user_id={{my_user.id}}">
+                        <div class="col-md-12">
+                            <a class="yellow" href="?page_type=message&content_type=user&user_id={{my_user.id}}">
                                 {{user_message.content}}
                             </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            {{user_message.created_at|date:"Y-m-d H:i:s"}}
                         </div>
                     </div>
                 </div>

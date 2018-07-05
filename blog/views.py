@@ -180,12 +180,12 @@ def user_verify_old_email(request,token):
         old_email = token_confirm.confirm_validate_token(token)
     except:
         old_email = token_confirm.remove_validate_token(token)
-        return render(request, 'message.html', {'message': u'对不起，验证链接已经过期，请重新发送邮件'})
+        return render(request, 'blog/message.html', {'message': u'对不起，验证链接已经过期，请重新发送邮件'})
     try:
         old_email = User.objects.get(id=request.user.id,email=old_email)
     except User.DoesNotExist:
-        return render(request, 'message.html', {'message': u"对不起，您所验证邮箱不存在"})
-    new_email_form = NewEmailForm()
+        return render(request, 'blog/message.html', {'message': u"对不起，您所验证邮箱不存在"})
+    new_email_form = NewEmailForm(request.user)
     return render(request, 'blog/user_new_email.html', {'new_email_form':new_email_form})
     #渲染新的表单
 
@@ -193,7 +193,7 @@ def user_verify_old_email(request,token):
 @login_required
 def user_send_new_email(request):
     if request.method == 'POST':
-        new_email_form = NewEmailForm(request.POST)
+        new_email_form = NewEmailForm(request.user,request.POST)
         if new_email_form.is_valid():
             my_user=request.user
             new_email=new_email_form.cleaned_data['new_email']
@@ -205,7 +205,8 @@ def user_send_new_email(request):
             send_mail(u'申请修改邮箱', text, settings.DEFAULT_FROM_EMAIL, [new_email], fail_silently=False)
             message = '校验邮件已经发送到你的新邮箱:'+new_email
             return render(request,'blog/user_sendmail_success.html',{'message':message})
-        return render(request, 'blog/message.html', {'message': u"对不起，请求的数据异常"})
+        else:
+            return render(request, 'blog/user_new_email.html', {'new_email_form':new_email_form})
     return render(request, 'blog/message.html', {'message': u"对不起，请求的方法不支持"})
 
 
@@ -215,13 +216,13 @@ def user_verify_new_email(request,token):
         new_email = token_confirm.confirm_validate_token(token)
     except:
         new_email = token_confirm.remove_validate_token(token)
-        return render(request, 'message.html', {'message': u'对不起，验证链接已经过期，请重新发送邮件'})
+        return render(request, 'blog/message.html', {'message': u'对不起，验证链接已经过期，请重新发送邮件'})
     try:
         my_user=request.user
         my_user.email=new_email
         my_user.save()
     except:
-        return render(request, 'message.html', {'message': u'对不起，邮箱绑定失败'})
+        return render(request, 'blog/message.html', {'message': u'对不起，邮箱绑定失败'})
     message = '恭喜，你的账号已经绑定到新邮箱:' + new_email
     return render(request, 'blog/user_sendmail_success.html', {'message': message})
     #渲染新的表单
@@ -576,18 +577,40 @@ def user_followees(request,user_id):
 
 def user_articles(request,user_id):
     try:
-        user = User.objects.get(id=user_id)
-        tag_name = request.GET.get('tag', 'noexist')
-        tag_str = ''
-        if tag_name != 'noexist':
+        get_user = User.objects.get(id=user_id)
+        context_dict = {}
+        context_dict['get_user'] = get_user
+        query_articles = Article.objects.filter(author=get_user)
+        tag_name = request.GET.get('tag', '')
+        # 标签过滤
+        if tag_name:
+            print tag_name
             tag = Tag.objects.filter(name=tag_name)
             if tag:
-                articles = Article.objects.filter(tags__in=tag, author=user).order_by('-pulished_date')
-                tag_str = tag_name
+                articles = query_articles.filter(tags__in=tag).order_by('-pulished_date')
             else:
-                articles = Article.objects.filter(author=user).order_by('-pulished_date')
+                articles = query_articles.order_by('-pulished_date')
         else:
-            articles = Article.objects.filter(author=user).order_by('-pulished_date')
+            articles = query_articles.order_by('-pulished_date')
+
+        # 个人分类过滤
+        search_custom_category = request.GET.get('search_custom_category', '')
+        if search_custom_category:
+            context_dict['search_custom_category'] = search_custom_category
+
+            search_custom_category_list = filter(None, search_custom_category.split('_'))
+            articles = articles.filter(custom_category_id__in=search_custom_category_list)
+            selected_custom_category_list = CustomCategory.objects.filter(id__in=search_custom_category_list)
+            context_dict['selected_custom_category_list'] = selected_custom_category_list
+
+        article_counts_of_custom_category_list = {}
+        custom_categories = CustomCategory.objects.filter(user=get_user)
+        for article in query_articles:
+            category_counts = article_counts_of_custom_category_list.get(article.custom_category.name, 0)
+            if not category_counts:
+                article_counts_of_custom_category_list[article.custom_category.name] = 1
+            else:
+                article_counts_of_custom_category_list[article.custom_category.name] = category_counts + 1
         paginator = Paginator(articles, 6)
         page = request.GET.get('page', 1)
         try:
@@ -596,9 +619,12 @@ def user_articles(request,user_id):
             articles_list = paginator.page(1)
         except EmptyPage:
             articles_list = paginator.page(paginator.num_pages)
-        if tag_str:
-            articles_list.tag = tag_str
-        return render(request,'blog/user_articles.html',{'articles':articles_list,'get_user':user})
+        if tag_name:
+            articles_list.tag = tag_name
+        context_dict['articles'] = articles_list
+        context_dict['custom_categories'] = custom_categories
+        context_dict['article_counts_of_custom_category_list']=article_counts_of_custom_category_list
+        return render(request,'blog/user_articles.html',context_dict)
     except Exception, e:
         print Exception, ":", e
         return HttpResponse('noexist')
@@ -607,17 +633,15 @@ def user_articles(request,user_id):
 def user_favorites(request,user_id):
     try:
         user = User.objects.get(id=user_id)
-        tag_name = request.GET.get('tag', 'noexist')
-        tag_str = ''
+        tag_name = request.GET.get('tag', '')
         favorites=[]
-        if tag_name != 'noexist':
+        if tag_name:
             tag = Tag.objects.filter(name=tag_name)
             if tag:
                 for favorite in Favorite.objects.filter(user=user):
                     print favorite
                     article=Article.objects.filter(tags__in=tag, id=favorite.article.id)
                     favorites.extend(article)
-                tag_str = tag_name
             else:
                 for favorite in Favorite.objects.filter(user=user):
                     article=Article.objects.filter(id=favorite.article.id)
@@ -635,8 +659,8 @@ def user_favorites(request,user_id):
             articles_list = paginator.page(1)
         except EmptyPage:
             articles_list = paginator.page(paginator.num_pages)
-        if tag_str:
-            articles_list.tag = tag_str
+        if tag_name:
+            articles_list.tag = tag_name
         articles_list.page_type = 'favorites'
         return render(request,'blog/user_favorites.html',{'favorites':articles_list,'get_user':user})
     except Exception, e:
@@ -824,52 +848,103 @@ def user_notifications(request,):
     context_dict['page_type'] = page_type
     return render(request, 'blog/user_notifications.html', context_dict)
 
+@login_required
+def user_messages_count(request,user_id):
+    counts = 0
+    try:
+        my_user=User.objects.get(id=user_id)
+        # 获取用户关注数
+        follow_count = sum([1 for f in my_user.followees.all() if f.is_read == 0])
+        # 获取未读的收藏数量
+        favorite_count = Favorite.objects.filter(article__in=my_user.article_set.all(), is_read=0).count()
+        # 获取未读的点赞数量
+        like_count = Like.objects.filter(
+            Q(like_article__in=my_user.article_set.all(), is_read=0) | Q(like_comment__in=my_user.comment_set.all(),
+                                                                      is_read=0)).filter(~Q(user_id=my_user.id)).count()
+        # 获取文章的评论数
+        article_comment_count = Comment.objects.filter(article__in=my_user.article_set.all(), is_read=0).filter(
+            ~Q(user=my_user)).count()
+        # 获取用户评论的回复数
+        comment_replies_counts = Comment.objects.filter(comt__in=my_user.comment_set.all(), is_read=0).filter(
+            ~Q(user=my_user)).count()
+        # 获取私信的数量
+        messages_count = Message.objects.filter(receive_user=my_user, is_read=0).count()
+        counts = follow_count+favorite_count+like_count+article_comment_count+comment_replies_counts+messages_count
+    except Exception,e:
+        return HttpResponse('ERROR')
+    return HttpResponse(counts)
+
 #用户搜索
 def user_search(request):
     context_dict={}
     page_type = request.GET.get('page_type','article')
-    q = request.GET.get('q' , '')
-    page_type_list = ['article' , 'user']
+    q = request.GET.get('q', '')
+    page_type_list = ['article', 'user']
     if page_type not in page_type_list:
         page_type = 'article'
     if page_type == 'article':
+        #初始化变量
         users_list_limit = []
         articles_list = []
         categories = []
         tags = []
-        user_info_list = [user_info.user.id for user_info in UserInfo.objects.filter(nickname__contains=q)]
-        query_list = User.objects.filter(Q(username__contains=q,is_active=1)|Q(id__in=user_info_list,is_active=1))
-        if query_list:
-            users_list_limit = query_list[:8]
+        article_counts_of_category_list = {}
+        # 获取get参数
         search_category = request.GET.get('search_category', '')
+        tag_name = request.GET.get('tag', '')
+        page = request.GET.get('page', 1)
+        #获取查询的用户关键字
+        if q:
+            query_user_info = [user_info.user.id for user_info in UserInfo.objects.filter(nickname__contains=q)]
+            query_users = User.objects.filter(Q(username__contains=q) | Q(id__in=query_user_info)).filter(is_active=1)
+            query_articles = Article.objects.filter(Q(title__contains=q) | Q(content__contains=q))
+        else:
+            query_users = User.objects.all()
+            query_articles = Article.objects.all()
+        #获取前8个用户
+        users_list_limit = query_users[:8]
+        #排序
+        query_articles=query_articles.order_by('-pulished_date')
+        # 标签过滤
+        articles = query_articles
+        if tag_name:
+            tag = Tag.objects.filter(name=tag_name)
+            if tag:
+                articles = articles.filter(tags__in=tag)
+        #搜索过滤
         if search_category:
             search_category_list = filter(None, search_category.split('_'))
-            query_list_2 = Article.objects.filter(Q(title__contains=q) | Q(content__contains=q)).filter(category_id__in=search_category_list)
+            articles = articles.filter(category_id__in=search_category_list)
             selected_category_list=Category.objects.filter(id__in=search_category_list)
             context_dict['selected_category_list']=selected_category_list
-        else:
-            query_list_2 = Article.objects.filter(Q(title__contains=q) | Q(content__contains=q))
-        if query_list_2:
-            articles_list = query_list_2[:]
-        search_category=request.GET.get('search_category','')
-        #categories = list(set([article.category for article in articles_list]))
+
+        #获取各个文章分类的数量
+        for article in query_articles:
+            category_counts=article_counts_of_category_list.get(article.category.name,0)
+            if not category_counts :
+                article_counts_of_category_list[article.category.name]=1
+            else:
+                article_counts_of_category_list[article.category.name]=category_counts+1
+        context_dict['article_counts_of_category_list']=article_counts_of_category_list
+
+        articles_list = articles
+        #获取所有文章分类
         categories = Category.objects.all()
-        for article in articles_list:
-            tags.extend(article.tags.all())
-        tags = list(set(tags))
         paginator = Paginator(articles_list, 3)
-        page = request.GET.get('page', 1)
         try:
             articles_list = paginator.page(page)
         except PageNotAnInteger:
             articles_list = paginator.page(1)
         except EmptyPage:
             articles_list = paginator.page(paginator.num_pages)
+
         articles_list.page_type = 'article'
+        #分页对象添加变量
+        articles_list.search_category=search_category
+        articles_list.tag=tag_name
         context_dict['articles'] = articles_list
         context_dict['users_limit'] = users_list_limit
         context_dict['categories'] = categories
-        context_dict['tags'] = tags
     if page_type == 'user':
         users_list = []
         user_info_list = [user_info.user.id for user_info in UserInfo.objects.filter(nickname__contains=q)]
@@ -1005,7 +1080,7 @@ def user_un_follower(request,user_id):
 def article_custom_categories_list(request):
     context_dict={}
     user=request.user
-    custom_categories=CustomCategory.objects.filter(user=user,).filter(~Q(name='全部'))
+    custom_categories=CustomCategory.objects.filter(user=user,).filter(~Q(default=1))
     context_dict['custom_categories']=custom_categories
     return render(request,'blog/article_custom_categories_list.html',context_dict)
 
@@ -1049,7 +1124,7 @@ def article_custom_categories_delete(request,category_name):
                 # 删除用户的自定义标签
                 custom_category.user.remove(user)
                 #获取匹配的文章，修改外键
-                comment_category=CustomCategory.objects.get(name='全部')
+                comment_category=CustomCategory.objects.get(default=1)
                 for article in Article.objects.filter(author=user,custom_category=custom_category):
                     article.custom_category=comment_category
                     article.save()
@@ -1065,7 +1140,7 @@ def article_custom_categories_delete(request,category_name):
 def article_add(request):
     user=request.user
     # 添加自定义类"全部"
-    comment_category = CustomCategory.objects.get(name='全部')
+    comment_category = CustomCategory.objects.get(default=1)
     if comment_category not in user.customcategory_set.all():
         comment_category.user.add(user)
     form = ArticleForm(user)
@@ -1099,8 +1174,8 @@ def article_update_list(request):
 #@permission_required('blog.update_article')
 def article_update(request,article_id):
     current_user=request.user
-    #添加自定义类"全部"
-    comment_category = CustomCategory.objects.get(name='全部')
+    #添加自定义默认类
+    comment_category = CustomCategory.objects.get(default=1)
     if comment_category not in current_user.customcategory_set.all():
         comment_category.user.add(current_user)
     try:
@@ -1187,7 +1262,6 @@ def user_login(request):
         username=request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
-        print user
         if user:
             if user.is_active:
                 login(request, user)
@@ -1237,14 +1311,9 @@ def user_info(request):
         return HttpResponse('用户id不存在')
     if request.method == 'POST':
         try:
-            #user_form = UserBaseForm(request.POST)
             user_info_form = UserInfoForm(request.POST)
-            #print user_info_form.is_valid(),user_form.is_valid()
             print
             if user_info_form.is_valid():
-                #user.username = user_form.cleaned_data.get('username')
-                #user.email = user_form.cleaned_data.get('email')
-                #user.save()
                 try:
                     user_info = UserInfo.objects.get(user=user)
                     user_info.website = user_info_form.cleaned_data.get('website', '')
@@ -1311,17 +1380,36 @@ def user_zone(request,user_id):
     page_type = request.GET.get('page_type', 'articles')
     #如果page_type为articles，获取文章列表
     if page_type == 'articles':
-        tag_name = request.GET.get('tag', 'noexist')
-        tag_str = ''
-        if tag_name != 'noexist':
+        query_articles=Article.objects.filter(author=get_user)
+        tag_name = request.GET.get('tag', '')
+        #标签过滤
+        if tag_name:
             tag = Tag.objects.filter(name=tag_name)
             if tag:
-                articles = Article.objects.filter(tags__in=tag,author=get_user).order_by('-pulished_date')
-                tag_str = tag_name
+                articles = query_articles.filter(tags__in=tag).order_by('-pulished_date')
             else:
-                articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
+                articles = query_articles.order_by('-pulished_date')
         else:
-            articles = Article.objects.filter(author=get_user).order_by('-pulished_date')
+            articles = query_articles.order_by('-pulished_date')
+
+        #个人分类过滤
+        search_custom_category = request.GET.get('search_custom_category', '')
+        print "search_custom_category_first:" + search_custom_category
+        if search_custom_category:
+            context_dict['search_custom_category']=search_custom_category
+            search_custom_category_list = filter(None, search_custom_category.split('_'))
+            articles = articles.filter(custom_category_id__in=search_custom_category_list)
+            selected_custom_category_list = CustomCategory.objects.filter(id__in=search_custom_category_list)
+            context_dict['selected_custom_category_list'] = selected_custom_category_list
+
+        article_counts_of_custom_category_list = {}
+        custom_categories = CustomCategory.objects.filter(user=get_user)
+        for article in query_articles:
+            category_counts = article_counts_of_custom_category_list.get(article.custom_category.name, 0)
+            if not category_counts:
+                article_counts_of_custom_category_list[article.custom_category.name] = 1
+            else:
+                article_counts_of_custom_category_list[article.custom_category.name] = category_counts + 1
         paginator = Paginator(articles, 6)
         paginator.page_type='articles'
         page = request.GET.get('page', 1)
@@ -1332,8 +1420,12 @@ def user_zone(request,user_id):
         except EmptyPage:
             articles_list = paginator.page(paginator.num_pages)
         articles_list.page_type = 'articles'
-        if tag_str:
-            articles_list.tag = tag_str
+        if search_custom_category:
+            articles_list.search_custom_category=search_custom_category
+        if tag_name:
+            articles_list.tag = tag_name
+        context_dict['custom_categories']=custom_categories
+        context_dict['article_counts_of_custom_category_list']=article_counts_of_custom_category_list
         context_dict['articles'] = articles_list
         context_dict['page_content'] = 'articles'
     # 如果page_type为followers，获取粉丝列表
@@ -1416,11 +1508,11 @@ def active_user(request, token):
         users = User.objects.filter(username=username)
         for user in users:
             user.delete()
-        return render(request, 'message.html', {'message': u'对不起，验证链接已经过期，请重新<a href=\"' + unicode(django_settings.DOMAIN) + u'/signup\">注册</a>'})
+        return render(request, 'blog/message.html', {'message': u'对不起，验证链接已经过期，请重新<a href=\"' + unicode(django_settings.DOMAIN) + u'/signup\">注册</a>'})
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        return render(request, 'message.html', {'message': u"对不起，您所验证的用户不存在，请重新注册"})
+        return render(request, 'blog/message.html', {'message': u"对不起，您所验证的用户不存在，请重新注册"})
     user.is_active = True
     user.save()
     message = u'验证成功，请进行网站 <a href="' + unicode(django_settings.DOMAIN) + u'/blog/login">登录</a>操作'

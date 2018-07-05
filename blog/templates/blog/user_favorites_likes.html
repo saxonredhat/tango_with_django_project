@@ -1,7 +1,7 @@
 {% with favorites_likes as paginator %}
 <!--显示收藏的文章列表-->
     {% for favorite_like in paginator %}
-        {% include "blog/user_favorite_like_entry.html" %}
+        {% include "blog/user_favorite_like_banner.html" %}
     {% empty %}
         没有收藏
     {% endfor %}

@@ -1,23 +1,17 @@
 {% load blog_templatetags %}
-<div class="row m-xs ">
+<div class="row m-xs m-t-md">
     <div class="col-md-10">
-        <div class="row">
-            <div class="col-md-10" >
-                <h4>
                     <a href="{% url 'blog:article_detail' article.id %}">
-                        <strong class="text text-{% article_color article.id %}"><span class="bg-self-{% article_color article.id %} p-t-xs p-sm-small p-x-xs font-sm font-xs box-radius-sm box-radius-xs">{% article_type article.id %}</span>  <span class="article-title font-sm font-xs">{{article.title}}</span></strong>
+                        <strong class="text text-{% article_color article.id %}"><span class="bg-self-{% article_color article.id %} p-t-xs p-sm-small p-x-xs font-sm font-xs box-radius-sm box-radius-xs">{% article_type article.id %}</span>  <span class="article-title font-xs">{{article.title}}</span></strong>
                     </a>
-                </h4>
-            </div>
-        </div>
     </div>
 </div>
-<div class="row m-xs font-sm font-xs" >
+<div class="row m-xs m-t-md font-sm font-xs">
     <div class="col-md-10">
         <a href="{% url 'blog:user_zone' article.author.id %}">
             {% if article.author.user_info.picture %}
                 <img class="img-circle visible-xs-inline" height="25" width="25" src="{{ article.author.user_info.picture.url }}">
-                <img class="img-circle visible-lg-inline" height="35" width="35" src="{{ article.author.user_info.picture.url }}">
+                <img class="img-circle visible-lg-inline" height="30" width="30" src="{{ article.author.user_info.picture.url }}">
             {% else %}
                 <span class="glyphicon glyphicon-user"></span>
             {% endif %}
@@ -31,7 +25,7 @@
         <span class="glyphicons glyphicons-tags"></span>
         {% for tag in article.tags.all %}
             <a href="?tag={{tag}}{% if paginator.page_type %}&page_type={{paginator.page_type}}{% endif %}">
-                <span class="bg-tag-xs-green bg-tag-sm-green">{{ tag }}</span>
+                <span class="bg-tag-xs-green bg-tag-sm-green m-x-xs">{{ tag }}</span>
             </a>
         {% endfor %}
     </div>
@@ -56,13 +50,13 @@
             </div>
         </div>
     </div>
-    <div class="col-md-1 visible-lg-inline">
+    <div class="col-md-2 visible-lg-inline">
         <small class="font-opacity">阅读 {{article.views}}</small>
     </div>
-    <div class="col-md-1 visible-lg-inline">
+    <div class="col-md-2 visible-lg-inline">
         <small class="font-opacity">评论 {{article.comment_set.count}}</small>
     </div>
-    <div class="col-md-1 visible-lg-inline">
+    <div class="col-md-2 visible-lg-inline">
         <small class="font-opacity">收藏 {{article.favorite_set.all.count}}</small>
     </div>
 </div>

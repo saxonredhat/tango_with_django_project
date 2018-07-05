@@ -1,7 +1,7 @@
 {% load blog_templatetags %}
-<div class="row">
+<div class="row m-y-xs m-y-md">
     <div class="col-md-10">
-        <div class="row bg-gray-light box-shadow box-shadow-entry m-xs p-md" style="" >
+        <div class="row bg-gray-light box-shadow box-shadow-entry m-xs p-md box-radius-sm">
             <div class="col-md-1 text text-right" >
                 <div class="row">
                     <div class="col-md-12">
@@ -35,7 +35,7 @@
                     <div class="col-md-4">粉丝 {{my_user.followees.all.count}}</div>
                 </div>
             </div>
-            <div class="col-md-2 text text-right" style="border:0px solid;padding-top:8px;margin-left:48px;">
+            <div class="col-md-3 text text-right">
                 <div class="row">
                     <!--获取当前用户是否关注该用户-->
                     {% is_follow my_user request.user as follow %}

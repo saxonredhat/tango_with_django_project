@@ -14,7 +14,7 @@
             <div class="col-md-1 visible-lg-inline">
                 <a href="{% url 'blog:user_zone' user_message.send_user.id %}">
                 {% if user_message.send_user.user_info.picture  %}
-                    <img class="img-circle" height="45" width="45" src="{{ user_message.send_user.user_info.picture.url }}">
+                    <img class="img-circle" height="32" width="32" src="{{ user_message.send_user.user_info.picture.url }}">
                 {% else %}
                     <span class="glyphicon glyphicon-user" style="font-size:33px"></span>
                 {% endif %}
@@ -28,7 +28,7 @@
             <div class="col-md-1 visible-lg-inline">
                 <a href="{% url 'blog:user_zone' user_message.send_user.id %}">
                 {% if user_message.send_user.user_info.picture  %}
-                    <img class="img-circle" height="45" width="45" src="{{ user_message.send_user.user_info.picture.url }}">
+                    <img class="img-circle" height="32" width="32" src="{{ user_message.send_user.user_info.picture.url }}">
                 {% else %}
                     <span class="glyphicon glyphicon-user" style="font-size:33px"></span>
                 {% endif %}

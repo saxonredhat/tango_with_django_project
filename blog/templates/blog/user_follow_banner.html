@@ -1,10 +1,10 @@
 {% load blog_templatetags %}
-<div class="row">
+<div class="row m-y-xs m-y-sm m-y-md">
     <div class="col-md-10">
-        <div class="row {% if follow.is_new %}bg-info{% else %}bg-gray-light{% endif %} box-shadow box-shadow-entry" style="border-radius:15px;padding:8px;margin-top:10px;" >
-            <div class="col-md-1 text text-right" style="border:0px solid red;">
-                <div class="row" style="border:0px solid yellow;">
-                    <div class="col-md-12" style="border:0px solid blue;">
+        <div class="row {% if follow.is_new %}bg-info{% else %}bg-gray-light{% endif %} box-shadow box-shadow-entry box-radius-sm p-xs p-sm p-md" >
+            <div class="col-md-1 text text-right">
+                <div class="row">
+                    <div class="col-md-12">
                         <a href="{% url 'blog:user_zone' follow.user.id %}">
                         {% if follow.user.user_info.picture %}
                             <div class="row">
@@ -18,12 +18,11 @@
                         </a>
                     </div>
                 </div>
-
             </div>
-            <div class="col-md-8" style="border:0px solid;padding-top:8px;">
+            <div class="col-md-8">
 
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-12">
                         <a href="{% url 'blog:user_zone' follow.user.id %}" class="{% if follow.is_new %}black{% else %}white{% endif %}">
                             {% get_nickname follow.user.id %}
                         </a>
@@ -34,7 +33,7 @@
                     <div class="col-md-8">{% get_follow_time follow.user request.user %}</div>
                 </div>
             </div>
-            <div class="col-md-2 text text-right" style="border:0px solid;padding-top:8px;margin-left:48px;">
+            <div class="col-md-1 text text-right" style="border:0px solid;padding-top:8px;margin-left:48px;">
                 <div class="row">
                     <!--获取当前用户是否关注该用户-->
                     {% is_follow follow.user request.user as followed %}

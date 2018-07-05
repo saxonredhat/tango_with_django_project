@@ -4,7 +4,7 @@
     <div class="col-md-11 col-md-offset-1">
         <div style="font-size:16px;">
             {% if comment_user.user.user_info.picture %}
-                <a class="show_hand visible-md visible-lg" href="{% url 'blog:user_zone' comment_user.user.id %}">
+                <a class="show_hand" href="{% url 'blog:user_zone' comment_user.user.id %}">
                     <img class="img-circle" height="30" width="30" src="{{ comment_user.user.user_info.picture.url }}">
                 </a>
             {% else %}

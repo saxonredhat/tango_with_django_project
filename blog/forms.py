@@ -189,8 +189,24 @@ class ChangePasswordForm(forms.ModelForm):
 
 
 class NewEmailForm(forms.Form):
-    new_email = forms.EmailField(label=_("新邮箱"))
+    error_messages = {
+        'new_email_same_old_email': _("新邮箱和旧邮箱相同,请更换"),
+    }
+    new_email = forms.EmailField(label=_("新邮箱"),required=True,error_messages={'required': "邮箱地址不能为空"})
 
+    def __init__(self, user, *args, **kwargs):
+        self.user = user
+        super(NewEmailForm, self).__init__(*args, **kwargs)
+
+    def clean_new_email(self):
+        new_email=self.cleaned_data.get('new_email','')
+        print new_email,self.user.email
+        if new_email == self.user.email:
+            raise forms.ValidationError(
+                self.error_messages['new_email_same_old_email'],
+                code='new_email_same_old_email',
+            )
+        return new_email
 
 class ResetPasswordForm(forms.Form):
     error_messages = {
@@ -223,19 +239,31 @@ class ResetPasswordForm(forms.Form):
 
 class UserRegisterForm(forms.ModelForm):
     error_messages = {
-        #'password_mismatch': _("两次输入的密码不匹配."),
-        'password_length_short': _("密码长度不足8位."),
+        'user_aleary_exist': _("用户名已经存在"),
+        'password_length_short': _("密码长度不足8位"),
     }
-    username = forms.CharField(label=_("用户名"))
-    password1 = forms.CharField(label=_("密码"),widget=forms.PasswordInput)
-    #password2 = forms.CharField(label=_("再次输入密码"),
-    #                            widget=forms.PasswordInput)
-    captcha = CaptchaField(label='验证码', required=True)
-    email = forms.EmailField(label=_("邮箱"))
+    username = forms.CharField(label=_("用户名"),error_messages={'required':"用户名不能为空",
+                                                                                                                                'unique':"用户名已经存在",
+                                                                                                                                'invalid':'请输入有效的用户名,只能包含字母、数字、@/./+/-/字符',
+                                                                                                                                })
+    password1 = forms.CharField(label=_("密码"),widget=forms.PasswordInput,error_messages={'required':"密码不能为空"})
+    captcha = CaptchaField(label='验证码', required=True,error_messages={'required':"验证码不能为空",'invalid':'验证码不正确'})
+    email = forms.EmailField(label=_("邮箱"),error_messages={'required':"邮箱不能为空"})
 
     class Meta:
         model = User
         fields = ('username', 'password1', 'email')
+
+    def clean_username(self):
+        username = self.cleaned_data.get('username','')
+        if username:
+            get_user=User.objects.filter(username=username)
+            if get_user:
+                raise forms.ValidationError(
+                    self.error_messages['user_aleary_exist'],
+                    code='user_aleary_exist',
+                )
+        return username
 
     def clean_password1(self):
         password1 = self.cleaned_data.get("password1")
@@ -245,24 +273,6 @@ class UserRegisterForm(forms.ModelForm):
                 code='password_length_short',
             )
         return password1
-
-    # def clean_password2(self):
-    #     password1 = self.cleaned_data.get("password1")
-    #     password2 = self.cleaned_data.get("password2")
-    #     if password1 and password2 and password1 != password2:
-    #         raise forms.ValidationError(
-    #             self.error_messages['password_mismatch'],
-    #             code='password_mismatch',
-    #         )
-    #     return password2
-
-    # def save(self, commit=True):
-    #     user = super(UserRegisterForm, self).save(commit=False)
-    #     user.set_password(self.cleaned_data['password1'])
-    #     if commit:
-    #         user.save()
-    #
-    #     return user
 
 
 class UserEditForm(forms.ModelForm):
@@ -342,9 +352,9 @@ class CommentForm(forms.ModelForm):
 class ForgetPasswordForm(forms.Form):
     errors_messages = {
         'username_not_exist': _("您输入的用户名不存在"),
+        'user_email_empty': _("你的账号绑定的邮箱为空，请联系管理员"),
     }
-    username = forms.CharField(label=_("用户名"))
-    error_css_class = "error"
+    username = forms.CharField(label=_("用户名"),required=True,error_messages={'required':'用户名不能为空'})
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
@@ -354,6 +364,11 @@ class ForgetPasswordForm(forms.Form):
                 self.errors_messages['username_not_exist'],
                 code='username_not_exist',
             )
+        else:
+            if not get_user[0].email:
+                raise forms.ValidationError(
+                    self.errors_messages['user_email_empty'],
+                    code='user_email_empty',
+                )
         return username
-
 

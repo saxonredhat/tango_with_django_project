@@ -41,6 +41,7 @@ class Category(models.Model):
 
 class CustomCategory(models.Model):
     name = models.CharField(max_length=50)
+    default = models.IntegerField(default=0)
     user = models.ManyToManyField(User)
 
     class Meta:

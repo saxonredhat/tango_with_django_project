@@ -1,0 +1,38 @@
+{% load blog_templatetags %}
+<div class="row">
+    <div class="col-md-12 box-radius-sm">
+        <div class="row">
+            <div class="col-md-12">
+                <strong>个人分类:</strong>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <div class="search_custom_category" search_url="?page_type=articles{% if q %}&q={{q}}{% endif %}">
+
+                    {% for custom_category in custom_categories %}
+                        <label class="checkbox-inline">
+                        {% if custom_category in selected_custom_category_list %}
+                            <input type="checkbox" class="custom_category" name="custom_category" value="{{custom_category.id}}" checked="checked">{{custom_category.name}}
+                        {% else %}
+                            <input type="checkbox" class="custom_category" name="custom_category" value="{{custom_category.id}}">{{custom_category.name}}
+                        {% endif %}
+                            <!--获取对应类别文章数量-->
+                            {% if custom_category.name in article_counts_of_custom_category_list %}
+                                {% for key,value in article_counts_of_custom_category_list.items %}
+                                    {% if key == custom_category.name %}
+                                        ({{value}})
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                (0)
+                            {% endif %}
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

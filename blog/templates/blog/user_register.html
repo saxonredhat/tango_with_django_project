@@ -15,7 +15,9 @@
                             <div class="col-md-12">
                                  <label for="{{ user_register_form.username.id_for_label }}"><span class="glyphicons glyphicons-user">用户名</span></label>
                                 {% render_field user_register_form.username class="form-control" placeholder="请输入用户名" %}
-                                {{ user_register_form.content.errors }}
+                                {% for error in user_register_form.username.errors %}
+                                <div class="red"><strong>{{error}}</strong></div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -24,7 +26,9 @@
                             <div class="col-md-12">
                                 <label for="{{ user_register_form.password1.id_for_label }}"><span class="glyphicons glyphicons-keys">密码</span></label>
                                 {% render_field user_register_form.password1 class="form-control" placeholder="密码" %}
-                                {{ user_register_form.password1.errors }}
+                                {% for error in user_register_form.password1.errors %}
+                                <div class="red"><strong>{{error}}</strong></div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -33,7 +37,9 @@
                             <div class="col-md-12">
                                  <label for="{{ user_register_form.email.id_for_label }}"><span class="glyphicons glyphicons-envelope">邮箱</span></label>
                                 {% render_field user_register_form.email class="form-control" placeholder="邮箱" %}
-                                {{ user_register_form.email.errors }}
+                                {% for error in user_register_form.email.errors %}
+                                <div class="red"><strong>{{error}}</strong></div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -42,14 +48,18 @@
                             <div class="col-md-12">
                                     <label for="{{ user_register_form.captcha.id_for_label }}"><span class="glyphicons glyphicons-robot">验证码</span></label>
                                     {% render_field user_register_form.captcha class="form-control"  %}
-                                    {{ user_register_form.captcha.errors }}
+                                    {% for error in user_register_form.captcha.errors %}
+                                    <div class="red"><strong>{{error}}</strong></div>
+                                    {% endfor %}
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                      {{ login_form.captcha.errors }}
                       {{ login_form.captcha.label_tag }}
                       {{ login_form.captcha }}
+                        {% for error in login_form.captcha.errors %}
+                        <div class="red"><strong>{{error}}</strong></div>
+                        {% endfor %}
                     </div>
                     <div class="form-group">
                         <div class="row">

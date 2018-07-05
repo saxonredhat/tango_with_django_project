@@ -1,8 +1,8 @@
 <br>
 <div class="article_list">
 {% for article in articles %}
-        <!--包含用户search_article_entry的模板-->
-        {% include 'blog/search_article_entry.html' %}
+        <!--包含用户search_article_banner的模板-->
+        {% include 'blog/search_article_banner.html' %}
 {% empty %}
 未搜索到相关文章
 {% endfor %}
