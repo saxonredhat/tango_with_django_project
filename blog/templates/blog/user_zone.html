@@ -150,8 +150,17 @@
                     </div>
                     <hr style="border: 1px solid #eeeeee;">
                     <div style="padding:10px;">
+                       账号 : {{get_user.username}}
+                    </div>
+                     <div style="padding:10px;">
+                       昵称 : {{get_user.user_info.nickname}}
+                    </div>
+                    <div style="padding:10px;">
+                       文章 : {{get_user.article_set.all.count}} 篇
+                    </div>
+                    <div style="padding:10px;">
                        关注 :
-                        {% for follower in get_user.followers.all %}
+                        {% for follower in get_user.followers.all|slice:":10" %}
                             {% if forloop.last %}
                                 <a href="{% url 'blog:user_zone' follower.followee.id %}"
                                    name="follower_name" class="cut_name" user_id="{{follower.followee.id}}">
@@ -165,13 +174,17 @@
                                     <span class="cut_name">{{nickname|cut_name}}</span><span class="cut_name_dot">{{nickname|cut_name_dot}}</span><span class="get_name_tail" hidden>{{nickname|get_name_tail}}</span>
                                 </a> |
                             {% endif %}
+
                         {% empty %}
                             无
                         {% endfor %}
+                        {% if get_user.followers.all.count > 10 %}
+                            <a href="{% url 'blog:user_zone' get_user.id %}?page_type=followees">
+                               等
+                            </a>
+                        {% endif %}
                     </div>
-                    <div style="padding:10px;">
-                       文章 : {{get_user.article_set.all.count}} 篇
-                    </div>
+
                     <div style="padding:10px;">
                         个人网站 : <a href="{{get_user.user_info.website}}">{{get_user.user_info.website}}</a>
                     </div>
@@ -199,12 +212,15 @@
             <div class="row" style="border-left: 3px solid #4285f4;padding-left:5px;margin-top:25px;margin-bottom:8px;"> 最近来访</div>
             <div class="row" style="border: 1px solid #eeeeee;border-radius:10px;">
                 {% for visit_history in get_user.interviewee.all|slice:":12" %}
+                    {% if forloop.counter == 7 %}
+                        <div class="col-md-12"></div>
+                    {% endif %}
                     <div class="col-md-2 " style="border: 0px solid #8c8b8b;">
-                    <a href="{% url 'blog:user_zone' visit_history.visitor.id %}">
+                    <a href="{% url 'blog:user_zone' visit_history.visitor.id %}" class="cut_name" user_id="{{visit_history.visitor.i}}">
 
                         {% if visit_history.visitor.user_info.picture %}
-                            <div class="row text text-center" style="padding-top:19%">
-                                <img class="img-circle" height="33" width="33" src="{{ visit_history.visitor.user_info.picture.url }}">
+                            <div class="row text text-center" style="padding-top:18%">
+                                <img class="img-circle" height="32" width="32" src="{{ visit_history.visitor.user_info.picture.url }}">
                             </div>
                         {% else %}
                             <div class="row text text-center" style="padding-top:18%">
@@ -212,7 +228,8 @@
                             </div>
                         {% endif %}
                         <div class="row text text-center" style="padding-top:19%">
-                            {% get_nickname visit_history.visitor.id %}
+                            {% get_nickname visit_history.visitor.id as visit_nickname %}
+                            <span class="cut_name">{{visit_nickname|cut_name}}</span><span class="cut_name_dot">{{visit_nickname|cut_name_dot}}</span><span class="get_name_tail" hidden>{{visit_nickname|get_name_tail}}</span>
                         </div>
                     </a>
                     </div>

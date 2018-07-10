@@ -149,9 +149,7 @@
         function getMessages(url,method){
             var time_stamp='';
             var time_stamp_node=document.getElementById("time_stamp")
-            console.log(time_stamp_node);
             if (time_stamp_node !== null){
-                console.log('enter');
                 time_stamp=time_stamp_node.getAttribute("time_stamp");
                 url=url+'?timestamp='+time_stamp;
             }
@@ -188,7 +186,8 @@
                 var user_id = right_windows_demo.getAttribute("user_id");
                 var get_url= '/blog/user_get_message/user/'+user_id
                 var request_method = 'get';
-                setInterval(function(){getMessages(get_url,request_method);}, 1000);
+                getMessages(get_url,request_method);
+                setInterval(function(){getMessages(get_url,request_method);}, 3000);
             }
         }
 
@@ -225,6 +224,11 @@
             var request_method = $(this).attr("method");
             //序列化form的参数
             var form_data = $(this).serialize();
+            var send_message_content=$("#user_message_textarea").val();
+            var is_contain_email=send_message_content.indexOf("@email");
+            //清空当前form
+            //$(this)[0].reset();
+            $(".emojionearea-editor").html('');
             //把当前的this赋值给parent_this
             var parent_this=this
             //ajax请求
@@ -236,18 +240,25 @@
                 if(response == '403'){
                     window.location.replace('/blog/login/');
                 }
-                $(parent_this)[0].reset();
-                $(".emojionearea-editor").html('');
-                //把用户发送的消息附加到当前对话框
-                $("#right-windows-demo").append(response);
-                //转换emoji表情成图片
-                $(".user_message_content").each(function(){
-                    //html转义
-                    var value = $(this).text();
-                    var code = $('<div/>').text(value).html();
-                    $(this).html(emojione.toImage(code));
-                });
-
+                if(response == '999'){
+                    $("#info_notice").html("<span style='color:red;'>提示:您在5分钟内操作过，请稍后再试！</span>");
+                }
+                else{
+                    //把用户发送的消息附加到当前对话框
+                    $("#right-windows-demo").append(response);
+                    //转换emoji表情成图片
+                    $(".user_message_content").each(function(){
+                        //html转义
+                        var value = $(this).text();
+                        var code = $('<div/>').text(value).html();
+                        $(this).html(emojione.toImage(code));
+                    });
+                    if(is_contain_email>=0){
+                        $("#info_notice").html("<span style='color:green;'>提示:你的操作给对方成功发送了一封邮件！</span>");
+                    }else{
+                        $("#info_notice").html("");
+                    }
+                }
               });
         });
     });

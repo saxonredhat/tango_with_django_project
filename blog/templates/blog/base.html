@@ -7,11 +7,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
-    <meta name='viewport' content='width=device-width; initial-scale=1.0;
-         maximum-scale=1.0; user-scalable=0;' />
+    <meta name='viewport' content='width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0' />
         <meta name='apple-mobile-web-app-capable' content='yes' />
     {% block title %}
-    <title>Title</title>
+    <title>ITISME博客</title>
     {% endblock %}
     {% block base_css %}
         <link href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
@@ -24,6 +23,7 @@
         <!--emojionearea-->
         <link rel="stylesheet" type="text/css" href="{% static 'css/emojionearea.min.css' %}">
         <script type="text/javascript" src="{% static 'js/emojionearea.min.js' %}"></script>
+
 
         <!--code高亮显示-->
         <!--<link rel="stylesheet" href="{% static 'css/highlight/atom-one-dark.css' %}">-->
@@ -368,7 +368,6 @@
                 top: 0;
             }
 
-
             .bg-tag-xs-green{
                     background-color:#5CB85C;
                     color:white;
@@ -574,7 +573,7 @@
                   <form class="navbar-form" action="{% url 'blog:user_search' %}" method="get">
                     <div class="form-group">
                         <div class="input-group">
-                            <input type="text" class="form-control" id="q" name="q" placeholder="搜索用户、文章" />
+                            <input type="text" class="form-control" id="q" name="q" placeholder="搜索用户、文章" value="{% if q %}{{q}}{% endif %}"/>
                             <span class="input-group-btn">
                                 <button class="btn" type="submit"><span class="glyphicon glyphicon-search"></span></button>
                             </span>
@@ -722,7 +721,7 @@
 
                   });
             }
-            setInterval(function(){getMessagesCount();}, 3000);
+            setInterval(function(){getMessagesCount();}, 10000);
         });
     </script>
     {% block footer %}
@@ -731,7 +730,7 @@
 
             <footer class="footer visible-md visible-lg">
                 <div class="col-md-12 text text-center">
-                    <span class="hover-font">Copyright © 2005-2018 SYS_BLOG.COM 版权所有 粤ICP证xxxxxx号</span>
+                    <span class="hover-font">Copyright © 2018 ITISME.CO 版权所有 </span>
                 </div>
             </footer>
 

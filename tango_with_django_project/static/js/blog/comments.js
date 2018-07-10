@@ -87,22 +87,22 @@ $(document).ready(function(){
             }).done(function(response){
                 if(response == '403'){
                     window.location.replace('/blog/login/');
-                }
-                //把响应的response放到id为comment_all节点内最后
-                var order=$("#comment_order").attr("value");
-                response=emojione.toImage(response);
-                if(order=='desc'){
-                    $("#comment_order").prepend(response);
                 }else{
-                    $("#comment_order").append(response);
+                    //把响应的response放到id为comment_all节点内最后
+                    var order=$("#comment_order").attr("value");
+                    response=emojione.toImage(response);
+                    if(order=='desc'){
+                        $("#comment_order").prepend(response);
+                    }else{
+                        $("#comment_order").append(response);
+                    }
+
+                    //清空当前的form
+                    var comment_counts=$("#comment_counts");
+                    $(parent_this)[0].reset();
+                    $(".emojionearea-editor").html('');
+                    comment_counts.text(parseInt(comment_counts.text())+1)
                 }
-
-                //清空当前的form
-                var comment_counts=$("#comment_counts");
-                $(parent_this)[0].reset();
-                $(".emojionearea-editor").html('');
-                comment_counts.text(parseInt(comment_counts.text())+1)
-
               });
         });
         //回复用户评论表单,通过on关键字动态添加元素绑定事件
@@ -125,20 +125,21 @@ $(document).ready(function(){
             }).done(function(response){
                 if(response == '403'){
                     window.location.replace('/blog/login/');
+                }else{
+                    //把响应的response放到子节点的前面
+                    response=emojione.toImage(response);
+                    $(parent_this).after(response);
+                    //alert(response);
+                    //获取当前评论的回复数
+                    var comment_count=$(parent_this).parents(".article_comment").find(".replay_counts");
+                    //把当前评论的回复数+1
+                    comment_count.text(parseInt(comment_count.text())+1);
+                    //清空当前的form
+                    $(parent_this)[0].reset();
+                    $(".emojionearea-editor").html('');
+                    //隐藏当前form
+                    $(parent_this).hide();
                 }
-                //把响应的response放到子节点的前面
-                response=emojione.toImage(response);
-                $(parent_this).after(response);
-                //alert(response);
-                //获取当前评论的回复数
-                var comment_count=$(parent_this).parents(".article_comment").find(".replay_counts");
-                //把当前评论的回复数+1
-                comment_count.text(parseInt(comment_count.text())+1);
-                //清空当前的form
-                $(parent_this)[0].reset();
-                $(".emojionearea-editor").html('');
-                //隐藏当前form
-                $(parent_this).hide();
               });
         });
         //回复用户回复表单,通过on关键字动态添加元素绑定事件
@@ -161,19 +162,20 @@ $(document).ready(function(){
             }).done(function(response){
                 if(response == '403'){
                     window.location.replace('/blog/login/');
+                }else{
+                    //把响应的response放到子节点的前面
+                    response=emojione.toImage(response);
+                    $(parent_this).parents(".comment_user_parent").children('.user_comment').eq(0).before(response);
+                    //获取当前评论的回复数
+                    var comment_count=$(parent_this).parents(".article_comment").find(".replay_counts");
+                    //把当前评论的回复数+1
+                    comment_count.text(parseInt(comment_count.text())+1);
+                    //清空当前的form
+                    $(parent_this)[0].reset();
+                    $(".emojionearea-editor").html('');
+                    //隐藏当前form
+                    $(parent_this).hide();
                 }
-                //把响应的response放到子节点的前面
-                response=emojione.toImage(response);
-                $(parent_this).parents(".comment_user_parent").children('.user_comment').eq(0).before(response);
-                //获取当前评论的回复数
-                var comment_count=$(parent_this).parents(".article_comment").find(".replay_counts");
-                //把当前评论的回复数+1
-                comment_count.text(parseInt(comment_count.text())+1);
-                //清空当前的form
-                $(parent_this)[0].reset();
-                $(".emojionearea-editor").html('');
-                //隐藏当前form
-                $(parent_this).hide();
               });
         });
         //点赞用户评论,通过on关键字动态添加元素绑定事件
@@ -322,7 +324,7 @@ $(document).ready(function(){
                 type: request_method,
             }).done(function(response){
                 if(response == '403'){
-                    //window.location.replace('/blog/login/');
+                    window.location.replace('/blog/login/');
                 }
                 if(response == 'favorite'){
                     $(parent_this).addClass('gold-color');
@@ -428,11 +430,11 @@ $(document).ready(function(){
 
         //显示用户的全名,通过on关键字动态添加元素绑定事件(暂时没有使用)
         $("body").on("mouseenter", ".cut_name", function(event) {
-            $(this).children(".cut_name_dot").hide();
-            $(this).children(".get_name_tail").show();
+            $(this).find(".cut_name_dot").hide();
+            $(this).find(".get_name_tail").show();
         });
         $("body").on("mouseleave", ".cut_name", function(event) {
-            $(this).children(".cut_name_dot").show();
-            $(this).children(".get_name_tail").hide();
+            $(this).find(".cut_name_dot").show();
+            $(this).find(".get_name_tail").hide();
         });
 });

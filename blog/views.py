@@ -15,13 +15,15 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from guardian.shortcuts import assign_perm,remove_perm
 from itsdangerous import URLSafeTimedSerializer as utsr
 from django.conf import settings as django_settings
-from django.core.mail import send_mail
+#from django.core.mail import send_mail
+from mytools import send_mail
 from image_cropping.utils import get_backend
 from easy_thumbnails.files import get_thumbnailer
 from markdown import markdown
 from django.utils import timezone
 from django.db.models import Q
 from django.conf import settings
+from datetime import datetime, timedelta
 import string,random
 import time
 import mytools
@@ -895,12 +897,13 @@ def user_search(request):
         page = request.GET.get('page', 1)
         #获取查询的用户关键字
         if q:
-            query_user_info = [user_info.user.id for user_info in UserInfo.objects.filter(nickname__contains=q)]
-            query_users = User.objects.filter(Q(username__contains=q) | Q(id__in=query_user_info)).filter(is_active=1)
-            query_articles = Article.objects.filter(Q(title__contains=q) | Q(content__contains=q))
+            query_user_info = [user_info.user.id for user_info in UserInfo.objects.filter(nickname__icontains=q)]
+            query_users = User.objects.filter(Q(username__icontains=q) | Q(id__in=query_user_info))
+            query_articles = Article.objects.filter(Q(title__icontains=q) | Q(content__icontains=q) | Q(tags__name__icontains=q) | Q(author__id__in=query_user_info) | Q(author__username__icontains=q)).distinct()
         else:
             query_users = User.objects.all()
             query_articles = Article.objects.all()
+        query_users=query_users.filter(is_active=1)
         #获取前8个用户
         users_list_limit = query_users[:8]
         #排序
@@ -942,13 +945,15 @@ def user_search(request):
         #分页对象添加变量
         articles_list.search_category=search_category
         articles_list.tag=tag_name
+        articles_list.q=q
         context_dict['articles'] = articles_list
         context_dict['users_limit'] = users_list_limit
         context_dict['categories'] = categories
     if page_type == 'user':
         users_list = []
-        user_info_list = [user_info.user.id for user_info in UserInfo.objects.filter(nickname__contains=q)]
-        query_list = User.objects.filter(Q(username__contains=q,is_active=1)|Q(id__in=user_info_list,is_active=1))
+        user_info_list = [user_info.user.id for user_info in UserInfo.objects.filter(nickname__icontains=q)]
+        query_list = User.objects.filter(Q(username__icontains=q,is_active=1)|Q(id__in=user_info_list,is_active=1))
+
         #去重
         query_list=list(set(query_list))
         if query_list:
@@ -963,6 +968,7 @@ def user_search(request):
         except EmptyPage:
             users_list = paginator.page(paginator.num_pages)
         users_list.page_type = 'user'
+        users_list.q=q
         context_dict['users'] = users_list
     context_dict['page_type'] = page_type
     context_dict['q'] = q
@@ -1060,7 +1066,19 @@ def user_send_message(request,recevie_user_id):
                 task_user=User.objects.get(id=recevie_user_id)
                 #查询当前用户收到指定用户的信息，和发送给指定用户的信息
                 message_content=request.POST.get('message_content')
-                print request.POST
+                if '@email' in message_content:
+                    at_email=False
+                    time_threshold = datetime.now() - timedelta(minutes=5)
+                    last_one_minute_message = Message.objects.filter(send_user=myuser,receive_user=task_user,created_at__gt=time_threshold)
+                    for message in last_one_minute_message:
+                        if '@email' in message.content:
+                            at_email=True
+                    if at_email:
+                        return HttpResponse('999')
+                    else:
+                        subject='您好,{0} @了你 [blog.itisme.co]'.format(myuser.username)
+                        text='{0}给你发送一条私信，请登录网站查看: https://blog.itisme.co'.format(myuser.username)
+                        send_mail(subject, text, settings.DEFAULT_FROM_EMAIL, [task_user.email], fail_silently=False)
                 new_message = Message(send_user=myuser,receive_user=task_user,content=message_content)
                 new_message.save()
                 return render(request,'blog/user_send_message.html',{'new_message': new_message})

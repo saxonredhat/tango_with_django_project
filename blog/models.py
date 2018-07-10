@@ -7,6 +7,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 from image_cropping import ImageRatioField
 from django.contrib.auth.models import User
 from datetime import datetime
+from time import timezone
 from django.db.models import Q
 # Create your models here.
 import sys
@@ -79,7 +80,7 @@ class ArticleManager(models.Manager):
         return super(ArticleManager,self).get_queryset().filter(~Q(is_deleted=1))
 
 class Article(models.Model):
-    title = models.CharField('文章标题', max_length=50)
+    title = models.CharField('文章标题', max_length=200)
     #content = RichTextUploadingField('文章内容', config_name='default_ckeditor')
     type = models.IntegerField('文章分类', default=1)
     content = models.TextField('文章内容')

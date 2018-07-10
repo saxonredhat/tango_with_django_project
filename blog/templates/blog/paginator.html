@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-md-5">
         {% if paginator.has_previous %}
-            <a href="?page={{ paginator.previous_page_number }}{% if paginator.page_type %}&page_type={{paginator.page_type}}{% endif %}{% if paginator.tag %}&tag={{paginator.tag}}{% endif %}{% if paginator.search_custom_category %}&search_custom_category={{paginator.search_custom_category}}{% endif %}{% if paginator.search_category %}&search_category={{paginator.search_category}}{% endif %}">
+            <a href="?page={{ paginator.previous_page_number }}{% if paginator.q %}&q={{ paginator.q }}{% endif %}{% if paginator.page_type %}&page_type={{paginator.page_type}}{% endif %}{% if paginator.tag %}&tag={{paginator.tag}}{% endif %}{% if paginator.search_custom_category %}&search_custom_category={{paginator.search_custom_category}}{% endif %}{% if paginator.search_category %}&search_category={{paginator.search_category}}{% endif %}">
                 <button class="btn btn-primary">上一页</button>
             </a>
         {% endif %}
@@ -11,7 +11,7 @@
         </span>
 
         {% if paginator.has_next %}
-            <a href="?page={{ paginator.next_page_number }}{% if paginator.page_type %}&page_type={{paginator.page_type}}{% endif %}{% if paginator.tag %}&tag={{paginator.tag}}{% endif %}{% if paginator.search_custom_category %}&search_custom_category={{paginator.search_custom_category}}{% endif %}{% if paginator.search_category %}&search_category={{paginator.search_category}}{% endif %}">
+            <a href="?page={{ paginator.next_page_number }}{% if paginator.q %}&q={{ paginator.q }}{% endif %}{% if paginator.page_type %}&page_type={{paginator.page_type}}{% endif %}{% if paginator.tag %}&tag={{paginator.tag}}{% endif %}{% if paginator.search_custom_category %}&search_custom_category={{paginator.search_custom_category}}{% endif %}{% if paginator.search_category %}&search_category={{paginator.search_category}}{% endif %}">
                 <button class="btn btn-primary">下一页</button>
             </a>
         {% endif %}
@@ -25,6 +25,9 @@
                     {% endif %}
                     {% if paginator.tag %}
                     <input  type="text" name="tag" value="{{paginator.tag}}" hidden>
+                    {% endif %}
+                    {% if paginator.q %}
+                    <input  type="text" name="q" value="{{paginator.q}}" hidden>
                     {% endif %}
                     {% if paginator.search_custom_category %}
                     <input  type="text" name="search_custom_category" value="{{paginator.search_custom_category}}" hidden>

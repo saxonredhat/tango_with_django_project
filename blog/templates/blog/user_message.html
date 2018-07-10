@@ -9,6 +9,8 @@
 <script type="text/javascript" src="{% static 'js/emojionearea.min.js' %}"></script>
 <div class="row">
     <div class="col-md-12">
+        <span style="color:red;">[注意:如果对方不在线，你可以发送字符"@email"，系统会发邮件提醒他！]</span>
+        <br>
         <strong>正在和<span class="gold-color">{% get_nickname talk_user.id %}</span>聊天</strong>
     </div>
 </div>
@@ -32,6 +34,11 @@
         </div>
     </div>
 </form>
+<div class="row">
+    <div class="col-md-12" id="info_notice">
+
+    </div>
+</div>
 <script>
     $(document).ready(function(){
         //绑定评论框emojioneArea

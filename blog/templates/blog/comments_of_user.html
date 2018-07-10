@@ -8,7 +8,7 @@
                     <img class="img-circle" height="30" width="30" src="{{ comment_user.user.user_info.picture.url }}">
                 </a>
             {% else %}
-                <a class="show_hand visible-md visible-lg" href="{% url 'blog:user_zone' comment_user.user.id %}">
+                <a class="show_hand" href="{% url 'blog:user_zone' comment_user.user.id %}">
                     <span class="glyphicon glyphicon-user"></span>
                 </a>
             {% endif %}
@@ -29,7 +29,6 @@
                             打印@+回复者用户名
             -->
             {% if article.author == comment_user.user %}
-
                     <span class="text text-primary">
                         <strong><a class="show_hand" href="{% url 'blog:user_zone' comment_user.user.id %}"><span class="gold-color box-radius-3">作者</span> {% get_nickname comment_user.user.id %}:</a></strong>
                     </span>
