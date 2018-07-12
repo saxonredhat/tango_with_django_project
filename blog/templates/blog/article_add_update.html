@@ -70,7 +70,7 @@
 
                         <div class="form-group">
                             <div class="row">
-                                <div class="col-md-12">
+                                <div class="col-md-12" id="markdown_content_edit">
                                      <label for="{{ form.content.id_for_label }}">文章内容 (支持markdown)</label>
                                     {% render_field form.content class="form-control" data-provide="markdown" rows="30" %}
                                     {% for error in form.content.errors %}
@@ -121,7 +121,8 @@
                 </div>
                 <div class="col-md-6" >
                     <label>markdown效果展示</label>
-                    <div id="markdown-content" class="bg-info" style="border-radius:15px; padding:15px;">
+                    <span class="show_hand bg-tag-xs-green bg-tag-sm-green" id="show_content">展示全部</span>
+                    <div id="markdown-content" class="bg-gray-light box-shadow-lg p-lg p-xs m-xs box-radius-sm" style="overflow-y: hidden;">
                     </div>
                 </div>
             </div>
@@ -133,6 +134,7 @@
             //var value = $('#id_content').val();
             // var code = $('<div/>').text(value).html();
             $('#markdown-content').html(emojione.toImage(marked($('#id_content').val(),{sanitize: true})));
+            //渲染markdown展示区的内容
             $('pre code[class*=language]').each(function(i, block) {
                 hljs.highlightBlock(block);
                 //hljs.lineNumbersBlock(block);
@@ -150,6 +152,7 @@
                     //hljs.lineNumbersBlock(block);
                     //hljs.initLineNumbersOnLoad();
                 });
+
                 //$('#markdown-content').html(emojione.toImage(marked($(this).val(),{sanitize: true})));
             });
 
@@ -177,6 +180,28 @@
                     //hljs.initLineNumbersOnLoad();
                 });
                 //$('#markdown-content').html(emojione.toImage(marked($('#id_content').val(),{sanitize: true})));
+            });
+            //初始化展示窗口参数
+            $("#markdown-content").height($("#markdown_content_edit").height());
+            $('#id_content').scroll(function(e){
+                 var scroll_percent=($("#id_content").scrollTop()+$("#id_content").prop("clientHeight"))/$("#id_content").prop("scrollHeight");
+                 var scroll_top=$("#markdown-content").prop("scrollHeight")*scroll_percent-$("#markdown-content").prop("clientHeight");
+                 console.log(scroll_percent);
+                 $("#markdown-content").scrollTop(scroll_top);
+            });
+            $('#show_content').click(function(e){
+                var get_value=$(this).text();
+                if ( get_value == '展示全部' ){
+                    $(this).text("同步展示");
+                    console.log($("#id_content").prop("scrollHeight"));
+                    $('#markdown-content').height("");
+                    $('#markdown-content').css("overflow-y","");
+                }else{
+                    $(this).text("展示全部");
+                    $("#markdown-content").height($("#markdown_content_edit").height());
+                    $('#markdown-content').css("overflow-y","hidden");
+                }
+
             });
         });
     </script>
