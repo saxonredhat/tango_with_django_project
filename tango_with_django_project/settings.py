@@ -239,8 +239,8 @@ CAPTCHA_OUTPUT_FORMAT=u'%(text_field)s %(image)s %(hidden_field)s '
 #QQ邮箱配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.qq.com'
-EMAIL_HOST_USER = 'sheyinsong@qq.com'
-DEFAULT_FROM_EMAIL = 'sheyinsong@qq.com'
+EMAIL_HOST_USER = 'admin'
+DEFAULT_FROM_EMAIL = 'admin@itisme.co'
 EMAIL_HOST_PASSWORD = 'vgvymfxafkofbifa'
 EMAIL_PORT = 25
 EMAIL_USE_TLS = False

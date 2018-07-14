@@ -63,6 +63,24 @@
         </div>
     </div>
     <br>
+    <div class="row m-xs">
+        <div class="col-md-10 col-md-offset-1">
+            <strong>文章分类 </strong>
+            <a href="{% url 'blog:user_search' %}?page_type=article&search_category={{ article.category.id }}">
+                <span class="bg-tag-sm-blue bg-tag-sm-blue show_hand">
+                    <strong>{{article.category.name}}</strong>
+                </span>
+            </a>
+            &nbsp;&nbsp;&nbsp;
+            <strong>个人分类 </strong>
+            <a href="{% url 'blog:user_zone' article.author.id %}?page_type=articles&search_custom_category={{ article.custom_category.id }}">
+                <span class="bg-tag-sm-blue bg-tag-sm-blue show_hand">
+                    <strong>{{article.custom_category.name}}</strong>
+                </span>
+            </a>
+        </div>
+    </div>
+    <br>
     <!--显示用户点赞区域-->
     <div class="row font-sm font-xs">
         <div class="col-md-6 col-md-offset-1">

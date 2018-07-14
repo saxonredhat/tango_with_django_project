@@ -606,7 +606,7 @@ def user_articles(request,user_id):
             context_dict['selected_custom_category_list'] = selected_custom_category_list
 
         article_counts_of_custom_category_list = {}
-        custom_categories = CustomCategory.objects.filter(user=get_user)
+        custom_categories = CustomCategory.objects.filter(user=get_user).order_by('id')
         for article in query_articles:
             category_counts = article_counts_of_custom_category_list.get(article.custom_category.name, 0)
             if not category_counts:
@@ -1098,7 +1098,7 @@ def user_un_follower(request,user_id):
 def article_custom_categories_list(request):
     context_dict={}
     user=request.user
-    custom_categories=CustomCategory.objects.filter(user=user,).filter(~Q(default=1))
+    custom_categories=CustomCategory.objects.filter(user=user,).filter(~Q(default=1)).order_by('id')
     context_dict['custom_categories']=custom_categories
     return render(request,'blog/article_custom_categories_list.html',context_dict)
 
@@ -1111,11 +1111,10 @@ def article_custom_categories_add(request):
             # 获取添加个人分类的数据
             if request.method == 'GET':
                 custom_categories = request.GET.get('custom_categories')
-                print custom_categories
-                print list(set(filter(None,re.split('[;,]',custom_categories))))
                 for category_name in list(set(filter(None,re.split('[;,]',custom_categories)))):
                     try:
-                        custom_category = CustomCategory.objects.get(name=category_name)
+                        custom_catego
+                        ry = CustomCategory.objects.get(name=category_name)
                     except Exception, e:
                         print Exception, ":", e
                         custom_category = CustomCategory(name=category_name)
@@ -1421,7 +1420,7 @@ def user_zone(request,user_id):
             context_dict['selected_custom_category_list'] = selected_custom_category_list
 
         article_counts_of_custom_category_list = {}
-        custom_categories = CustomCategory.objects.filter(user=get_user)
+        custom_categories = CustomCategory.objects.filter(user=get_user).order_by('id')
         for article in query_articles:
             category_counts = article_counts_of_custom_category_list.get(article.custom_category.name, 0)
             if not category_counts:

@@ -91,7 +91,7 @@ class Article(models.Model):
     views = models.IntegerField(default=0)
     pulished_date = models.DateTimeField('发布时间',default=datetime.now)
     is_top = models.BooleanField('置顶',  default=0)
-    is_public = models.BooleanField('公开', default=1 )
+    is_public = models.BooleanField('公开', default=1 ) # 0:不公开 1：公开
     is_forbbiden_comment = models.BooleanField('禁止评论',  default=0)
     is_deleted = models.BooleanField('删除',  default=0) # 0：不删除 1：删除
     tags = models.ManyToManyField(Tag)
